@@ -72,9 +72,9 @@ export default function ScrollExperience() {
         
         {/* Zoom Section */}
        <div ref={zoomContainerRef} className="zoom-container">
-          <h1 ref={headingRef} className="heading-zoom zoom-item font-semibold">
-            Defy physical thresholds.<br/> Ascend with the <span className="text-[#6b3fa0]">Purple Club.</span>
-          </h1>
+          <h3 ref={headingRef} className="heading-zoom zoom-item font-semibold">
+  Every Sunday, a new story.<br/> Moments from the <span className="text-[#6b3fa0]">Purple Club.</span>
+</h3>
           <div className="zoom-item" data-layer="2">
             <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=800&auto=format&fit=crop" alt="Person tying running shoes on a track" />
           </div>
@@ -115,8 +115,8 @@ export default function ScrollExperience() {
 
         {/* Text Reveal Section */}
         <section ref={sectionStickRef} className="section-stick min-h-screen bg-[#d4ff3f] flex justify-center items-center text-[#0a090a]">
-          <p ref={textRef} className="opacity-reveal text-3xl sm:text-7xl text-center w-3/5">
-            If you’re lucky, you'll find a community that pushes your limits, moves your feet, and changes everything. Welcome to Purple Club.
+          <p ref={textRef} className="opacity-reveal text-3xl sm:text-7xl text-center w-90 sm:w-3/5">
+          Healthy, active living is contagious. Show up on a Sunday, move with your community, and let your lifestyle inspire others. Welcome to Purple Club.
           </p>
         </section>
         

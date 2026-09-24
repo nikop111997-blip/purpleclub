@@ -6,179 +6,199 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const sectionsData = [
   {
-    title: "Welcome to the chill zone",
+    title: "Welcome to Purple Club",
     bgColor: "#6b3fa0",
     content: (
       <>
         <p>
-          Do your own thing, and let others do theirs. If they're not hurting
-          anyone, what's the problem? Chill people don't look for reasons or
-          opportunities to hate on others just for being different. There's no
-          reason to bully or tread on other people's territory. Try to be happy
-          with yourself and encourage self-love in others, too and remember be
-          yourself.
+          Somewhere along the way, being unhealthy became normal. Half of
+          India's adults miss the WHO minimum of 150 active minutes a week,
+          up from about one in five in 2000. Society celebrates luxury,
+          consumption, entertainment and comfort, while being active,
+          disciplined and energetic has become unusual. India doesn't need
+          another fitness club. It needs a reason to be proud of living well.
         </p>
 
         <p>
-          Unless someone is rude to you, your day should go by smoothly by
-          being polite, considerate, and nice. Chill people don't antagonize
-          for the sake of it or stir up a bunch of negative emotions by being
-          jerks; chill people are generally kind and get along well with
-          others. However, try to avoid going overboard so you don't become a
-          people-pleaser or pushover.
+          Meet Purple Club. Created by Kayapalat, it is a coach-led,
+          community-powered active lifestyle movement. Trained Kayapalat
+          Coaches run weekly Sunday experiences across multiple cities, and
+          nobody is asked to join anything. You are invited to an experience,
+          and the experience does the selling.
         </p>
 
         <p>
-          Don't sweat the small stuff. Take your life in stride. Roll with the
-          punches and be accepting of the little things life throws your way,
-          reserving your passion for what matters to you most. This is pretty
-          much the defining feature of a chill person.
+          Get High on Life. Our tagline is about living, and fitness is only
+          part of it. We believe healthy active living is contagious and is
+          the new cool. Our mission is to make it fun, social, visible and
+          accessible to every Indian, and to build India's largest coach-led
+          active lifestyle movement.
         </p>
       </>
     ),
   },
 
   {
-    title: "Prepare your chill",
+    title: "Why purple?",
     bgColor: "#6b3fa0",
     content: (
       <>
         <p>
-          Be fun to hang out with. Don't be someone who is really boring and
-          afraid to try new things. Go out and do stuff you consider fun and be
-          someone that other people want to spend time with. Talk with people,
-          go see movies, play games, go on hikes or go camping: it's all good!
+          Choose to stand apart. Historically, purple has stood for
+          distinction, individuality, creativity, non-conformity and the
+          courage to stand apart, which is exactly what it takes to live
+          differently when being unhealthy is normal. Every great movement has
+          a colour, like the Yellow Jersey, the Pink Ribbon, Red Bull and Blue
+          Zones. Indian fitness already uses red, black, orange and blue, so
+          we chose the one colour nobody owns.
         </p>
 
         <p>
-          Make and follow your own trends. Be unique. A chill person doesn't
-          feel the need to follow all the trends set by others, they just do
-          what they want and what makes them happy. This laid back attitude
-          inspires others to be more laid back and people will want to be
-          around you more often.
+          Become a Purple Person. Instead of saying “I go to a fitness club”,
+          a member says “I am part of the Purple Movement.” Purple People
+          stand out, inspire others, and are healthy, active and alive. They
+          live by seven core values: move daily, choose growth, lead by
+          example, put community first, keep fun in it, celebrate progress,
+          and put transformation before transaction.
         </p>
       </>
     ),
   },
 
   {
-    title: "The best chills are those most chilled",
+    title: "Every Sunday, one ritual",
     bgColor: "#6b3fa0",
     content: (
       <>
         <p>
-          Pick your battles. Some things in life are bound to upset or anger
-          you, and while it's okay to have those feelings, it's best not to
-          nosedive into every argument that presents itself. Stop, take a deep
-          breath, and decide whether an unpleasant situation is worth getting
-          into. Catch yourself before you get stuck in a pointless argument or
-          a big scene. From here, you can redirect the situation to be in your
-          favor.
+          Show up for the same 90 minutes. Every Sunday follows one standard
+          format in every city: welcome and registration, warm-up, a
+          signature workout, a community activity, meditation or recovery, a
+          Purple fueling experience, a transformation story, an introduction
+          to Kayapalat, group photos and a next-event promotion. That
+          consistency makes it easy to repeat and easy to trust.
         </p>
 
         <p>
-          Redirect your thoughts. Distract yourself from your immediate
-          feelings by redirecting your thoughts. There are lots of ways you can
-          do this. You can count your breaths. You can even sing a song (inside
-          your head is probably better than out loud).
+          Pick your Sunday. One identity, eight experiences: Rise (stair
+          climbing, hill workouts, strength endurance), Alive (breathwork,
+          meditation, mobility, recovery), Bounce (fun functional fitness,
+          games, partner challenges), Unpause (beginner-friendly, special
+          invite and comeback day), Party Pace (easy run and walk-run), Speed
+          Thrills (sprint challenges), Movement Magic (functional movement
+          training) and Smart Strength (stairs plus bodyweight training).
+        </p>
+
+        <p>
+          Come to the Purple Party. Once a month, the whole community and
+          their families come together for dance fitness, music, games,
+          recognition, community awards and transformation stories. It costs
+          ₹499 and includes 1 free guest pass.
         </p>
       </>
     ),
   },
 
   {
-    title: "Chill all day and night",
+    title: "From guest to Purple Person",
     bgColor: "#6b3fa0",
     content: (
       <>
         <p>
-          Chew some gum. Studies have shown that we can reduce a significant
-          amount of stress by chewing gum. Pop a stick of that winter fresh if
-          you’re just not feeling calm in the moment.
+          Start free. Your first experience is complimentary, by invitation
+          only, through a Purple Person or a KP Coach. Love it, and you move
+          to membership at ₹1,499: the Purple Kit (T-shirt and shaker), four
+          Sundays, four new guest passes, a body composition assessment,
+          fueling, community and recognition. After that, recharge for ₹1,199
+          for four more Sundays, four new guest passes, fueling, community
+          and recognition.
         </p>
 
         <p>
-          Evaluate how much this matters. Think about how much your problem
-          matters in the grand scheme of things. Will it still affect you a
-          year from now? Does it even help to be so hard on yourself? If you
-          made it out alive, chances are you’ll find a way to get through it
-          and move on to more happiness and hardships.
+          Bring someone along. Guest passes let you invite someone new every
+          Sunday, and members and coaches also get a 20% discount. Everyone
+          registers first, 100% online. Members invite friends, bring family
+          and share experiences, while coaches host experiences, convert
+          prospects and develop leaders.
         </p>
 
         <p>
-          Do what your grandma would do. By the time we’re much older, we
-          usually don’t get so worried when things don’t go our way, because we
-          get used to it. Think of how your grandma would react in a situation
-          and do that. She’d probably say something funny and then move on to
-          the next thing, which is really the best thing to do if you want to
-          stay sane.
+          Grow with your impact. Bring 1 new Purple Person and you become a
+          Purple Inspirer: “I inspired someone to join PC.” Bring 10 and you
+          become a Purple Ambassador: “My lifestyle is becoming contagious.”
+          Bring 100 and you become a Purple Icon, the highest recognition in
+          the movement.
         </p>
       </>
     ),
   },
 
   {
-    title: "When the chill gets chiller",
+    title: "The front door to Kayapalat",
     bgColor: "#6b3fa0",
     content: (
       <>
         <p>
-          Go somewhere else. If you just can’t handle the situation, take
-          yourself out of it. No reason to stick around if you’re going to lose
-          your cool and make some mistakes. Remove yourself from the room for a
-          few minutes and then try again once you’ve managed to work through
-          the initial anger or fear (or whatever you’re feeling).
+          One loop that keeps feeding itself. Purple Club attracts, Kayapalat
+          transforms, and Coaches build communities. Guests who want more move
+          into the coaching system, transformed members become Inspirers,
+          Ambassadors and Coaches, and local leaders run their own city
+          clubs, which fill Purple Club again.
         </p>
 
         <p>
-          Stay away from toxic people and situations. Avoiding such things is
-          the best way to be chill in life. Just say no to all the bullies,
-          liars, and trash-talkers. You don’t need that in your life! Cut toxic
-          people out of your life and don’t go around causing trouble yourself.
+          Give Coaches a platform. Kayapalat develops Coaches, and Purple Club
+          gives them an attraction platform. It is how we build profitable
+          Coaches, and how every Coach gets a simple way to invite people to
+          experience Kayapalat before asking them to join it.
         </p>
 
         <p>
-          Get proactive. There's a difference between being chill and being
-          passive. Instead of sitting around thinking your problems could be
-          worse, always try to make things better for yourself. It'll be a lot
-          easier to be genuinely laid-back when you're satisfied with your life
-          as opposed to settling for less.
+          Keep the door wide open. Purple Club is built for everyday Indians:
+          busy professionals, business owners, homemakers, parents, students,
+          active seniors, and both ex-KP and current KP members. What they are
+          all seeking is a healthier lifestyle, community, belonging and
+          accountability.
         </p>
       </>
     ),
   },
 
   {
-    title: "Should I bring a jacket?",
+    title: "Kota first, then city by city",
     bgColor: "#6b3fa0",
     content: (
       <>
         <p>
-          Maybe. But be confident. When you have lots of self confidence and
-          comfort with who you are, you will have a much easier time being
-          chill. You will know that it’s okay if you make a mistake, that it
-          doesn’t make you worthless or something like that. You will know you
-          can handle whatever crazy life manages to throw at you.
+          Go local. Not one big club in one big city, but a hundred small
+          ones, each built by local Coaches and owned by the people who live
+          there. The vision is 100 cities with 1,000 members each: one hundred
+          thousand active members, in one community, behind one mission.
         </p>
 
         <p>
-          Find enjoyment in life. Do things in life that make you happy. Don’t
-          do things that stress you out just to accommodate others and not
-          yourself. Doing things that make you happy will make you more calm
-          and relaxed, helping you deal with all your problems in a better way.
+          Clear the launch bar. A city is launch-ready when it has 1 Club
+          Operator, 10 active Coaches and 50 active KP members, along with a
+          venue, an online registration system, a WhatsApp community and four
+          or more weeks of promotion. A city launches only after 100
+          registrations.
         </p>
 
         <p>
-          Ignore ignorant opinions. Not caring what others think will make many
-          situations in your life less stressful, like arguments and rumors.
+          Measure everything. City by city, we track total registrations,
+          attendance, repeat attendance, referrals, Silver and Gold upgrades,
+          guest pass usage, revenue and retention. Every Coach also gets a
+          scorecard covering registrations generated, attendees brought,
+          Coach opportunity leads, new Coaches and stories captured.
         </p>
 
         <p>
-          Keep a sense of humor. You’ve got to laugh about stuff in life,
-          especially the stuff that doesn’t go your way, or you’re going to
-          spend life grumpy and stressed out. When someone is a jerk to you,
-          relieve your anger through humor. Just laugh at them because they are
-          clearly very boring and miserable.
+          Look at year one. The targets are 10 cities, 5,000 Purple Members,
+          2,000 Active Members, 500 new Gold Members, 100 new Coaches, 10 new
+          Community Builders and 50,000+ monthly social media reach. It starts
+          with the Kota beta test on 10 to 11 October 2026, then the official
+          launch on 25 October 2026 (tentative) at the KPW Retreat in
+          Dehradun.
         </p>
       </>
     ),
@@ -188,7 +208,7 @@ const sectionsData = [
 export default function ChillZone() {
   const componentRef = useRef(null);
 
-  const [bgColor, setBgColor] = useState("#151818");
+  const [bgColor, setBgColor] = useState("#6b3fa0");
   const [marqueeText, setMarqueeText] = useState("");
   const [fadeMarquee, setFadeMarquee] = useState(false);
   const [activeSectionIndex, setActiveSectionIndex] = useState(-1);

@@ -180,7 +180,7 @@ export default function HomePage() {
             ================================================= */}
         <div
           ref={characterRef}
-          className="absolute left-1/2 top-1/2 z-20 w-[420px] md:w-[760px] -ml-[30px] md:-ml-12 max-w-none pointer-events-none"
+          className="absolute left-1/2 top-1/3 md:top-1/2 z-20 w-[420px] md:w-[760px] -ml-[30px] md:-ml-12 max-w-none pointer-events-none"
         >
           <img
             src="/retail-character.svg"

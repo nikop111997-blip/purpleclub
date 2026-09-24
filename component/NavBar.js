@@ -12,10 +12,7 @@ export default function Navbar() {
         {/* Left Side: Logo & Navigation Links */}
         <div className="flex items-center gap-10">
           {/* Logo */}
-          <Link href="/" className="text-xl sm:text-2xl font-black text-black tracking-tight">
-            purpleclub
-          </Link>
-          
+          <img src="/logos.png"  className='w-32 h-10'/>
     
         </div>
 

@@ -7,15 +7,15 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         
         {/* Top Section: Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 mb-20">
+        <div className="flex flex-col sm:flex-row justify-between gap-12 mb-20">
           
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               {/* Logo Icon */}
-              <div className="relative w-8 h-8 flex items-center justify-center">
+              <div className="relative w-36 h-8 flex items-center justify-center">
                 <img
-  src="/retail-character.svg"
+  src="/logos.png"
   alt=""
   draggable="false"
   className="
@@ -26,10 +26,9 @@ export default function Footer() {
   "
 />
               </div>
-              <span className="text-3xl font-bold tracking-tight">purpleclub</span>
             </div>
             <p className="text-gray-800 text-lg mb-8 max-w-xs leading-snug">
-              From idea to scalable platform – fast, measurable, impactful.
+              Get High on Life
             </p>
             
             {/* Social Icons */}
@@ -49,43 +48,10 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Services Column */}
-          <div>
-            <h3 className="font-semibold text-black mb-6">Services</h3>
-            <ul className="space-y-3">
-              <FooterLink href="#">What We Offer</FooterLink>
-              <FooterLink href="#">Case Studies</FooterLink>
-              <FooterLink href="#">Blog & Insights</FooterLink>
-              <FooterLink href="#">Resources</FooterLink>
-              <FooterLink href="#">FAQs</FooterLink>
-            </ul>
-          </div>
-
-          {/* Company Column */}
-          <div>
-            <h3 className="font-semibold text-black mb-6">Company</h3>
-            <ul className="space-y-3">
-              <FooterLink href="#">Home</FooterLink>
-              <FooterLink href="#">About</FooterLink>
-              <FooterLink href="#">Service</FooterLink>
-              <FooterLink href="#">Testimonials</FooterLink>
-              <FooterLink href="#">Pricing</FooterLink>
-            </ul>
-          </div>
-
-          {/* Legal Links Column */}
-          <div>
-            <h3 className="font-semibold text-black mb-6">Legal Links</h3>
-            <ul className="space-y-3">
-              <FooterLink href="#">Privacy Policy</FooterLink>
-              <FooterLink href="#">Cookie Policy</FooterLink>
-              <FooterLink href="#">Disclaimer</FooterLink>
-              <FooterLink href="#">Copyright</FooterLink>
-            </ul>
-          </div>
+       
 
           {/* Newsletter Column */}
-          <div className="lg:col-span-1 min-w-[280px]">
+          <div className="lg:col-span-2 min-w-[280px]">
             <h3 className="font-semibold text-black mb-6">Subscribe to our newsletter</h3>
             <form className="flex flex-col gap-3" >
               <input
@@ -126,7 +92,7 @@ export default function Footer() {
           </div>
           
           {/* Giant Text */}
-          <h1 className="text-[10vw] md:text-[16vw] font-bold tracking-tight text-[#6b3fa0] leading-none pb-4 md:pb-10 bg-clip-border">
+          <h1 className="text-[10vw] md:text-[16vw] font-bold tracking-tight text-[#6b3fa0] leading-none bg-clip-border">
             purpleclub
           </h1>
         </div>

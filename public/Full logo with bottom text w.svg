@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 544.01 364.19">
+  <defs>
+    <style>
+      .cls-1 {
+        font-family: Poppins-SemiBold, Poppins;
+        font-weight: 600;
+      }
+
+      .cls-1, .cls-2 {
+        font-size: 88.05px;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        font-family: Poppins-Regular, Poppins;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <g>
+        <text class="cls-1" transform="translate(0 311.97)"><tspan x="0" y="0">PURPLE</tspan></text>
+        <text class="cls-2" transform="translate(324.58 312.05)"><tspan x="0" y="0">CLUB</tspan></text>
+      </g>
+      <g>
+        <path class="cls-3" d="M176.87,21.57s124.42-20.82,124.48,58.67c0,0,47.84-38.09,18.52-64.33-29.32-26.23-115.73-16.97-143,5.66Z"/>
+        <path class="cls-3" d="M258.41,25.49s34.27,9.09,20.3,30.54c-15.46,23.74-83.84,55.04-103.9,95.16-20.06,40.12,96.7,45.78,162.03,29.83,0,0-122.42,4.11-113.16-32.41,9.26-36.52,72.01-51.95,84.87-77.67,12.86-25.72-37.79-44.43-50.13-45.46Z"/>
+        <path class="cls-3" d="M274.08,98.21s-34.46,18.52-30.35,45.78c4.11,27.26,93.1,37.03,93.1,37.03,0,0-66.87,11.83-112.65-11.32-45.78-23.15,49.89-71.5,49.89-71.5Z"/>
+        <circle class="cls-3" cx="218.79" cy="62.98" r="23.92"/>
+      </g>
+    </g>
+  </g>
+</svg>
