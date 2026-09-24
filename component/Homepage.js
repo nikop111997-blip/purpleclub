@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import ProofSection from "@/component/ProofSection";
+import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -133,15 +134,23 @@ export default function HomePage() {
             ================================================= */}
         <div
           ref={heroTextRef}
-          className="inset-0 mt-36 md:mt-40 z-[99] flex justify-center px-4 md:px-6 text-center"
+          className="inset-0 mt-36 md:mt-36 z-[99] flex justify-center px-4 md:px-6 text-center"
         >
           <div className="max-w-[1000px]">
             <h1 className="text-[clamp(2.2rem,5vw,4rem)] md:text-[clamp(2.6rem,5vw,4rem)] font-bold leading-[0.9] tracking-[-0.05em] text-[#d4ff3f]">
-              Purple Club that actually help you move forward.
+              Get High on Life
             </h1>
             <p className="mt-6 md:mt-8 text-base md:text-2xl font-medium text-white">
-              From idea to scalable platform – fast, measurable, impactful.
+              A community-powered active lifestyle movement where movement, energy and real connection come together.
             </p>
+            <div>
+          <Link 
+            href="/contact" 
+            className="inline-flex mt-4 items-center justify-center bg-[#d4ff3f] text-black border border-gray-600 shadow-sm font-semibold text-[15px] sm:px-8 sm:py-3.5 px-5 py-2.5 rounded-full hover:bg-[#b8e02a] transition-colors"
+          >
+            Join the Pueple Club
+          </Link>
+        </div>
           </div>
         </div>
 
@@ -152,14 +161,16 @@ export default function HomePage() {
         <div
           ref={sideTextRef}
           className="absolute left-[5%] md:left-[20%] top-[60%] md:top-1/2 z-30 w-[90%] md:w-[42%] max-w-[520px] -translate-y-1/2 md:pr-8 text-center md:text-left"
-        >
-          <h2 className="text-2xl md:text-3xl font-bold leading-[1.04] tracking-[-0.035em] text-white">
-            WE DESIGN AND BUILD LOYALTY PLATFORMS, DIGITAL PRODUCTS AND
-            RETAIL ECOSYSTEMS THAT TURN CUSTOMERS INTO LONG-TERM
-            RELATIONSHIPS.
+        > 
+        <h2 className="text-[clamp(2.2rem,5vw,4rem)] md:text-[clamp(2.6rem,5vw,3rem)] uppercase mb-3 font-bold leading-[0.9] tracking-[-0.05em] text-[#d4ff3f]">
+              Your Sundays Are About to Get Better.
+            </h2>
+          <h2 className="text-2xl md:text-2xl font-bold leading-[1.04] tracking-[-0.035em] text-white">
+            Move, sweat, laugh, connect and start your week feeling different. Purple Club brings people together every Sunday for fun, guided experiences that make healthy living social, exciting and easier to stick with.
           </h2>
-          <p className="mt-6 md:mt-10 text-lg md:text-2xl lg:text-2xl font-medium leading-tight text-[#ccff00]">
-            CRAFTED WITH PASSION AND 🤍 MADE IN INDIA.
+          <p className="mt-6 md:mt-10 text-lg md:text-2xl lg:text-2xl uppercase font-medium leading-tight text-[#ccff00]">
+            Come for the experience. Stay for the tribe.
+
           </p>
         </div>
 

@@ -579,19 +579,19 @@ export default function ChillZone() {
             INTRO
         ================================================= */}
 
-        <h1
+        <h3
           className="
             text-[min(max(40px,6vw),70px)]
             font-bold
             leading-tight
           "
         >
-          You'll{" "}
+          THE PURPLE WAY{" "}<br/>
           <u className="underline">
-            never
+            Live differently.
+
           </u>{" "}
-          believe how chill it is!
-        </h1>
+        </h3>
 
 
         <p
@@ -601,28 +601,7 @@ export default function ChillZone() {
             tracking-wide
           "
         >
-          The chill zone is where all the things are
-          copacetic. Think about all the unchill things
-          in your life. Think about them, just for a
-          moment. And now? Just forget about 'em. Why?
-          Because, my friend: you've just entered the{" "}
-          <em className="italic">
-            Chill Zone
-          </em>
-          . The following passages of text are pulled
-          from this{" "}
-          <a
-            href="https://www.wikihow.com/Be-Chill"
-            target="_blank"
-            rel="noreferrer"
-            className="
-              text-[#ecf232]
-              hover:underline
-            "
-          >
-            wikiHow article
-          </a>
-          .
+          Purple Club is for people who choose movement, growth and connection — and believe healthy living should be something you enjoy, not something you endure.
         </p>
 
 

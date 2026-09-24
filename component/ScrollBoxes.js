@@ -4,7 +4,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Heading3 } from "lucide-react";
 
 export default function PurpleClub() {
   const containerRef = useRef(null);
@@ -95,33 +95,34 @@ export default function PurpleClub() {
         
         {/* PANEL 1: Mobile Top / Desktop Left */}
         <div className="w-full h-1/2 md:w-1/2 md:h-full flex flex-col justify-center items-center md:items-start text-center md:text-left px-6 md:px-12 lg:px-24 bg-[#d4ff3f]">
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter text-purple-700 md:text-purple-300 mb-2 md:mb-4">
-            The Purple<br className="hidden md:block" /> Club
-          </h1>
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 md:mb-6 text-gray-800 md:text-white">
-            Run together. Thrive together.
-          </h2>
+          <h3 className="text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter text-purple-700 md:text-purple-300 mb-2 md:mb-4">
+           Ready to Go<br className="hidden md:block" /> Purple
+          </h3>
+          <h4 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 md:mb-6 text-gray-800 md:text-white">
+            Your first Purple experience is on us.
+          </h4>
           <p className="text-sm md:text-lg text-gray-700 md:text-purple-100/80 max-w-[300px] md:max-w-md leading-relaxed">
-            We hit the pavement, conquer the trails, and push our limits. Whether you're training for your first 5K or your tenth marathon, there's a place for you in the pack. <span className="hidden md:inline">Lace up, find your rhythm, and let's go.</span>
+            Get Your Invitation
           </p>
           <button className="mt-4 md:mt-8 px-6 py-3 md:px-8 md:py-4 bg-purple-500 hover:bg-purple-400 text-white font-bold uppercase tracking-widest w-max transition-colors text-sm md:text-base">
-            Join the Pack
+            Get Your Invitation
           </button>
         </div>
 
         {/* PANEL 2: Mobile Bottom / Desktop Right */}
         <div className="w-full h-1/2 md:w-1/2 md:h-full flex flex-col justify-center md:pt-36 items-center px-6 md:px-12 text-center bg-[#d4ff3f] border-t-2 md:border-t-0 md:border-l border-black">
-         <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold uppercase tracking-tighter text-[#6b3fa0] mb-2 md:mb-4">
-            Join the Purple<br className="hidden md:block"/>Club
-          </h1>
+         <h3 className="text-4xl sm:text-5xl md:text-7xl font-bold uppercase tracking-tighter text-[#6b3fa0] mb-2 md:mb-4">
+            Ready to Go<br className="hidden md:block"/>Purple
+          </h3>
           <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 md:mb-6 text-gray-800">
-            Run together. Thrive together.
+            Your first Purple experience is on us.
           </h2>
           <p className="text-sm md:text-lg text-gray-700 max-w-[300px] md:max-w-md leading-relaxed">
-            We hit the pavement, conquer the trails, and push our limits. Whether you're training for your first 5K or your tenth marathon, there's a place for you in the pack. <span className="hidden md:inline">Lace up, find your rhythm, and let's go.</span>
+            Join us for a Sunday of movement, energy, fun and connection. Meet the Purple Tribe, experience the energy for yourself and see what it means to live Purple.
+
           </p>
           <button className="mt-4 md:mt-8 px-6 py-3 md:px-8 md:py-4 flex gap-1 items-center bg-purple-500 border border-black hover:bg-purple-400 rounded-full text-white font-bold w-max transition-colors text-sm md:text-base">
-            Join the Club <ArrowRight size={20}/>
+            Get Your Invitation <ArrowRight size={20}/>
           </button>
         </div>
       </div>

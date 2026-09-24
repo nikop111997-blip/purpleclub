@@ -13,21 +13,10 @@ export default function Navbar() {
         <div className="flex items-center gap-10">
           {/* Logo */}
           <Link href="/" className="text-xl sm:text-2xl font-black text-black tracking-tight">
-            purpleclub.io
+            purpleclub
           </Link>
           
-          {/* Links (Hidden on mobile, flex on md+ screens) */}
-          <div className="hidden md:flex items-center gap-8 mt-0.5">
-            <Link href="/about" className="text-[15px] font-medium text-gray-800 hover:text-black transition-colors">
-              About us
-            </Link>
-            <Link href="/work" className="text-[15px] font-medium text-gray-800 hover:text-black transition-colors">
-              Our work
-            </Link>
-            <Link href="/academy" className="text-[15px] font-medium text-gray-800 hover:text-black transition-colors">
-              Academy
-            </Link>
-          </div>
+    
         </div>
 
         {/* Right Side: Button */}
@@ -36,7 +25,7 @@ export default function Navbar() {
             href="/contact" 
             className="inline-flex items-center justify-center bg-[#d4ff3f] text-black border border-gray-600 shadow-sm font-semibold text-[15px] sm:px-8 sm:py-3.5 px-5 py-2.5 rounded-full hover:bg-[#b8e02a] transition-colors"
           >
-            Contact Now
+            Join the Pueple Club
           </Link>
         </div>
 

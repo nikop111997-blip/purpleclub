@@ -16,14 +16,15 @@ export default function ProofSection() {
           {/* Header Row */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
             <h2 className="text-[#d4ff3f] text-3xl md:text-[2.5rem] font-bold leading-[1.05] tracking-tight max-w-3xl">
-              Proof over promises.<br/><span className='text-white'> We let the work do the talking.</span>
+              THE PURPLE EXPERIENCE.<br/><span className='text-white'> WWhat Happens on a Purple Sunday?</span>
             </h2>
             <div className="text-left md:text-right">
               <p className="text-white mb-4 max-w-[400px] text-lg md:text-xl md:ml-auto font-medium">
-                Ready to take your customer experience to the next level?
+                90 minutes of movement, energy, connection and fun — designed to leave you feeling better than when you arrived.
+
               </p>
               <button className="bg-[#d4ff3f] text-black border border-gray-800 font-semibold px-8 py-3.5 rounded-full hover:bg-[#bce628] transition-colors text-sm">
-                Get Started
+                Experience Purple
               </button>
             </div>
           </div>
@@ -34,33 +35,31 @@ export default function ProofSection() {
             {/* Card 1 */}
             <div className="bg-[#d4ff3f] rounded-[2rem] border p-8 md:p-10 flex flex-col justify-between h-[320px] rotate-12 hover:rotate-0 transform transition-all duration-400">
               <div className="flex items-start">
-                <span className="text-6xl md:text-7xl font-bold tracking-tighter">620</span>
-                <span className="text-2xl md:text-3xl font-bold mt-2 ml-1">K</span>
+                <span className="text-6xl md:text-7xl font-bold tracking-tighter">MOVE</span>
               </div>
               <p className="text-black font-medium text-[18px] leading-snug mt-12 ">
-                monthly users interacting with our products.
+                Warm up. Work out. Challenge yourself. Move at your own level.
               </p>
             </div>
 
             {/* Card 2 */}
             <div className="bg-[#F8F9FA] rounded-[2rem] border border-[#0e0e0d] p-8 md:p-10 flex flex-col justify-between h-[320px] -rotate-6 hover:rotate-0 transform transition-all duration-400">
               <div className="flex items-start text-black">
-                <span className="text-6xl md:text-7xl font-bold tracking-tighter">30</span>
-                <span className="text-2xl md:text-3xl font-bold mt-2 ml-1">%</span>
+                <span className="text-6xl md:text-7xl font-bold tracking-tighter">RESET</span>
               </div>
               <p className="text-black font-medium text-[18px] leading-snug mt-12 ">
-                of Germany's leading grocers rely on us
+                Recover, breathe, refuel and learn something that helps you live better.
+
               </p>
             </div>
 
             {/* Card 3 */}
             <div className="bg-[#6b3fa0] rounded-[2rem] border border-white p-8 md:p-10 flex flex-col justify-between min-h-[220px] rotate-8 shadow-2xl hover:rotate-0 transform transition-all duration-400">
               <div className="flex items-start text-white">
-                <span className="text-6xl md:text-7xl font-bold tracking-tighter">26</span>
-                <span className="text-xl md:text-2xl font-medium mt-3 ml-2 tracking-tight">Years</span>
+                <span className="text-6xl md:text-7xl font-bold tracking-tighter">CONNECT</span>
               </div>
               <p className="text-white/90 font-medium text-[18px] leading-snug mt-12 ">
-                of expertise combining tech and retail experience.
+                Meet your people, share the energy and become part of the Purple Tribe.
               </p>
             </div>
 
@@ -74,17 +73,17 @@ export default function ProofSection() {
           
           {/* Left Text Content */}
           <div className="p-10 md:p-16 lg:p-20 flex-1 flex flex-col justify-center">
-            <p className="text-black font-bold text-sm mb-2">What drives us is simple:</p>
+            <p className="text-black font-bold text-sm mb-2">What drives Purple Club is simple</p>
             <h3 className="text-4xl md:text-[2.75rem] font-bold text-black leading-[1.1] mb-6 tracking-tight">
-              Making your project a<br className="hidden md:block"/> success.
+              Let Your Lifestyle <br className="hidden md:block"/>Inspire Others.
             </h3>
             <p className="text-gray-700 text-[16px] leading-relaxed mb-8 max-w-[450px]">
-              We are a team of experienced retail and digital experts with backgrounds at companies like Lidl, Kaufland, BAT, adidas and QVC where we turned complex initiatives into measurable results. Today, we work as an extension of your team, building custom loyalty platforms, retail apps (B2C, B2B, D2C), retail media solutions and e-commerce platforms that turn traffic into revenue.
+             We believe healthy living is contagious. When you choose movement, energy, growth and community, you don't just change your own life. You show the people around you what's possible
             </p>
             
             <div>
               <button className="bg-[#d4ff3f] text-black font-bold border border-gray-500 px-6 py-4 rounded-full hover:bg-[#bce628] transition-colors text-sm mb-12">
-                Let's get started
+                Be a Purple Person
               </button>
             </div>
 
@@ -94,9 +93,9 @@ export default function ProofSection() {
               <div className="mb-2" style={{ fontFamily: "'Brush Script MT', cursive" }}>
                 <span className="text-4xl text-gray-800 tracking-tight">Ajay Singh Sethi</span>
               </div>
-              <p className="font-bold text-black text-sm">Tobias Kern</p>
+              <p className="font-bold text-black text-sm">Ajay Singh Sethi</p>
               <p className="text-gray-500 text-[12px] leading-snug mt-0.5">
-                Founder and CEO of<br/>The Shoring Company
+                Founder and CEO of<br/>The Purple Club
               </p>
             </div>
           </div>

@@ -8,13 +8,16 @@ export default function AboutRunClub() {
         
         {/* Top Headline Section */}
         <div className="mb-16 md:mb-24">
-          <h1 className="text-4xl md:text-5xl lg:text-[2.25rem] leading-[1.1] font-bold tracking-[-0.02em] max-w-6xl">
-            <span className='text-[#6b3fa0] font-bold'>PURPLE CLUB</span> is the first ever (coolest) run club in the <br className="hidden md:block" />
-            Tricity spreading the love for <br className="hidden md:block" />
-            <span className="border-b-[3px] border-[#6b3fa0] pb-1 md:pb-2 inline-block mt-2 md:mt-0">
-              RUN and FITNESS
-            </span>
-          </h1>
+          <h3 className="text-4xl md:text-5xl lg:text-[2.25rem] leading-[1.1] font-bold tracking-[-0.02em] max-w-6xl">
+            <span className="text-[#6b3fa0]/80 font-bold">
+  THINKING PURPLE CLUB ISN’T FOR YOU
+</span>
+          </h3>
+         <h3 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl leading-none font-bold tracking-[-0.04em] max-w-6xl">
+  <span className="text-[#6b3fa0] font-bold">
+    THINK AGAIN?
+  </span>
+</h3>
         </div>
 
         {/* Thin Divider Line */}
@@ -25,21 +28,20 @@ export default function AboutRunClub() {
           
           {/* Left Column: Heading */}
           <div>
-            <h2 className="text-xl md:text-2xl font-normal tracking-tight">
-              What you can expect?
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight">
+              WHO IS PURPLE CLUB FOR?
             </h2>
           </div>
           
           {/* Right Column: Paragraphs */}
           <div className="flex flex-col gap-8 text-lg md:text-xl lg:text-[1.35rem] leading-[1.6] text-[#1a1a1a]/90 md:pr-10 lg:pr-24">
             <p>
-              We are a community of passionate runners who love to stay fit, laugh, and
-              enjoy coffee! Purple Club is here to help you reach your goals,
-              combining fitness with fun and friendship.
+              You don't have to be a runner. You don't have to be super fit. You just have to be ready to move, connect and live a little more actively. Purple Club is for people at every stage of their journey who want healthier habits, real community and more energy in everyday life.
+
             </p>
             <p>
-              As Rajasthan largest run club, we bring together running, meditation,
-              and socializing for an experience that is all about wellness and connection.
+              Come as you are. Find your pace.
+
             </p>
           </div>
 
