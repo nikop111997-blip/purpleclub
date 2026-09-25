@@ -148,7 +148,7 @@ export default function HomePage() {
             href="/contact" 
             className="inline-flex mt-4 items-center justify-center bg-[#d4ff3f] text-black border border-gray-600 shadow-sm font-semibold text-[15px] sm:px-8 sm:py-3.5 px-5 py-2.5 rounded-full hover:bg-[#b8e02a] transition-colors"
           >
-            Join the Pueple Club
+            Join the Purple Club
           </Link>
         </div>
           </div>

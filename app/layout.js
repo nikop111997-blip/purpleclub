@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/component/NavBar";
 import Footer from "@/component/Footer";
 import PageLoader from "@/component/PageLoader";
+import { PageTransitionProvider } from "@/component/PageTransitionProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,12 +26,16 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-[#d4ff3f]`}
     >
-   <PageLoader/>
+      <PageTransitionProvider>   <PageLoader/>
+
       <Navbar/>
       <body className="min-h-full flex flex-col">{children}
 
        <Footer/> 
+       
       </body>
+      </PageTransitionProvider>
+
     </html>
   );
 }
