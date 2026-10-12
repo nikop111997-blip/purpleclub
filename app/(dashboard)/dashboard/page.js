@@ -624,138 +624,43 @@ export default async function DashboardPage() {
         </section>
 
         {/* PERMANENT MEMBER QR */}
-        <section className="relative mx-auto w-full max-w-[340px] lg:max-w-none font-sans">
-      <div className="relative overflow-hidden rounded-[2rem] bg-[#5f33e1] shadow-2xl min-h-[600px] flex flex-col items-center pb-6">
-        
-        {/* Background Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#7043eb] to-[#5127d4] opacity-80" />
-        
-        {/* Top Header Section */}
-        <div className="relative z-20 mt-8 w-full px-6 flex flex-col items-center text-center">
-          <div className="flex w-full items-center justify-between mb-4">
-            <Link
-              href="/dashboard/registrations"
-              aria-label="Open registrations"
-              className="text-white/80 hover:text-white transition flex items-center gap-1 text-sm font-medium"
-            >
-              <ArrowUpRight size={18} />
-            </Link>
-            <div className="rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold tracking-wider text-white">
-              PERMANENT MEMBER ID
-            </div>
-            <span className="text-[10px] font-medium text-white/80 uppercase tracking-wide">
-              {roleLabel || (isSuperCoach ? "SUPER COACH" : "MEMBER")}
-            </span>
-          </div>
+       
+{/* QR Code Container */}
+<div className="relative z-10 flex h-[260px] w-[280px] shrink-0 items-center justify-center rounded-3xl border-4 border-black bg-white p-3 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+  {memberQrCode ? (
+    <div className="flex h-full w-full items-center justify-center bg-white">
+      <PandaQRCode
+        value={String(memberQrCode).trim()}
+        size={220}
+        level="H"
+        fgColor="#000000"
+      />
+    </div>
+  ) : (
+    <div className="flex flex-col items-center justify-center text-center">
+      <QrCode size={48} className="text-black" />
+      <p className="mt-3 text-sm font-bold text-black">
+        QR unavailable
+      </p>
+    </div>
+  )}
 
-          <h2 className="mt-2 truncate text-2xl font-bold leading-tight text-white tracking-wide">
-            {member?.name || session?.user?.name || "Юлія К."}
-          </h2>
-          <p className="mt-1 text-lg font-medium text-white/70">
-            Purple Member
-          </p>
-        </div>
+  {/* Decorative paws stay outside the QR modules */}
+  <svg
+    className="pointer-events-none absolute -left-3 top-2 z-20 h-10 w-10"
+    viewBox="0 0 50 50"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path
+      d="M40 10 C20 -5 0 10 5 30 C10 50 30 55 45 40 Z"
+      fill="white"
+      stroke="black"
+      strokeWidth="4"
+    />
+  </svg>
+</div>
 
-        {/* Center Graphic Area (QR + Cat + Emojis) */}
-        <div className="relative z-20 mt-12 mb-8 flex h-[300px] w-full items-center justify-center">
-          
-          {/* Floating Emoji 1 (Top Left) */}
-          <div className="absolute left-[5%] top-[-10%] flex h-14 w-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-md shadow-lg border border-white/5">
-            <span className="text-2xl">🏄‍♂️</span>
-          </div>
-          
-          {/* Floating Emoji 2 (Top Right) */}
-          <div className="absolute right-[5%] top-[10%] flex h-14 w-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-md shadow-lg border border-white/5">
-            <span className="text-2xl">🇺🇦</span>
-          </div>
-
-          {/* Floating Emoji 3 (Bottom Left) */}
-          <div className="absolute left-[8%] bottom-[-5%] flex h-14 w-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-md shadow-lg border border-white/5">
-            <span className="text-2xl">🤦‍♂️</span>
-          </div>
-
-          {/* Floating Emoji 4 (Bottom Right) */}
-          <div className="absolute right-[8%] bottom-[-15%] flex h-14 w-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-md shadow-lg border border-white/5">
-            <span className="text-2xl">🤗</span>
-          </div>
-
-          {/* Cat Ears */}
-          <svg className="absolute -top-[40px] left-1/2 w-[140px] -translate-x-1/2 drop-shadow-md z-0" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-  {/* Left Panda Ear */}
-  <path d="M15 50 C 15 15, 45 15, 40 50" fill="#fff" stroke="#111111" strokeWidth="4" strokeLinejoin="round"/>
-  {/* Right Panda Ear */}
-  <path d="M60 50 C 55 15, 85 15, 85 50" fill="#fff" stroke="#111111" strokeWidth="4" strokeLinejoin="round"/>
-</svg>
-
-          {/* QR Code Container (The Cat's Sign) */}
-          <div className="relative z-10 flex h-[220px] w-[280px] items-center justify-center rounded-3xl bg-white border-[6px] border-black shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-            {memberQrCode ? (
-              // Replace with your actual PandaQRCode component
-              <div className=" bg-black/5 rounded-xl flex items-center justify-center">
-                 <PandaQRCode value={String(memberQrCode)} size={280} level="H" fgColor="#000000" />
-                
-              </div>
-            ) : (
-              <div className="flex h-full w-full flex-col items-center justify-center rounded-3xl bg-white text-center">
-                <QrCode size={48} className="text-black" />
-                <p className="mt-3 text-sm font-bold text-black">QR unavailable</p>
-              </div>
-            )}
-
-            {/* Top Left Paw */}
-            <svg className="absolute -left-[20px] top-[10px] h-12 w-12 z-20" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M40 10 C 20 -5, 0 10, 5 30 C 10 50, 30 55, 45 40 Z" fill="white" stroke="black" strokeWidth="4"/>
-              <path d="M25 15 Q 15 25, 20 35" stroke="black" strokeWidth="3" strokeLinecap="round"/>
-              <path d="M35 25 Q 25 35, 30 45" stroke="black" strokeWidth="3" strokeLinecap="round"/>
-            </svg>
-
-            {/* Bottom Right Paw */}
-            <svg className="absolute -right-[15px] -bottom-[15px] h-14 w-14 z-20" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 40 C 30 55, 50 40, 45 20 C 40 0, 20 -5, 5 10 Z" fill="white" stroke="black" strokeWidth="4"/>
-              <path d="M25 35 Q 35 25, 30 15" stroke="black" strokeWidth="3" strokeLinecap="round"/>
-              <path d="M15 25 Q 25 15, 20 5" stroke="black" strokeWidth="3" strokeLinecap="round"/>
-            </svg>
-          </div>
-        </div>
-
-        {/* Bottom Ticket / ID Bar */}
-        <div className="relative z-20 mt-auto w-full px-4 pt-4">
-          <div className="flex h-[80px] w-full items-center overflow-hidden rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
-            
-            <div className="flex min-w-0 flex-1 flex-col justify-center px-5">
-              <p className="text-[11px] font-semibold text-white/70 uppercase tracking-wider">
-                Member QR ID
-              </p>
-              <p className="mt-1 truncate font-mono text-[16px] font-bold tracking-widest text-white">
-                {memberQrCode || "SUPER-COACH-1029"}
-              </p>
-            </div>
-
-            {/* Perforated Divider Line */}
-            <div className="relative h-full w-px border-l-2 border-dashed border-white/30" />
-
-            {/* Action Button */}
-            <Link
-              href="/dashboard/registrations"
-              aria-label="View registrations"
-              className="flex w-[80px] items-center justify-center"
-            >
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#E5FF6E] text-black shadow-[0_4px_14px_rgba(229,255,110,0.3)] transition-transform hover:scale-105 active:scale-95">
-                <ArrowUpRight size={24} strokeWidth={2.5} />
-              </span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Bottom Disclaimer Text */}
-        <p className="relative z-20 mt-6 px-6 text-center text-[10px] leading-relaxed text-white/50">
-          Keep your member QR ready for event check-in. Access will be validated by the scanner API.
-          <br/>
-          <span className="mt-1 block">AT "UNIVERSALBANK" • License NBU № 92</span>
-        </p>
-        
-      </div>
-    </section>
       </div>
 
       {/* ===================================================
