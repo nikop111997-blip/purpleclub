@@ -3,15 +3,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import {
-  ArrowRight,
   CalendarDays,
   Check,
-  ChevronDown,
+  ChevronRight,
   Clock3,
   Copy,
+  ExternalLink,
   Loader2,
-  MapPin,
-  ShieldCheck,
+  Phone,
+  QrCode,
+  Search,
+  Share2,
+  Tag,
+  UserPlus,
   UserRound,
   Users,
   X,
@@ -20,65 +24,99 @@ import {
 /* =========================================================
    THEME TOKENS
    lime   #B9D63B  (primary action)
-   purple #6a3f9e  (brand)
-   Compact ticket on a light page with light glass panels.
+   purple #6a3f9e  (atmosphere)
+   ink    #120d1a  (dark surfaces)
 ========================================================= */
 
-const GLASS_LIGHT =
-  "border border-white/70 bg-gradient-to-br from-white/75 via-white/45 to-white/30 backdrop-blur-xl backdrop-saturate-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),inset_0_0_20px_rgba(255,255,255,0.25),0_12px_32px_-8px_rgba(106,63,158,0.15)]";
+// Reusable liquid-glass surface
+const GLASS =
+  "border border-white/25 bg-gradient-to-br from-white/25 via-white/[0.07] to-white/[0.04] backdrop-blur-xl backdrop-saturate-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.55),inset_0_0_12px_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.25)]";
 
-const GLASS_ROW =
-  "border border-white/80 bg-white/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(106,63,158,0.05)] backdrop-blur-md";
+// Dark glass for panels / inputs
+const GLASS_DARK =
+  "border border-white/10 bg-white/[0.05] shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]";
 
-const GLASS_ON_PURPLE =
-  "border border-white/30 bg-gradient-to-br from-white/30 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.6),inset_0_0_12px_rgba(255,255,255,0.1),0_6px_18px_rgba(40,15,70,0.25)]";
-
+// Solid lime primary button
 const LIME_BTN =
-  "group/btn relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-white/50 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] py-3 text-sm font-semibold text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(88,112,0,0.25),0_8px_24px_rgba(185,214,59,0.4)] transition duration-300 ease-out hover:brightness-105 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(88,112,0,0.25),0_12px_32px_rgba(185,214,59,0.55)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60";
+  "group/btn relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full border border-white/40 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] px-6 py-3.5 text-sm font-semibold text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(88,112,0,0.25),0_8px_24px_rgba(185,214,59,0.35)] transition duration-300 ease-out hover:brightness-105 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(88,112,0,0.25),0_12px_32px_rgba(185,214,59,0.5)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50";
 
-const GLASS_BTN =
-  "group/btn relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full py-3 text-sm font-semibold text-[#4B176B] transition duration-300 ease-out hover:bg-white/80 active:scale-[0.98]";
-
-const INPUT =
-  "w-full rounded-2xl border border-white/80 bg-white/60 px-4 py-2.5 text-sm text-[#24112f] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(106,63,158,0.06)] outline-none transition placeholder:text-[#6f6577]/60 focus:border-[#6a3f9e]/50 focus:bg-white/80 focus:ring-4 focus:ring-[#6a3f9e]/10 disabled:opacity-50";
-
-const ICON_TILE =
-  "flex shrink-0 items-center justify-center rounded-xl border border-[#6a3f9e]/15 bg-gradient-to-br from-[#6a3f9e]/20 to-[#6a3f9e]/5 text-[#4B176B] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]";
-
-const LIME_TILE =
-  "flex shrink-0 items-center justify-center rounded-xl border border-white/60 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_6px_16px_rgba(185,214,59,0.4)]";
-
-const SHINE =
-  "pointer-events-none absolute inset-x-4 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent opacity-70";
-
-/* Ticket notches: real transparent cut-outs, so they work on any page colour */
-const NOTCH = "radial-gradient(circle 11px at";
-const topMask = {
-  WebkitMaskImage: `${NOTCH} 0 100%, #0000 98%, #000), ${NOTCH} 100% 100%, #0000 98%, #000)`,
-  maskImage: `${NOTCH} 0 100%, #0000 98%, #000), ${NOTCH} 100% 100%, #0000 98%, #000)`,
-  WebkitMaskComposite: "source-in",
-  maskComposite: "intersect",
-};
-const bottomMask = {
-  WebkitMaskImage: `${NOTCH} 0 0, #0000 98%, #000), ${NOTCH} 100% 0, #0000 98%, #000)`,
-  maskImage: `${NOTCH} 0 0, #0000 98%, #000), ${NOTCH} 100% 0, #0000 98%, #000)`,
-  WebkitMaskComposite: "source-in",
-  maskComposite: "intersect",
+// Notion-style status tags (tuned for dark surfaces)
+const STATUS_CONFIG = {
+  INVITED: {
+    label: "Invited",
+    className: "bg-white/10 text-white/70",
+    dot: "bg-white/50",
+  },
+  REGISTERED: {
+    label: "Registered",
+    className: "bg-[#6a3f9e]/40 text-[#e0c9f7]",
+    dot: "bg-[#c79cf5]",
+  },
+  ATTENDED: {
+    label: "Attended",
+    className: "bg-sky-400/15 text-sky-200",
+    dot: "bg-sky-300",
+  },
+  MEMBER: {
+    label: "Member",
+    className: "bg-[#B9D63B]/20 text-[#DDF27A]",
+    dot: "bg-[#B9D63B]",
+  },
+  CANCELLED: {
+    label: "Cancelled",
+    className: "bg-red-400/15 text-red-300",
+    dot: "bg-red-400",
+  },
 };
 
 function formatDate(date) {
-  if (!date) return "";
+  if (!date) return "Date not available";
 
   const parsed = new Date(date);
 
-  if (Number.isNaN(parsed.getTime())) return date;
+  if (Number.isNaN(parsed.getTime())) return "Date not available";
 
   return parsed.toLocaleDateString("en-IN", {
-    weekday: "short",
     day: "numeric",
     month: "short",
     year: "numeric",
   });
+}
+
+function getMilestone(successfulReferrals) {
+  if (successfulReferrals >= 100) {
+    return {
+      title: "Purple Ambassador",
+      icon: "👑",
+      target: 100,
+      description: "You've reached the Purple Ambassador level.",
+    };
+  }
+
+  if (successfulReferrals >= 10) {
+    return {
+      title: "Purple Icon",
+      icon: "✦",
+      target: 100,
+      description: "You've become a Purple Icon. Keep growing the community.",
+    };
+  }
+
+  if (successfulReferrals >= 1) {
+    return {
+      title: "Purple Inspirer",
+      icon: "✦",
+      target: 10,
+      description: "Your first successful membership referral.",
+    };
+  }
+
+  return {
+    title: "Start Inspiring",
+    icon: "✦",
+    target: 1,
+    description: "Invite your first person to Purple.",
+  };
 }
 
 /* =========================================================
@@ -87,26 +125,15 @@ function formatDate(date) {
 
 export default function GuestPassClient() {
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-
-  const [pass, setPass] = useState(null);
-  const [registration, setRegistration] = useState(null);
-  const [reservedEvent, setReservedEvent] = useState(null);
-  const [events, setEvents] = useState([]);
-
-  const [mode, setMode] = useState(null);
-  const [selectedEvent, setSelectedEvent] = useState("");
-
-  const [guestName, setGuestName] = useState("");
-  const [guestMobile, setGuestMobile] = useState("");
-
+  const [data, setData] = useState(null);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [selectedInvite, setSelectedInvite] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [query, setQuery] = useState("");
 
-  // ---------------- LOAD PASS ----------------
+  // ---------------- LOAD ----------------
 
-  async function loadGuestPass() {
+  async function loadInvites() {
     try {
       setLoading(true);
       setError("");
@@ -116,141 +143,169 @@ export default function GuestPassClient() {
         cache: "no-store",
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(data?.message || "Failed to load guest pass.");
+        throw new Error(result?.message || "Unable to load referrals.");
       }
 
-      setPass(data.pass || null);
-      setRegistration(data.registration || null);
-      setReservedEvent(data.event || null);
-      setEvents(data.events || []);
+      setData(result);
     } catch (err) {
-      console.error("LOAD GUEST PASS ERROR:", err);
-      setError(err?.message || "Unable to load your guest pass.");
+      console.error("LOAD REFERRALS ERROR:", err);
+      setError(err?.message || "Unable to load your referrals.");
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    loadGuestPass();
+    loadInvites();
   }, []);
 
-  // ---------------- COPY CODE ----------------
+  // ---------------- SUMMARY ----------------
 
-  async function copyCode() {
-    if (!pass?.code) return;
+  const summary = data?.summary || {
+    totalInvites: 0,
+    registeredGuests: 0,
+    attendedGuests: 0,
+    successfulReferrals: 0,
+    pendingInvites: 0,
+  };
+
+  const invites = data?.invites || [];
+  const successful = summary.successfulReferrals || 0;
+
+  const milestone = useMemo(() => getMilestone(successful), [successful]);
+
+  const progress = useMemo(() => {
+    if (successful >= 100) {
+      return { percentage: 100, target: 100, remaining: 0 };
+    }
+
+    if (successful >= 10) {
+      return {
+        percentage: Math.min(100, ((successful - 10) / 90) * 100),
+        target: 100,
+        remaining: 100 - successful,
+      };
+    }
+
+    if (successful >= 1) {
+      return {
+        percentage: Math.min(100, ((successful - 1) / 9) * 100),
+        target: 10,
+        remaining: 10 - successful,
+      };
+    }
+
+    return { percentage: 0, target: 1, remaining: 1 };
+  }, [successful]);
+
+  const filteredInvites = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return invites;
+
+    return invites.filter(
+      (invite) =>
+        invite.guestName?.toLowerCase().includes(q) ||
+        invite.guestMobile?.includes(q) ||
+        invite.event?.name?.toLowerCase().includes(q)
+    );
+  }, [invites, query]);
+
+  // ---------------- COPY ----------------
+
+  async function copyInvite(invite) {
+    if (!invite?.inviteUrl) return;
 
     try {
-      await navigator.clipboard.writeText(pass.code);
-      setCopied(true);
+      await navigator.clipboard.writeText(invite.inviteUrl);
+      setCopied(invite.id);
       setTimeout(() => setCopied(false), 1800);
     } catch (err) {
       console.error(err);
     }
   }
 
-  // ---------------- MODAL ----------------
+  // ---------------- WHATSAPP ----------------
 
-  function openRegistration(type) {
-    setError("");
-    setSuccess("");
+  function shareWhatsApp(invite) {
+    if (!invite?.inviteUrl) return;
 
-    if (pass?.status !== "AVAILABLE") return;
+    const message =
+      `Hey ${invite.guestName}, I’ve invited you to a Purple experience.\n\n` +
+      `Register here:\n${invite.inviteUrl}`;
 
-    setMode(type);
+    const url =
+      `https://wa.me/${invite.guestMobile || ""}` +
+      `?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank", "noopener,noreferrer");
   }
 
-  function closeModal() {
-    if (submitting) return;
+  // ---------------- NATIVE SHARE ----------------
 
-    setMode(null);
-    setSelectedEvent("");
-    setGuestName("");
-    setGuestMobile("");
-    setError("");
-  }
+  async function shareInvite(invite) {
+    if (!invite?.inviteUrl) return;
 
-  // ---------------- REGISTER PASS ----------------
+    const shareData = {
+      title: "Purple Invitation",
+      text: `You're invited to a Purple experience by ${invite.guestName}.`,
+      url: invite.inviteUrl,
+    };
 
-  async function registerPass() {
-    setError("");
-    setSuccess("");
-
-    if (!selectedEvent) {
-      setError("Please select an event.");
-      return;
-    }
-
-    if (mode === "GUEST") {
-      if (!guestName.trim()) {
-        setError("Please enter guest name.");
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share(shareData);
         return;
-      }
-
-      if (!/^[0-9]{10}$/.test(guestMobile.trim())) {
-        setError("Please enter a valid 10 digit guest mobile number.");
-        return;
+      } catch (err) {
+        if (err?.name === "AbortError") return;
       }
     }
 
-    try {
-      setSubmitting(true);
-
-      const response = await fetch(`/api/events/${selectedEvent}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          useGuestPass: true,
-          passFor: mode === "GUEST" ? "GUEST" : "SELF",
-          guest:
-            mode === "GUEST"
-              ? { name: guestName.trim(), mobile: guestMobile.trim() }
-              : null,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data?.error || data?.message || "Unable to reserve guest pass."
-        );
-      }
-
-      setSuccess(
-        mode === "GUEST"
-          ? "Guest pass reserved successfully."
-          : "Your pass has been reserved successfully."
-      );
-
-      setMode(null);
-      setSelectedEvent("");
-      setGuestName("");
-      setGuestMobile("");
-
-      await loadGuestPass();
-    } catch (err) {
-      console.error("REGISTER GUEST PASS ERROR:", err);
-      setError(err?.message || "Unable to reserve guest pass.");
-    } finally {
-      setSubmitting(false);
-    }
+    await copyInvite(invite);
   }
 
-  // ---------------- STATUS ----------------
+  // ---------------- DOWNLOAD QR ----------------
 
-  const statusInfo = useMemo(() => {
-    if (!pass) return { label: "Unavailable" };
-    if (pass.status === "AVAILABLE") return { label: "Available" };
-    if (pass.status === "RESERVED") return { label: "Reserved" };
-    if (pass.status === "USED") return { label: "Used" };
-    return { label: pass.status };
-  }, [pass]);
+  function downloadQR(invite) {
+    if (!invite?.inviteUrl) return;
 
-  const modalEvent = events.find((item) => item.id === selectedEvent);
+    const svg = document.getElementById(`invite-qr-${invite.id}`);
+    if (!svg) return;
+
+    const source = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([source], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    const url = URL.createObjectURL(svgBlob);
+    const image = new Image();
+
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1200;
+      canvas.height = 1200;
+
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 100, 100, 1000, 1000);
+
+      URL.revokeObjectURL(url);
+
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = `purple-invite-${invite.guestName
+        .replace(/\s+/g, "-")
+        .toLowerCase()}.png`;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    };
+
+    image.src = url;
+  }
 
   // ---------------- LOADING ----------------
 
@@ -259,7 +314,9 @@ export default function GuestPassClient() {
       <div className="flex min-h-[60vh] items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-6 w-6 animate-spin text-[#6a3f9e]" />
-          <p className="text-sm text-gray-500">Loading your guest pass...</p>
+          <p className="text-sm text-gray-500">
+            Loading your Purple community...
+          </p>
         </div>
       </div>
     );
@@ -268,481 +325,265 @@ export default function GuestPassClient() {
   // ---------------- MAIN ----------------
 
   return (
-    <div className="relative isolate font-sans">
-     
-
+    <div className="space-y-6 font-sans">
       {/* ================= HEADER ================= */}
 
-      <header className="mb-6 flex items-center gap-3">
-        <img
-          src="/join.png"
-          alt="Purple Club Logo"
-          className="h-12 w-12 shrink-0 object-contain"
-        />
-
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold leading-tight tracking-tight text-[#1a0f24] sm:text-2xl">
-            Bring someone to Purple
+          <h1 className="text-2xl font-bold leading-[1.05] tracking-tight text-[#1a0f24] sm:text-4xl">
+            Your Purple Circle
           </h1>
 
-          <p className="mt-1 max-w-xl text-xs leading-5 text-gray-500 sm:text-sm">
-            Use your free pass for yourself or invite someone special.
+          <p className="mt-3 max-w-xl text-sm leading-6 text-gray-500 sm:text-base">
+            Invite people, help them experience Purple, and grow your journey
+            from Inspirer to Icon to Ambassador.
           </p>
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = "/dashboard/events";
+          }}
+          className={LIME_BTN}
+        >
+          <span className="pointer-events-none absolute inset-x-4 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent opacity-70" />
+          <UserPlus size={16} className="relative" />
+          <span className="relative">Invite someone</span>
+        </button>
       </header>
 
-      {/* ================= MESSAGES ================= */}
+      {/* ================= ERROR ================= */}
 
-      {error && !mode && (
-        <div className="mb-4 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50/70 px-4 py-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)] backdrop-blur-md">
-          <X className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-          <p className="text-sm text-red-700">{error}</p>
+      {error && (
+        <div className="flex items-center gap-3 rounded-2xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <X size={16} />
+          {error}
         </div>
       )}
 
-      {success && !mode && (
-        <div className="mb-4 flex items-start gap-3 rounded-2xl border border-[#B9D63B]/60 bg-gradient-to-br from-[#B9D63B]/30 to-[#B9D63B]/10 px-4 py-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)] backdrop-blur-md">
-          <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#4d6000]" />
-          <p className="text-sm text-[#3f5000]">{success}</p>
-        </div>
-      )}
+      {/* ================= OVERVIEW ================= */}
 
-      {/* ================= CONTENT ================= */}
+      <section className="relative overflow-hidden rounded-[2rem] bg-[#120d1a] p-6 text-white shadow-xl sm:p-8">
+        <div className="pointer-events-none absolute -left-12 -top-16 h-60 w-60 rounded-full bg-[#6a3f9e]/70 blur-3xl" />
+        <div className="pointer-events-none absolute -right-14 top-4 h-48 w-48 rounded-full bg-[#B9D63B]/20 blur-3xl" />
 
-      <div className="grid items-start gap-6 md:grid-cols-[440px_minmax(0,1fr)]">
-        {/* ---------- TICKET ---------- */}
-
-        <section className="mx-auto w-full max-w-[440px] drop-shadow-[0_18px_28px_rgba(106,63,158,0.3)]">
-          {/* Top: pass info */}
-          <div
-            style={topMask}
-            className="relative overflow-hidden rounded-t-[1.75rem] bg-[#6a3f9e] px-5 pb-6 pt-5 text-white"
-          >
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(255,255,255,0.25),transparent_40%),radial-gradient(circle_at_90%_100%,rgba(185,214,59,0.25),transparent_40%),linear-gradient(160deg,#7a4cb0_0%,#6a3f9e_50%,#5a2f8c_100%)]" />
-
-            <div className="relative">
-              <div className="flex items-center justify-between gap-3">
-                <span
-                  className={`rounded-full px-3 py-1 text-[11px] font-semibold text-white ${GLASS_ON_PURPLE}`}
-                >
-                  Free guest pass
-                </span>
-
-                <span
-                  className={`relative inline-flex items-center gap-1.5 overflow-hidden rounded-full px-3 py-1 text-[11px] font-semibold ${
-                    pass?.status === "AVAILABLE"
-                      ? "border border-white/50 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_4px_14px_rgba(185,214,59,0.4)]"
-                      : `text-white ${GLASS_ON_PURPLE}`
-                  }`}
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                  {statusInfo.label}
-                </span>
+        <div className="relative">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            {/* Level */}
+            <div className="flex items-center gap-4">
+              <div
+                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl text-[#B9D63B] ${GLASS}`}
+              >
+                {milestone.icon}
               </div>
-
-              <h2 className="mt-4 text-xl font-bold leading-tight tracking-tight">
-                Purple Guest Pass
-              </h2>
-
-              {reservedEvent ? (
-                <div className="mt-3 space-y-1.5 text-xs text-white/80">
-                  <p className="text-sm font-semibold text-white">
-                    {reservedEvent.name}
-                  </p>
-
-                  <p className="flex items-center gap-1.5">
-                    <CalendarDays size={13} className="text-[#E4F58C]" />
-                    {formatDate(reservedEvent.date)}
-                  </p>
-
-                  {reservedEvent.startTime && (
-                    <p className="flex items-center gap-1.5">
-                      <Clock3 size={13} className="text-[#E4F58C]" />
-                      {reservedEvent.startTime}
-                      {reservedEvent.endTime ? ` - ${reservedEvent.endTime}` : ""}
-                    </p>
-                  )}
-
-                  {reservedEvent.location && (
-                    <p className="flex items-center gap-1.5">
-                      <MapPin size={13} className="text-[#E4F58C]" />
-                      {reservedEvent.location}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <p className="mt-2 text-xs leading-5 text-white/75">
-                  One free entry to any Purple experience.
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Bottom: stub with QR */}
-          <div
-            style={bottomMask}
-            className="relative rounded-b-[1.75rem] bg-gradient-to-b from-white to-[#f6f0fc] px-5 pb-5 pt-6"
-          >
-            {/* Perforation */}
-            <div className="pointer-events-none absolute inset-x-6 top-0 border-t-2 border-dashed border-[#6a3f9e]/25" />
-
-            <div className="flex flex-col items-center">
-              {pass?.code ? (
-                <QRCodeSVG
-                  value={pass.code}
-                  size={140}
-                  level="H"
-                  includeMargin={false}
-                  fgColor="#24112f"
-                />
-              ) : (
-                <div className="flex h-[140px] w-[140px] items-center justify-center text-sm text-gray-400">
-                  No QR
-                </div>
-              )}
-
-              <div className="mt-4 flex items-center gap-2">
-                <p className="font-mono text-base font-bold tracking-wider text-[#24112f]">
-                  {pass?.code || "—"}
-                </p>
-
-                {pass?.code && (
-                  <button
-                    type="button"
-                    onClick={copyCode}
-                    title="Copy pass code"
-                    aria-label="Copy pass code"
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-[#4B176B] transition hover:scale-105 active:scale-95 ${GLASS_ROW}`}
-                  >
-                    {copied ? (
-                      <Check size={14} className="text-[#5a7000]" />
-                    ) : (
-                      <Copy size={14} />
-                    )}
-                  </button>
-                )}
-              </div>
-
-              <p className="mt-1.5 text-[11px] font-medium text-[#6f6577]">
-                Admit one · show at check-in
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ---------- RIGHT COLUMN ---------- */}
-
-        <div className="space-y-4">
-          {/* AVAILABLE */}
-          {pass?.status === "AVAILABLE" && (
-            <>
-              <div className={`rounded-3xl p-5 ${GLASS_LIGHT}`}>
-                <div className="flex items-start gap-3">
-                  <div className={`h-9 w-9 ${LIME_TILE}`}>
-                    <ShieldCheck size={17} />
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-[#24112f]">
-                      Your pass is ready
-                    </h3>
-
-                    <p className="mt-0.5 text-xs leading-5 text-[#6f6577]">
-                      One use only. Join an experience yourself or invite
-                      someone.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    onClick={() => openRegistration("SELF")}
-                    className={LIME_BTN}
-                  >
-                    <span className={SHINE} />
-                    <UserRound size={16} className="relative" />
-                    <span className="relative">For myself</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => openRegistration("GUEST")}
-                    className={`${GLASS_BTN} ${GLASS_ROW}`}
-                  >
-                    <Users size={16} className="text-[#6a3f9e]" />
-                    <span>Invite a guest</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className={`rounded-3xl p-5 ${GLASS_LIGHT}`}>
-                <h3 className="text-sm font-semibold text-[#24112f]">
-                  How it works
-                </h3>
-
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <Step number="1" title="Choose" text="Pick an upcoming event." />
-                  <Step number="2" title="Reserve" text="Your pass is held for it." />
-                  <Step number="3" title="Show QR" text="Scan at check-in." />
-                  <Step number="4" title="Enjoy" text="Pass is used after entry." />
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* RESERVED */}
-          {pass?.status === "RESERVED" && (
-            <div className={`rounded-3xl p-5 ${GLASS_LIGHT}`}>
-              <div className="flex items-start gap-3">
-                <div className={`h-9 w-9 ${LIME_TILE}`}>
-                  <Check size={17} />
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold text-[#24112f]">
-                    Pass reserved
-                  </h3>
-
-                  <p className="mt-0.5 text-xs leading-5 text-[#6f6577]">
-                    Show the QR code at the event check-in.
-                  </p>
-                </div>
-              </div>
-
-              {registration?.guest?.enabled && registration?.guest?.name && (
-                <div className={`mt-4 flex items-center gap-3 rounded-2xl p-3 ${GLASS_ROW}`}>
-                  <div className={`h-9 w-9 rounded-full ${LIME_TILE}`}>
-                    <UserRound size={16} />
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-semibold text-[#6f6577]">Guest</p>
-
-                    <p className="text-sm font-semibold text-[#24112f]">
-                      {registration.guest.name}
-                    </p>
-
-                    <p className="text-xs text-[#6f6577]">
-                      {registration.guest.mobile}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-3 rounded-2xl border border-[#B9D63B]/50 bg-gradient-to-br from-[#B9D63B]/30 via-[#B9D63B]/10 to-transparent p-3.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
-                <p className="text-xs leading-5 text-[#3f5000]">
-                  Your pass is marked as used only after successful check-in.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* USED */}
-          {pass?.status === "USED" && (
-            <div className={`rounded-3xl p-5 ${GLASS_LIGHT}`}>
-              <div className="flex items-start gap-3">
-                <div className={`h-9 w-9 ${ICON_TILE}`}>
-                  <Check size={17} />
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold text-[#24112f]">
-                    Guest pass used
-                  </h3>
-
-                  <p className="mt-0.5 text-xs leading-5 text-[#6f6577]">
-                    This free pass has already been used and can't be used
-                    again.
-                  </p>
-                </div>
-              </div>
-
-              <div className={`mt-4 rounded-2xl p-3.5 ${GLASS_ROW}`}>
-                <p className="text-xs leading-5 text-[#6f6577]">
-                  Want to attend more experiences? Become a Purple Member to
-                  unlock your membership benefits.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ================= REGISTRATION MODAL ================= */}
-
-      {mode && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#24112f]/40 p-4 backdrop-blur-md"
-          onClick={closeModal}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.75rem] border border-white/80 bg-gradient-to-br from-white/95 via-white/85 to-[#f3ecfa]/90 shadow-[inset_0_1px_1px_rgba(255,255,255,1),0_30px_80px_rgba(53,16,77,0.35)] backdrop-blur-2xl"
-          >
-            <button
-              type="button"
-              onClick={closeModal}
-              disabled={submitting}
-              aria-label="Close"
-              className={`absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-[#4B176B] transition hover:scale-105 active:scale-95 disabled:opacity-50 ${GLASS_ROW}`}
-            >
-              <X size={17} />
-            </button>
-
-            <div className="relative overflow-hidden p-5 pb-4">
-              <div className="pointer-events-none absolute -left-10 -top-16 h-44 w-44 rounded-full bg-[#6a3f9e]/25 blur-3xl" />
-              <div className="pointer-events-none absolute -right-12 top-2 h-36 w-36 rounded-full bg-[#B9D63B]/35 blur-3xl" />
-
-              <div className="relative">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#6a3f9e]/20 bg-[#6a3f9e]/10 px-3 py-1 text-[11px] font-semibold text-[#6a3f9e]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#B9D63B] shadow-[0_0_8px_#B9D63B]" />
-                  Free guest pass
-                </span>
-
-                <h2 className="mt-3 pr-10 text-xl font-bold leading-tight tracking-tight text-[#1a0f24]">
-                  {mode === "GUEST" ? "Invite a guest" : "Use for yourself"}
-                </h2>
-              </div>
-            </div>
-
-            <div className="space-y-4 px-5 pb-5">
-              {error && (
-                <div className="rounded-2xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-700">
-                  {error}
-                </div>
-              )}
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#6f6577]">
-                  Select experience
-                </label>
+                <span
+                  className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold text-white ${GLASS}`}
+                >
+                  Current journey
+                </span>
 
-                <div className="relative">
-                  <select
-                    value={selectedEvent}
-                    onChange={(e) => setSelectedEvent(e.target.value)}
-                    disabled={submitting}
-                    className={`${INPUT} appearance-none pr-11`}
-                  >
-                    <option value="">Select an upcoming experience</option>
+                <h2 className="mt-2 text-2xl font-bold leading-[1.05] tracking-tight">
+                  {milestone.title}
+                </h2>
 
-                    {events.map((event) => (
-                      <option key={event.id} value={event.id}>
-                        {event.name} — {formatDate(event.date)}
-                      </option>
-                    ))}
-                  </select>
-
-                  <ChevronDown
-                    size={17}
-                    className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#6f6577]"
-                  />
-                </div>
+                <p className="mt-1 text-xs text-white/60">
+                  {milestone.description}
+                </p>
               </div>
+            </div>
 
-              {modalEvent && (
-                <div className={`rounded-2xl p-3.5 ${GLASS_ROW}`}>
-                  <p className="text-sm font-semibold text-[#24112f]">
-                    {modalEvent.name}
-                  </p>
+            {/* Counts */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <SummaryItem value={summary.totalInvites} label="Invited" />
+              <SummaryItem value={summary.attendedGuests} label="Experienced" />
+              <SummaryItem
+                value={summary.successfulReferrals}
+                label="Members"
+                highlight
+              />
+            </div>
+          </div>
 
-                  <div className="mt-2.5 space-y-2">
-                    <InfoRow icon={CalendarDays} text={formatDate(modalEvent.date)} />
+          {/* Progress */}
+          <div className="mt-8">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  Referral journey
+                </p>
 
-                    {modalEvent.startTime && (
-                      <InfoRow
-                        icon={Clock3}
-                        text={`${modalEvent.startTime}${
-                          modalEvent.endTime ? ` - ${modalEvent.endTime}` : ""
-                        }`}
-                      />
-                    )}
-
-                    {modalEvent.location && (
-                      <InfoRow icon={MapPin} text={modalEvent.location} />
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {mode === "GUEST" && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-[#6f6577]">
-                      Guest name
-                    </label>
-
-                    <input
-                      type="text"
-                      value={guestName}
-                      onChange={(e) => setGuestName(e.target.value)}
-                      disabled={submitting}
-                      placeholder="Guest name"
-                      className={INPUT}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-[#6f6577]">
-                      Guest mobile
-                    </label>
-
-                    <input
-                      type="tel"
-                      inputMode="numeric"
-                      maxLength={10}
-                      value={guestMobile}
-                      onChange={(e) =>
-                        setGuestMobile(
-                          e.target.value.replace(/\D/g, "").slice(0, 10)
-                        )
-                      }
-                      disabled={submitting}
-                      placeholder="10 digit mobile number"
-                      className={INPUT}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-start gap-3 rounded-2xl border border-[#B9D63B]/50 bg-gradient-to-br from-[#B9D63B]/30 via-[#B9D63B]/10 to-transparent p-3.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
-                <div className={`h-8 w-8 ${LIME_TILE}`}>
-                  <ShieldCheck size={16} />
-                </div>
-
-                <p className="text-xs leading-5 text-[#3f5000]">
-                  Your pass is reserved for this experience and becomes used
-                  only after the QR code is scanned at check-in.
+                <p className="text-xs text-white/55">
+                  {successful >= 100
+                    ? "Purple Ambassador achieved"
+                    : `${progress.remaining} more successful ${
+                        progress.remaining === 1 ? "referral" : "referrals"
+                      } to reach ${progress.target}.`}
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={registerPass}
-                disabled={submitting}
-                className={LIME_BTN}
-              >
-                <span className={SHINE} />
+              <span className="text-sm font-bold text-[#DDF27A]">
+                {successful}/100
+              </span>
+            </div>
 
-                {submitting ? (
-                  <>
-                    <Loader2 size={17} className="relative animate-spin" />
-                    <span className="relative">Reserving...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="relative">Reserve guest pass</span>
-                    <ArrowRight
-                      size={16}
-                      className="relative transition-transform duration-300 group-hover/btn:translate-x-0.5"
-                    />
-                  </>
-                )}
-              </button>
+            <div className={`h-2.5 overflow-hidden rounded-full ${GLASS_DARK}`}>
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-[#CBE75A] to-[#B9D63B] shadow-[0_0_12px_rgba(185,214,59,0.6)] transition-all duration-700"
+                style={{ width: `${progress.percentage}%` }}
+              />
+            </div>
+
+            <div className="mt-3 grid grid-cols-3 text-[11px] text-white/40">
+              <span className={successful >= 1 ? "font-semibold text-[#DDF27A]" : ""}>
+                1 · Inspirer
+              </span>
+              <span
+                className={`text-center ${
+                  successful >= 10 ? "font-semibold text-[#DDF27A]" : ""
+                }`}
+              >
+                10 · Icon
+              </span>
+              <span
+                className={`text-right ${
+                  successful >= 100 ? "font-semibold text-[#DDF27A]" : ""
+                }`}
+              >
+                100 · Ambassador
+              </span>
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ================= INVITES TABLE ================= */}
+
+      <section className="relative overflow-hidden rounded-[2rem] bg-[#120d1a] text-white shadow-xl">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[#6a3f9e]/40 blur-3xl" />
+
+        {/* Toolbar */}
+        <div className="relative flex flex-col gap-3 border-b border-white/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex items-center gap-3">
+            <h2 className="text-sm font-bold text-white">My invitations</h2>
+
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-white ${GLASS}`}
+            >
+              {invites.length}
+            </span>
+          </div>
+
+          <div className="relative w-full sm:w-64">
+            <Search
+              size={14}
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40"
+            />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search"
+              className={`w-full rounded-full py-2 pl-9 pr-4 text-xs text-white outline-none transition placeholder:text-white/35 focus:border-[#B9D63B]/70 ${GLASS_DARK}`}
+            />
+          </div>
+        </div>
+
+        {invites.length === 0 ? (
+          <div className="relative px-6 py-16 text-center">
+            <div
+              className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl text-[#B9D63B] ${GLASS}`}
+            >
+              <Users size={26} />
+            </div>
+
+            <h3 className="mt-5 text-xl font-bold text-white">
+              No invitations yet
+            </h3>
+
+            <p className="mx-auto mt-2 max-w-sm text-sm text-white/60">
+              Invite someone to your next Purple experience and start your
+              Inspirer journey.
+            </p>
+          </div>
+        ) : (
+          <div className="relative overflow-x-auto">
+            <table className="w-full min-w-[820px] border-collapse text-left">
+              <thead>
+                <tr className="border-b border-white/10 text-[11px] font-medium text-white/45">
+                  <Th icon={UserRound}>Name</Th>
+                  <Th icon={Tag}>Status</Th>
+                  <Th icon={Phone}>Mobile</Th>
+                  <Th icon={CalendarDays}>Experience</Th>
+                  <Th icon={Clock3}>Invited</Th>
+                  <th className="px-4 py-2.5" />
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredInvites.map((invite) => (
+                  <InviteRow
+                    key={invite.id}
+                    invite={invite}
+                    copied={copied === invite.id}
+                    onCopy={copyInvite}
+                    onWhatsApp={shareWhatsApp}
+                    onDownload={downloadQR}
+                    onOpen={() => setSelectedInvite(invite)}
+                  />
+                ))}
+
+                {filteredInvites.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-6 py-10 text-center text-xs text-white/45"
+                    >
+                      No invitations match “{query}”.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Footer count, Notion style */}
+        {invites.length > 0 && (
+          <div className="relative border-t border-white/10 px-5 py-3 text-[11px] text-white/40 sm:px-6">
+            {filteredInvites.length}{" "}
+            {filteredInvites.length === 1 ? "invitation" : "invitations"}
+          </div>
+        )}
+      </section>
+
+      {/* Hidden QR codes used for PNG download */}
+      <div className="pointer-events-none fixed -left-[9999px] top-0">
+        {invites
+          .filter((invite) => invite.inviteUrl)
+          .map((invite) => (
+            <QRCodeSVG
+              key={invite.id}
+              id={`invite-qr-${invite.id}`}
+              value={invite.inviteUrl}
+              size={1000}
+            />
+          ))}
+      </div>
+
+      {/* ================= DETAIL MODAL ================= */}
+
+      {selectedInvite && (
+        <InviteModal
+          invite={selectedInvite}
+          copied={copied === selectedInvite.id}
+          onCopy={copyInvite}
+          onWhatsApp={shareWhatsApp}
+          onShare={shareInvite}
+          onDownload={downloadQR}
+          onClose={() => setSelectedInvite(null)}
+        />
       )}
     </div>
   );
@@ -752,28 +593,328 @@ export default function GuestPassClient() {
    SMALL COMPONENTS
 ========================================================= */
 
-function Step({ number, title, text }) {
+function SummaryItem({ value, label, highlight = false }) {
   return (
-    <div className="flex items-center gap-2.5">
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/60 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] text-[11px] font-bold text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_4px_12px_rgba(185,214,59,0.35)]">
-        {number}
-      </div>
+    <div
+      className={`min-w-[90px] rounded-2xl px-4 py-3 ${
+        highlight
+          ? "border border-[#B9D63B]/30 bg-gradient-to-br from-[#B9D63B]/20 via-[#B9D63B]/[0.06] to-transparent shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
+          : GLASS_DARK
+      }`}
+    >
+      <p
+        className={`text-2xl font-bold ${
+          highlight ? "text-[#DDF27A]" : "text-white"
+        }`}
+      >
+        {value}
+      </p>
 
-      <div>
-        <p className="text-xs font-semibold text-[#24112f]">{title}</p>
-        <p className="text-[11px] text-[#6f6577]">{text}</p>
+      <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/45">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+function Th({ icon: Icon, children }) {
+  return (
+    <th className="px-4 py-2.5 font-medium first:pl-5 sm:first:pl-6">
+      <span className="flex items-center gap-1.5">
+        <Icon size={13} className="text-white/35" />
+        {children}
+      </span>
+    </th>
+  );
+}
+
+function StatusTag({ status }) {
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG.INVITED;
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold ${config.className}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
+      {config.label}
+    </span>
+  );
+}
+
+/* =========================================================
+   TABLE ROW
+========================================================= */
+
+function InviteRow({ invite, copied, onCopy, onWhatsApp, onDownload, onOpen }) {
+  return (
+    <tr
+      onClick={onOpen}
+      className="group cursor-pointer border-b border-white/[0.07] text-xs transition last:border-b-0 hover:bg-white/[0.04]"
+    >
+      {/* Name */}
+      <td className="py-3 pl-5 pr-4 sm:pl-6">
+        <div className="flex items-center gap-2.5">
+          <div
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+              invite.isMember
+                ? "bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] text-[#1E2A00]"
+                : GLASS_DARK + " text-[#B9D63B]"
+            }`}
+          >
+            {invite.isMember ? <Check size={14} /> : <UserPlus size={13} />}
+          </div>
+
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-white">
+              {invite.guestName}
+            </p>
+
+            {invite.isMember && (
+              <p className="text-[10px] font-semibold text-[#DDF27A]">
+                Purple Inspirer
+              </p>
+            )}
+          </div>
+        </div>
+      </td>
+
+      {/* Status */}
+      <td className="px-4 py-3">
+        <StatusTag status={invite.status} />
+      </td>
+
+      {/* Mobile */}
+      <td className="px-4 py-3 font-mono text-white/70">
+        {invite.guestMobile || "—"}
+      </td>
+
+      {/* Experience */}
+      <td className="px-4 py-3 text-white/70">
+        {invite.event?.name || "Purple Experience"}
+      </td>
+
+      {/* Invited */}
+      <td className="whitespace-nowrap px-4 py-3 text-white/50">
+        {formatDate(invite.createdAt)}
+      </td>
+
+      {/* Actions */}
+      <td
+        className="px-4 py-3 pr-5 sm:pr-6"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-center justify-end gap-1.5">
+          {invite.inviteUrl && (
+            <>
+              <button
+                type="button"
+                onClick={() => onCopy(invite)}
+                className={`flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] font-semibold text-white transition hover:brightness-125 active:scale-95 ${GLASS_DARK}`}
+              >
+                {copied ? (
+                  <Check size={13} className="text-[#B9D63B]" />
+                ) : (
+                  <Copy size={13} />
+                )}
+                {copied ? "Copied" : "Copy"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onWhatsApp(invite)}
+                className={`flex h-8 items-center rounded-full px-3 text-[11px] font-semibold text-[#5ee58f] transition hover:brightness-125 active:scale-95 ${GLASS_DARK}`}
+              >
+                WhatsApp
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onDownload(invite)}
+                title="Download QR"
+                aria-label="Download QR"
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-white transition hover:brightness-125 active:scale-95 ${GLASS_DARK}`}
+              >
+                <QrCode size={14} />
+              </button>
+            </>
+          )}
+
+          <ChevronRight
+            size={16}
+            className="ml-1 text-white/25 transition group-hover:translate-x-0.5 group-hover:text-[#B9D63B]"
+          />
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function InviteModal({
+  invite,
+  copied,
+  onCopy,
+  onWhatsApp,
+  onShare,
+  onDownload,
+  onClose,
+}) {
+  const hasLink = Boolean(invite.inviteUrl);
+
+  const details = [
+    formatDate(invite.event?.date),
+    invite.event?.startTime,
+    invite.event?.location,
+  ].filter(Boolean);
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 font-sans backdrop-blur-md"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-3xl border border-white/10 bg-[#120d1a] text-white shadow-2xl"
+      >
+        {/* Header */}
+        <div className="relative overflow-hidden px-4 pb-4 pt-4">
+          <div className="pointer-events-none absolute -left-10 -top-14 h-40 w-40 rounded-full bg-[#6a3f9e]/70 blur-3xl" />
+          <div className="pointer-events-none absolute -right-10 top-2 h-28 w-28 rounded-full bg-[#B9D63B]/20 blur-3xl" />
+
+          <div className="relative flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <span
+                className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-white ${GLASS}`}
+              >
+                Purple invitation
+              </span>
+
+              <h2 className="mt-2 truncate text-lg font-bold leading-tight tracking-tight">
+                {invite.guestName}
+              </h2>
+
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                <StatusTag status={invite.status} />
+
+                {invite.isMember && (
+                  <span className="rounded-md bg-[#B9D63B]/20 px-2 py-0.5 text-[11px] font-semibold text-[#DDF27A]">
+                    Purple Inspirer
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white transition hover:scale-105 active:scale-95 ${GLASS}`}
+            >
+              <X size={15} />
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-3 px-4 pb-4">
+          {/* Event */}
+          <div className={`rounded-2xl px-3.5 py-3 ${GLASS_DARK}`}>
+            <div className="flex items-center gap-1.5">
+              <CalendarDays size={13} className="text-[#B9D63B]" />
+              <span className="truncate text-xs font-semibold text-white">
+                {invite.event?.name || "Purple Experience"}
+              </span>
+            </div>
+
+            {details.length > 0 && (
+              <p className="mt-1 text-[11px] leading-4 text-white/55">
+                {details.join(" · ")}
+              </p>
+            )}
+          </div>
+
+          {hasLink ? (
+            <div className="flex items-stretch gap-3">
+              {/* QR */}
+              <div className="flex shrink-0 flex-col items-center rounded-2xl border border-[#B9D63B]/30 bg-gradient-to-br from-[#B9D63B]/20 via-[#B9D63B]/[0.06] to-transparent p-2.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                <div className="rounded-xl bg-white p-1.5">
+                  <QRCodeSVG
+                    value={invite.inviteUrl}
+                    size={104}
+                    level="H"
+                    fgColor="#24112f"
+                    bgColor="#ffffff"
+                  />
+                </div>
+
+                <a
+                  href={invite.inviteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-[#DDF27A] hover:underline"
+                >
+                  Open page
+                  <ExternalLink size={10} />
+                </a>
+              </div>
+
+              {/* Actions */}
+              <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => onShare(invite)}
+                  className="group/btn relative flex items-center justify-center gap-1.5 overflow-hidden rounded-full border border-white/40 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] px-3 py-2 text-xs font-semibold text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(88,112,0,0.25),0_6px_16px_rgba(185,214,59,0.3)] transition hover:brightness-105 active:scale-[0.98]"
+                >
+                  <span className="pointer-events-none absolute inset-x-3 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent opacity-70" />
+                  <Share2 size={14} className="relative" />
+                  <span className="relative">Share</span>
+                </button>
+
+                <ModalButton
+                  onClick={() => onWhatsApp(invite)}
+                  label="WhatsApp"
+                  green
+                />
+
+                <ModalButton
+                  onClick={() => onCopy(invite)}
+                  icon={copied ? Check : Copy}
+                  label={copied ? "Copied" : "Copy link"}
+                />
+
+                <ModalButton
+                  onClick={() => onDownload(invite)}
+                  icon={QrCode}
+                  label="Download QR"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-amber-300/30 bg-amber-400/10 p-3 text-[11px] leading-4 text-amber-200">
+              This invitation was created before share links were enabled.
+              Create a new invitation to get a link and QR code.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-function InfoRow({ icon: Icon, text }) {
-  if (!text) return null;
-
+function ModalButton({ onClick, disabled, icon: Icon, label, green = false }) {
   return (
-    <div className="flex items-center gap-2 text-xs text-[#4a4150]">
-      <Icon size={13} className="shrink-0 text-[#6a3f9e]" />
-      <span>{text}</span>
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition hover:brightness-125 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 ${GLASS} ${
+        green ? "text-[#5ee58f]" : "text-white"
+      }`}
+    >
+      {Icon && <Icon size={14} className={green ? "" : "text-[#B9D63B]"} />}
+      {label}
+    </button>
   );
 }

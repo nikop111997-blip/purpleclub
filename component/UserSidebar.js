@@ -14,6 +14,7 @@ import {
   LogOut,
   X,
   ChevronRight,
+  BadgeCheckIcon,
 } from "lucide-react";
 
 const menuItems = [
@@ -21,6 +22,11 @@ const menuItems = [
     label: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    label: "MemberShip",
+    href: "/dashboard/membership",
+    icon: BadgeCheckIcon,
   },
   {
     label: "Events",

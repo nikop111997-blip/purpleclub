@@ -1,8 +1,24 @@
+// app/dashboard/events/page.jsx
+
 import { auth } from "@/lib/auth";
 import { getDB } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
 import EventsClient from "@/component/EventsClient";
+
+function toDateString(value) {
+  if (!value) return "";
+
+  if (value instanceof Date) {
+    return [
+      value.getFullYear(),
+      String(value.getMonth() + 1).padStart(2, "0"),
+      String(value.getDate()).padStart(2, "0"),
+    ].join("-");
+  }
+
+  return String(value).slice(0, 10);
+}
 
 export default async function EventsPage() {
   const session = await auth();
@@ -11,154 +27,104 @@ export default async function EventsPage() {
     redirect("/auth?mode=login");
   }
 
+  if (!ObjectId.isValid(session.user.memberId)) {
+    redirect("/auth?mode=login");
+  }
+
   const db = await getDB();
+  const memberId = new ObjectId(session.user.memberId);
 
-  const memberId = new ObjectId(
-    session.user.memberId
+  const today = toDateString(new Date());
+  const now = new Date();
+
+  // Clubs provide the club name and city for event filters.
+  const clubs = await db
+    .collection("clubs")
+    .find({})
+    .project({
+      name: 1,
+      city: 1,
+      location: 1,
+      area: 1,
+    })
+    .toArray();
+
+  const clubMap = new Map(
+    clubs.map((club) => [
+      club._id.toString(),
+      {
+        id: club._id.toString(),
+        name: club.name || "Purple Club",
+        city: club.city || "",
+        area: club.area || "",
+        location: club.location || "",
+      },
+    ])
   );
 
-  // =====================================================
-  // EVENTS
-  // =====================================================
-
-  const events = await db
+  // Load published events.
+  const allEvents = await db
     .collection("events")
-    .find({
-      status: "PUBLISHED",
-      date: {
-        $gte: new Date(),
-      },
-    })
-    .sort({
-      date: 1,
-    })
+    .find({ status: "PUBLISHED" })
+    .sort({ date: 1 })
     .toArray();
 
-  // =====================================================
-  // MEMBER REGISTRATIONS
-  // =====================================================
+  // Compare YYYY-MM-DD strings so today's date is not
+  // accidentally excluded because its time is midnight.
+  const upcomingEvents = allEvents.filter((event) => {
+    const eventDate = toDateString(event.date);
+    return eventDate && eventDate >= today;
+  });
 
-  const registrations = await db
-    .collection("event_registrations")
-    .find({
-      memberId,
-      status: {
-        $in: ["REGISTERED", "ATTENDED"],
-      },
-    })
-    .toArray();
+  const formattedEvents = upcomingEvents.map((event) => {
+    const club = event.clubId
+      ? clubMap.get(event.clubId.toString())
+      : null;
 
-  /*
-    We now send the actual registrations instead of
-    only registeredEventIds.
-
-    This allows the client to know:
-
-    passUsage === "GUEST"
-      -> guest registration
-
-    passUsage === "SELF"
-      -> free pass for member
-
-    passUsage === null
-      -> membership registration
-  */
-
-  const registrationData = registrations.map(
-    (registration) => ({
-      id: registration._id.toString(),
-
-      eventId: registration.eventId.toString(),
-
-      status: registration.status,
-
-      qrCode: registration.qrCode || null,
-
-      passUsage:
-        registration.passUsage || null,
-
-      guest: registration.guest
-        ? {
-            enabled:
-              Boolean(
-                registration.guest.enabled
-              ),
-
-            name:
-              registration.guest.name || null,
-
-            mobile:
-              registration.guest.mobile || null,
-
-            status:
-              registration.guest.status || null,
-          }
-        : null,
-    })
-  );
-
-  // =====================================================
-  // FREE GUEST PASS
-  // =====================================================
-
-  const guestPass =
-    await db.collection("guest_passes").findOne({
-      memberId,
-      type: "FREE",
-    });
-
-  // =====================================================
-  // FORMAT EVENTS
-  // =====================================================
-
-  const formattedEvents = events.map(
-    (event) => ({
+    return {
       id: event._id.toString(),
+      name: event.name || event.title || "Purple Experience",
+      description: event.description || "",
+      date: toDateString(event.date),
+      startTime: event.startTime || "",
+      endTime: event.endTime || "",
+      location: event.location || event.venue || "",
+      city: event.city || club?.city || "",
+      clubId: event.clubId?.toString() || "",
+      clubName: club?.name || event.clubName || "Purple Club",
+      capacity: event.capacity || 0,
+      image: event.image || "/cheer.png",
+    };
+  });
 
-      name: event.name,
+  // Find the member's latest membership.
+  const memberships = await db
+    .collection("memberships")
+    .find({ memberId })
+    .sort({ createdAt: -1, _id: -1 })
+    .limit(20)
+    .toArray();
 
-      description:
-        event.description || "",
+  const activeMembership = memberships.find((membership) => {
+    if (membership.status !== "ACTIVE") return false;
 
-      date: event.date,
+    // Legacy active records without an endDate remain valid.
+    if (!membership.endDate) return true;
 
-      startTime:
-        event.startTime || "",
-
-      endTime:
-        event.endTime || "",
-
-      location:
-        event.location || "",
-
-      capacity:
-        event.capacity || 0,
-
-      image:
-        event.image || "/cheer.png",
-
-      registeredCount: 0,
-    })
-  );
+    return new Date(membership.endDate) > now;
+  });
 
   return (
     <EventsClient
       events={formattedEvents}
-      registrations={registrationData}
-      guestPass={
-        guestPass
-          ? {
-              id:
-                guestPass._id.toString(),
-
-              status:
-                guestPass.status,
-
-              code:
-                guestPass.code,
-            }
+      hasActiveMembership={Boolean(activeMembership)}
+      membershipPlan={activeMembership?.plan || ""}
+      membershipEndDate={
+        activeMembership?.endDate
+          ? new Date(activeMembership.endDate).toISOString()
           : null
       }
+      membershipPurchaseUrl="/dashboard/membership"
     />
   );
 }

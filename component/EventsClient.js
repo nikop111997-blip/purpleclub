@@ -1,52 +1,71 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import Link from "next/link";
 import {
   CalendarDays,
   Clock3,
   MapPin,
   Users,
-  Ticket,
-  ArrowRight,
-  X,
-  UserRound,
+  Share,
   UserPlus,
   CheckCircle2,
   Loader2,
-  Share,
-  Merge as MergeIcon,
+  Copy,
+  Check,
+  X,
+  Filter,
+  Crown,
   Link2,
 } from "lucide-react";
+
+const MEMBERSHIP_URL = "/dashboard/membership";
 
 /* =========================================================
    THEME TOKENS
    lime   #B9D63B  (primary action)
-   purple #6a3f9e  (atmosphere)
-   ink    #120d1a  (dark surfaces)
+   purple #6a3f9e  (brand)
+   Light glass for the page, poster cards for events.
 ========================================================= */
 
-const FALLBACK_IMAGE = "/cheer.png"; // place cheer.png inside /public
+const GLASS_LIGHT =
+  "border border-white/70 bg-gradient-to-br from-white/75 via-white/45 to-white/30 backdrop-blur-xl backdrop-saturate-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),inset_0_0_20px_rgba(255,255,255,0.25),0_12px_32px_-8px_rgba(106,63,158,0.15)]";
 
-// Reusable liquid-glass surface
+const GLASS_ROW =
+  "border border-white/80 bg-white/55 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(106,63,158,0.05)] backdrop-blur-md";
+
+// Glass on the dark poster cards
 const GLASS =
   "border border-white/25 bg-gradient-to-br from-white/25 via-white/[0.07] to-white/[0.04] backdrop-blur-xl backdrop-saturate-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.55),inset_0_0_12px_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.25)]";
 
-// Dark glass for panels / inputs inside the modal
-const GLASS_DARK =
-  "border border-white/10 bg-white/[0.05] shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]";
-
-// Solid lime primary button
 const LIME_BTN =
-  "group/btn relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-white/40 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] py-3.5 text-sm font-semibold text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(88,112,0,0.25),0_8px_24px_rgba(185,214,59,0.35)] transition duration-300 ease-out hover:brightness-105 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(88,112,0,0.25),0_12px_32px_rgba(185,214,59,0.5)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50";
+  "group/btn relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-white/40 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] py-3 text-sm font-semibold text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(88,112,0,0.25),0_8px_24px_rgba(185,214,59,0.35)] transition duration-300 ease-out hover:brightness-105 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(88,112,0,0.25),0_12px_32px_rgba(185,214,59,0.5)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50";
 
-// Purple primary button (used when registering with the free pass)
-const PURPLE_BTN =
-  "group/btn relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-white/30 bg-gradient-to-b from-[#8a5cc4] to-[#6a3f9e] py-3.5 text-sm font-semibold text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),inset_0_-2px_4px_rgba(40,15,70,0.35),0_8px_24px_rgba(106,63,158,0.4)] transition duration-300 ease-out hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50";
+const SHINE =
+  "pointer-events-none absolute inset-x-4 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent opacity-70";
 
-function formatDate(date) {
+const FIELD =
+  "h-10 w-full rounded-xl border border-white/80 bg-white/60 px-3 text-sm text-[#24112f] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)] outline-none transition focus:border-[#6a3f9e]/50 focus:bg-white/80 focus:ring-4 focus:ring-[#6a3f9e]/10";
+
+// Dark glass input for the invite popup
+const DARK_INPUT =
+  "w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] outline-none transition placeholder:text-white/35 focus:border-[#B9D63B]/70 focus:bg-white/[0.08] focus:ring-4 focus:ring-[#B9D63B]/10";
+
+function parseDay(value) {
+  if (!value) return null;
+
+  const date = new Date(`${String(value).slice(0, 10)}T12:00:00`);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatDate(value) {
+  const date = parseDay(value);
+
   if (!date) return "";
 
-  return new Date(date).toLocaleDateString("en-IN", {
+  return date.toLocaleDateString("en-IN", {
     weekday: "short",
     day: "numeric",
     month: "short",
@@ -54,75 +73,103 @@ function formatDate(date) {
   });
 }
 
-/* =========================================================
-   REGISTRATION HELPERS
-========================================================= */
-
-const forEvent = (registrations, eventId) =>
-  registrations.filter((r) => r.eventId === eventId);
-
-const getMembershipRegistration = (registrations, eventId) =>
-  registrations.find((r) => r.eventId === eventId && r.passUsage === null);
-
-const getGuestRegistration = (registrations, eventId) =>
-  registrations.find((r) => r.eventId === eventId && r.passUsage === "GUEST");
-
-const getSelfPassRegistration = (registrations, eventId) =>
-  registrations.find((r) => r.eventId === eventId && r.passUsage === "SELF");
-
-/* =========================================================
-   PAGE
-========================================================= */
-
 export default function EventsClient({
   events = [],
-  registrations = [],
-  guestPass = null,
+  hasActiveMembership = false,
+  membershipPlan = "",
+  membershipEndDate = null,
+  membershipPurchaseUrl = MEMBERSHIP_URL,
 }) {
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [useGuestPass, setUseGuestPass] = useState(false);
-  const [passFor, setPassFor] = useState("guest");
+  const [clubFilter, setClubFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
+  const [inviteEvent, setInviteEvent] = useState(null);
   const [guestName, setGuestName] = useState("");
   const [guestMobile, setGuestMobile] = useState("");
-
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteError, setInviteError] = useState("");
+  const [inviteResult, setInviteResult] = useState(null);
+  const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState("");
 
-  const availableGuestPass = guestPass?.status === "AVAILABLE";
+  // The portal needs the browser's document, so wait until mounted.
+  const [mounted, setMounted] = useState(false);
 
-  function resetForm() {
-    setUseGuestPass(false);
-    setPassFor("guest");
-    setGuestName("");
-    setGuestMobile("");
-    setError("");
-    setSuccess("");
-  }
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  function openRegistration(event) {
-    setSelectedEvent(event);
-    resetForm();
-  }
+  // While the popup is open: lock page scroll and close on Escape.
+  useEffect(() => {
+    if (!inviteEvent) return;
 
-  function closeRegistration() {
-    if (loading) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
-    setSelectedEvent(null);
-    resetForm();
-  }
+    function handleKeyDown(e) {
+      if (e.key === "Escape" && !inviteLoading) {
+        setInviteEvent(null);
+        setInviteError("");
+        setInviteResult(null);
+      }
+    }
 
-  const selectedState = useMemo(() => {
-    if (!selectedEvent) return { membership: null, guest: null, selfPass: null };
+    window.addEventListener("keydown", handleKeyDown);
 
-    return {
-      membership: getMembershipRegistration(registrations, selectedEvent.id),
-      guest: getGuestRegistration(registrations, selectedEvent.id),
-      selfPass: getSelfPassRegistration(registrations, selectedEvent.id),
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [registrations, selectedEvent]);
+  }, [inviteEvent, inviteLoading]);
+
+  const clubs = useMemo(() => {
+    const map = new Map();
+
+    events.forEach((event) => {
+      if (event.clubId && event.clubName) {
+        map.set(event.clubId, event.clubName);
+      }
+    });
+
+    return [...map.entries()].map(([id, name]) => ({ id, name }));
+  }, [events]);
+
+  const cities = useMemo(
+    () =>
+      [...new Set(events.map((event) => event.city).filter(Boolean))].sort(),
+    [events]
+  );
+
+  const filteredEvents = useMemo(() => {
+    return events.filter((event) => {
+      if (clubFilter !== "all" && event.clubId !== clubFilter) {
+        return false;
+      }
+
+      if (cityFilter !== "all" && event.city !== cityFilter) {
+        return false;
+      }
+
+      const date = String(event.date || "").slice(0, 10);
+
+      if (dateFrom && date < dateFrom) return false;
+      if (dateTo && date > dateTo) return false;
+
+      return true;
+    });
+  }, [events, clubFilter, cityFilter, dateFrom, dateTo]);
+
+  const hasFilters =
+    clubFilter !== "all" || cityFilter !== "all" || dateFrom || dateTo;
+
+  function resetFilters() {
+    setClubFilter("all");
+    setCityFilter("all");
+    setDateFrom("");
+    setDateTo("");
+  }
 
   async function handleShare(event) {
     const url = `${window.location.origin}/dashboard/events/${event.id}`;
@@ -131,704 +178,626 @@ export default function EventsClient({
       if (navigator.share) {
         await navigator.share({
           title: event.name,
-          text: `Join me for ${event.name}`,
+          text: `Check out ${event.name} at Purple Club.`,
           url,
         });
       } else {
         await navigator.clipboard.writeText(url);
-        setToast("Link copied");
+        setToast("Event link copied");
         setTimeout(() => setToast(""), 2000);
       }
-    } catch (err) {
-      if (err?.name !== "AbortError") console.error("SHARE ERROR:", err);
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        console.error("SHARE ERROR:", error);
+      }
     }
   }
 
-  async function handleRegister() {
-    if (!selectedEvent) return;
+  function openInvite(event) {
+    setInviteEvent(event);
+    setGuestName("");
+    setGuestMobile("");
+    setInviteError("");
+    setInviteResult(null);
+    setCopied(false);
+  }
 
-    setError("");
-    setSuccess("");
+  function closeInvite() {
+    if (inviteLoading) return;
 
-    // ---- Guest pass validation ----
-    if (useGuestPass) {
-      if (!availableGuestPass) {
-        setError("Your free guest pass is not available.");
-        return;
-      }
+    setInviteEvent(null);
+    setInviteError("");
+    setInviteResult(null);
+  }
 
-      if (!["guest", "self"].includes(passFor)) {
-        setError("Please select how you want to use the free pass.");
-        return;
-      }
+  async function handleCreateInvite(e) {
+    e.preventDefault();
 
-      if (passFor === "guest") {
-        if (!guestName.trim()) {
-          setError("Please enter the guest name.");
-          return;
-        }
+    if (!inviteEvent) return;
 
-        if (!/^[0-9]{10}$/.test(guestMobile.trim())) {
-          setError("Please enter a valid 10 digit mobile number.");
-          return;
-        }
-      }
-    }
+    const name = guestName.trim();
+    const mobile = guestMobile.replace(/\D/g, "").slice(0, 10);
 
-    // ---- Duplicate protection ----
-    if (!useGuestPass && selectedState.membership) {
-      setError("You are already registered using your membership for this event.");
+    setInviteError("");
+    setInviteResult(null);
+
+    if (!name) {
+      setInviteError("Please enter your guest's name.");
       return;
     }
 
-    if (useGuestPass && passFor === "guest" && selectedState.guest) {
-      setError("You have already registered a guest for this event.");
+    if (!/^\d{10}$/.test(mobile)) {
+      setInviteError("Enter a valid 10-digit mobile number.");
       return;
     }
 
-    if (useGuestPass && passFor === "self" && selectedState.selfPass) {
-      setError(
-        "You have already registered yourself using the free pass for this event."
-      );
-      return;
-    }
-
-    // ---- API ----
     try {
-      setLoading(true);
+      setInviteLoading(true);
 
-      const response = await fetch(`/api/events/${selectedEvent.id}/register`, {
+      const response = await fetch("/api/auth/user/guest-invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          useGuestPass,
-          passFor: useGuestPass ? passFor.toUpperCase() : null,
-          guest:
-            useGuestPass && passFor === "guest"
-              ? { name: guestName.trim(), mobile: guestMobile.trim() }
-              : null,
+          eventId: inviteEvent.id,
+          guestName: name,
+          guestMobile: mobile,
         }),
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data?.error || "Unable to register for this event.");
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || data.error || "Unable to create invitation."
+        );
       }
 
-      setSuccess(data?.message || "Your registration is confirmed.");
-
-      // Reload so the server data shows the new registration
-      setTimeout(() => {
-        window.location.reload();
-      }, 1200);
-    } catch (err) {
-      console.error("EVENT REGISTRATION ERROR:", err);
-      setError(err?.message || "Something went wrong. Please try again.");
+      setInviteResult(data.invite);
+    } catch (error) {
+      setInviteError(error.message || "Unable to create invitation.");
     } finally {
-      setLoading(false);
+      setInviteLoading(false);
     }
   }
 
-  const submitDisabled =
-    loading ||
-    (!useGuestPass && Boolean(selectedState.membership)) ||
-    (useGuestPass && !availableGuestPass) ||
-    (useGuestPass && passFor === "guest" && Boolean(selectedState.guest)) ||
-    (useGuestPass && passFor === "self" && Boolean(selectedState.selfPass));
+  async function copyInvite() {
+    if (!inviteResult?.inviteUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(inviteResult.inviteUrl);
+      setCopied(true);
+    } catch {
+      setInviteError("Unable to copy the invitation link.");
+    }
+  }
+
+  function shareInviteWhatsApp() {
+    if (!inviteResult?.inviteUrl) return;
+
+    const message = [
+      `Hey ${inviteResult.guestName}! 💜`,
+      `I'd love to invite you to ${inviteEvent.name}.`,
+      `📅 ${formatDate(inviteEvent.date)}`,
+      inviteEvent.location ? `📍 ${inviteEvent.location}` : "",
+      `Accept your invitation: ${inviteResult.inviteUrl}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const mobile = String(inviteResult.guestMobile || guestMobile).replace(
+      /\D/g,
+      ""
+    );
+
+    const url =
+      mobile.length === 10
+        ? `https://wa.me/91${mobile}?text=${encodeURIComponent(message)}`
+        : `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
 
   return (
-    <>
-      {/* ================= HEADER ================= */}
+    <main className="relative isolate font-sans">
+      {/* ================= HEADER + MEMBERSHIP ================= */}
 
-      <header className="mb-10 flex items-center font-sans">
-        <img
-          src="/calender.png"
-          alt="Purple Club"
-          width={120}
-          height={50}
-          className="mr-4 rounded-full"
-        />
+      <div className="flex flex-wrap items-start justify-between gap-x-4">
+        <header className="mb-5 flex items-center gap-3">
+          <img
+            src="/calender.png"
+            alt="Purple Club"
+            className="h-14 w-14 shrink-0 rounded-full object-cover"
+          />
 
-        <div>
-          <h1 className="text-2xl font-bold leading-[1.05] tracking-tight text-[#1a0f24] sm:text-4xl">
-            Upcoming events
-          </h1>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1a0f24] sm:text-3xl">
+              Upcoming events
+            </h1>
 
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-500 sm:text-base">
-            Join our Sunday experiences, meet the community and make
-            your Purple journey memorable.
-          </p>
+            <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
+              Find your next Purple experience by club, city or date.
+            </p>
+          </div>
+        </header>
 
-          {guestPass && (
-            <span
-              className={`mt-3 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold ${
-                availableGuestPass
-                  ? "bg-[#B9D63B]/25 text-[#4d6000]"
-                  : "bg-gray-200 text-gray-500"
-              }`}
-            >
-              <Ticket size={14} />
-              Free guest pass: {availableGuestPass ? "Available" : "Used"}
-            </span>
-          )}
-        </div>
-      </header>
+        <section className="mb-4 flex flex-col gap-3 rounded-3xl p-3.5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="min-w-0">
+              <h2 className="text-sm font-bold text-[#24112f]">
+                {hasActiveMembership
+                  ? "Your membership is active"
+                  : "Membership required to participate"}
+              </h2>
 
-      {/* ================= EVENTS ================= */}
-
-      {events.length === 0 ? (
-        <div className="relative overflow-hidden rounded-[2rem] bg-[#120d1a] p-12 text-center font-sans shadow-xl">
-          <div className="pointer-events-none absolute -top-16 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-[#6a3f9e]/60 blur-3xl" />
-
-          <div
-            className={`relative mx-auto flex h-16 w-16 items-center justify-center rounded-2xl text-[#B9D63B] ${GLASS}`}
-          >
-            <CalendarDays size={28} />
+              <p className="truncate text-xs text-[#6f6577]">
+                {hasActiveMembership
+                  ? `Use your Member QR at check-in${
+                      membershipPlan ? ` · ${membershipPlan}` : ""
+                    }${
+                      membershipEndDate
+                        ? ` · Valid until ${new Date(
+                            membershipEndDate
+                          ).toLocaleDateString("en-IN")}`
+                        : ""
+                    }`
+                  : "Buy or renew your membership to access Purple experiences."}
+              </p>
+            </div>
           </div>
 
-          <h2 className="relative mt-5 text-xl font-bold text-white">
-            No upcoming events
+          {!hasActiveMembership && (
+            <Link
+              href={membershipPurchaseUrl}
+              className={`${LIME_BTN} !w-auto shrink-0 px-5`}
+            >
+              <span className={SHINE} />
+              <span className="relative">Buy membership</span>
+            </Link>
+          )}
+        </section>
+      </div>
+
+      {/* ================= FILTERS ================= */}
+
+      <section className="mb-6 rounded-3xl p-3.5">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-end">
+          <div className="grid flex-1 grid-cols-2 gap-2.5 xl:grid-cols-4">
+            <FilterField label="Club">
+              <select
+                value={clubFilter}
+                onChange={(e) => setClubFilter(e.target.value)}
+                className={FIELD}
+              >
+                <option value="all">All clubs</option>
+                {clubs.map((club) => (
+                  <option key={club.id} value={club.id}>
+                    {club.name}
+                  </option>
+                ))}
+              </select>
+            </FilterField>
+
+            <FilterField label="City">
+              <select
+                value={cityFilter}
+                onChange={(e) => setCityFilter(e.target.value)}
+                className={FIELD}
+              >
+                <option value="all">All cities</option>
+                {cities.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </select>
+            </FilterField>
+
+            <FilterField label="From">
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className={FIELD}
+              />
+            </FilterField>
+
+            <FilterField label="To">
+              <input
+                type="date"
+                min={dateFrom || undefined}
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className={FIELD}
+              />
+            </FilterField>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 xl:justify-end">
+            <p className="flex items-center gap-1.5 text-xs text-[#6f6577]">
+              <Filter size={13} className="text-[#6a3f9e]" />
+              {filteredEvents.length} of {events.length}
+            </p>
+
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className={`rounded-full px-3.5 py-2 text-xs font-semibold text-[#4B176B] transition hover:bg-white/80 ${GLASS_ROW}`}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ================= EVENT CARDS ================= */}
+
+      {filteredEvents.length === 0 ? (
+        <div className="flex flex-col items-center rounded-[2rem] border border-dashed border-[#6a3f9e]/25 bg-white/40 p-10 text-center backdrop-blur-md">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#6a3f9e]/15 bg-gradient-to-br from-[#6a3f9e]/20 to-[#6a3f9e]/5 text-[#4B176B] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]">
+            <CalendarDays size={26} />
+          </div>
+
+          <h2 className="mt-4 font-bold text-[#24112f]">
+            No matching experiences
           </h2>
 
-          <p className="relative mx-auto mt-2 max-w-md text-sm text-white/60">
-            There are no published Purple experiences right now.
-            Check back soon.
+          <p className="mt-1 text-sm text-[#6f6577]">
+            Try changing the club, city or date filters.
           </p>
+
+          <button
+            type="button"
+            onClick={resetFilters}
+            className={`${LIME_BTN} mt-4 !w-auto px-6`}
+          >
+            <span className={SHINE} />
+            <span className="relative">Clear filters</span>
+          </button>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {events.map((event) => (
-            <EventCard
-              key={event.id}
-              event={event}
-              membership={getMembershipRegistration(registrations, event.id)}
-              guest={getGuestRegistration(registrations, event.id)}
-              selfPass={getSelfPassRegistration(registrations, event.id)}
-              onRegister={() => openRegistration(event)}
-              onShare={() => handleShare(event)}
-            />
-          ))}
-        </div>
-      )}
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {filteredEvents.map((event) => {
+            const d = parseDay(event.date);
 
-      {/* ================= TOAST ================= */}
-
-      {toast && (
-        <div
-          className={`fixed bottom-6 left-1/2 z-[110] flex -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2.5 font-sans text-sm font-medium text-white ${GLASS} bg-black/60`}
-        >
-          <Link2 size={15} className="text-[#B9D63B]" />
-          {toast}
-        </div>
-      )}
-
-      {/* ================= REGISTRATION MODAL ================= */}
-
-      {selectedEvent && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 font-sans backdrop-blur-md"
-          onClick={closeRegistration}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[2rem] border border-white/10 bg-[#120d1a] text-white shadow-2xl"
-          >
-            {/* Close */}
-            <button
-              type="button"
-              onClick={closeRegistration}
-              disabled={loading}
-              aria-label="Close"
-              className={`absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full text-white transition hover:scale-105 active:scale-95 disabled:opacity-50 ${GLASS}`}
-            >
-              <X size={18} />
-            </button>
-
-            {/* Header */}
-            <div className="relative overflow-hidden p-6 pb-7">
-              <div className="pointer-events-none absolute -left-10 -top-16 h-52 w-52 rounded-full bg-[#6a3f9e]/70 blur-3xl" />
-              <div className="pointer-events-none absolute -right-12 top-4 h-40 w-40 rounded-full bg-[#B9D63B]/20 blur-3xl" />
-
-              <div className="relative">
-                <span
-                  className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold text-white ${GLASS}`}
-                >
-                  Register
-                </span>
-
-                <h2 className="mt-4 pr-12 text-2xl font-bold leading-[1.05] tracking-tight">
-                  {selectedEvent.name}
-                </h2>
-
-                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/70">
-                  <span className="flex items-center gap-1.5">
-                    <CalendarDays size={14} className="text-white/50" />
-                    {formatDate(selectedEvent.date)}
-                  </span>
-
-                  {selectedEvent.startTime && (
-                    <span className="flex items-center gap-1.5">
-                      <Clock3 size={14} className="text-white/50" />
-                      {selectedEvent.startTime}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-5 px-6 pb-6">
-              {success ? (
-                <div className="py-8 text-center">
+            return (
+              <article
+                key={event.id}
+                className="group relative flex min-h-[430px] flex-col justify-end overflow-hidden rounded-[2rem] bg-black shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/30"
+              >
+                {/* Image with its own fade to black */}
+                <div className="absolute inset-x-0 top-0 h-[290px] overflow-hidden">
                   <img
-                    src="/cheering.png"
-                    alt="Purple Club"
-                    width={108}
-                    height={96}
-                    className="mx-auto"
+                    src={event.image || "/cheer.png"}
+                    alt={event.name}
+                    className="h-full w-full scale-105 object-cover blur-[2px] transition duration-500 group-hover:scale-110 group-hover:blur-0"
                   />
 
-                  <h3 className="mt-5 text-xl font-bold">You're in</h3>
-
-                  <p className="mt-2 text-sm text-white/60">{success}</p>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#6a3f9e]/30 via-transparent to-pink-300/20 mix-blend-soft-light" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent from-25% via-black/70 via-70% to-black" />
                 </div>
-              ) : (
-                <>
-                  {/* Event details */}
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <InfoBox
-                      icon={MapPin}
-                      label="Location"
-                      value={selectedEvent.location || "TBA"}
-                    />
-                    <InfoBox
-                      icon={Users}
-                      label="Capacity"
-                      value={
-                        selectedEvent.capacity
-                          ? `${selectedEvent.capacity} people`
-                          : "Limited seats"
-                      }
-                    />
-                  </div>
 
-                  {/* Existing registrations */}
-                  {(selectedState.membership ||
-                    selectedState.guest ||
-                    selectedState.selfPass) && (
-                    <div
-                      className={`space-y-2 rounded-2xl p-4 ${GLASS_DARK}`}
-                    >
-                      <p className="text-xs font-semibold text-[#DDF27A]">
-                        Your registrations
-                      </p>
-
-                      {selectedState.membership && (
-                        <InfoLine icon={CheckCircle2}>
-                          You are registered through membership.
-                        </InfoLine>
-                      )}
-                      {selectedState.guest && (
-                        <InfoLine icon={UserPlus}>
-                          Your guest is already registered.
-                        </InfoLine>
-                      )}
-                      {selectedState.selfPass && (
-                        <InfoLine icon={Ticket}>
-                          You are registered using your free pass.
-                        </InfoLine>
-                      )}
+                {/* Date badge */}
+                {d && (
+                  <div
+                    className={`absolute left-4 top-4 w-14 overflow-hidden rounded-2xl text-center ${GLASS}`}
+                  >
+                    <div className="bg-[#B9D63B] py-1 text-[10px] font-bold tracking-wider text-[#1E2A00]">
+                      {d
+                        .toLocaleString("en-US", { month: "short" })
+                        .toUpperCase()}
                     </div>
+                    <div className="pt-1 text-lg font-bold leading-none text-white">
+                      {d.getDate()}
+                    </div>
+                    <div className="pb-1.5 text-[10px] font-medium text-white/70">
+                      {d.toLocaleString("en-US", { weekday: "short" })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Share */}
+                <button
+                  type="button"
+                  onClick={() => handleShare(event)}
+                  aria-label={`Share ${event.name}`}
+                  className={`absolute right-4 top-4 flex h-12 w-12 items-center justify-center overflow-hidden rounded-[1.1rem] text-white transition duration-300 hover:scale-105 active:scale-95 ${GLASS}`}
+                >
+                  <span className="pointer-events-none absolute inset-x-1.5 top-0.5 h-1/2 rounded-t-[0.9rem] bg-gradient-to-b from-white/50 to-transparent opacity-60" />
+                  <Share size={18} className="relative" />
+                </button>
+
+                {/* Content */}
+                <div className="relative p-5 pt-40">
+                  {(event.clubName || event.city) && (
+                    <span
+                      className={`relative mb-2.5 inline-flex max-w-full items-center overflow-hidden rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white ${GLASS}`}
+                    >
+                      <span className="pointer-events-none absolute inset-x-1 top-px h-1/2 rounded-t-full bg-gradient-to-b from-[#B9D63B]/50 to-transparent opacity-60" />
+                      <span className="relative truncate">
+                        {event.clubName}
+                        {event.city ? ` · ${event.city}` : ""}
+                      </span>
+                    </span>
                   )}
 
-                  {/* Registration method */}
-                  <div>
-                    <p className="mb-3 text-sm font-semibold text-white">
-                      How do you want to register?
+                  <h2 className="line-clamp-2 text-2xl font-bold leading-[1.1] text-white">
+                    {event.name}
+                  </h2>
+
+                  {event.description && (
+                    <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-white/60">
+                      {event.description}
+                    </p>
+                  )}
+
+                  {/* Details */}
+                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-white/70">
+                    {event.startTime && (
+                      <span className="flex items-center gap-1.5">
+                        <Clock3 size={13} className="text-white/50" />
+                        {event.startTime}
+                        {event.endTime ? ` – ${event.endTime}` : ""}
+                      </span>
+                    )}
+
+                    {event.location && (
+                      <span className="flex min-w-0 items-center gap-1.5">
+                        <MapPin size={13} className="shrink-0 text-white/50" />
+                        <span className="line-clamp-1">{event.location}</span>
+                      </span>
+                    )}
+
+                    {event.capacity > 0 && (
+                      <span className="flex items-center gap-1.5">
+                        <Users size={13} className="text-white/50" />
+                        {event.capacity}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* No event registration action: the member uses their
+                      permanent QR, and membership is checked at check-in. */}
+                  <div className="mt-4 flex gap-2">
+                    {hasActiveMembership ? (
+                      <div className="relative flex min-w-0 flex-1 items-center justify-center gap-2 overflow-hidden rounded-full border border-[#B9D63B]/50 bg-gradient-to-br from-[#B9D63B]/40 via-[#B9D63B]/15 to-[#B9D63B]/10 px-3 py-3 text-xs font-semibold text-[#DDF27A] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),inset_0_0_12px_rgba(185,214,59,0.2)] backdrop-blur-xl">
+                        <span className="pointer-events-none absolute inset-x-4 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent opacity-60" />
+                        <CheckCircle2 size={15} className="relative shrink-0" />
+                        <span className="relative truncate">
+                          Use your Member QR
+                        </span>
+                      </div>
+                    ) : (
+                      <Link
+                        href={membershipPurchaseUrl}
+                        className={`${LIME_BTN} min-w-0 flex-1 !py-3 text-xs`}
+                      >
+                        <span className={SHINE} />
+                        <span className="relative truncate">
+                          Buy membership
+                        </span>
+                      </Link>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => openInvite(event)}
+                      className={`relative flex shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full px-4 py-3 text-xs font-semibold text-white transition hover:brightness-125 active:scale-[0.98] ${GLASS}`}
+                    >
+                      <UserPlus size={15} className="text-[#B9D63B]" />
+                      Invite
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ================= TOAST (portal) ================= */}
+
+      {mounted &&
+        toast &&
+        createPortal(
+          <div
+            className={`fixed bottom-5 left-1/2 z-[1000] flex -translate-x-1/2 items-center gap-2 rounded-full px-5 py-2.5 font-sans text-sm font-medium text-white ${GLASS} bg-black/60`}
+          >
+            <Link2 size={15} className="text-[#B9D63B]" />
+            {toast}
+          </div>,
+          document.body
+        )}
+
+      {/* ================= GUEST INVITATION POPUP (dark, portal) =================
+          Rendered into document.body so it always sits above the sidebar and
+          any parent stacking context. */}
+
+      {mounted &&
+        inviteEvent &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Guest invitation"
+            className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 p-4 font-sans backdrop-blur-md"
+            onClick={closeInvite}
+          >
+            <div
+              className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[2rem] border border-white/10 bg-[#120d1a] text-white shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={closeInvite}
+                disabled={inviteLoading}
+                aria-label="Close invitation"
+                className={`absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full text-white transition hover:scale-105 active:scale-95 disabled:opacity-50 ${GLASS}`}
+              >
+                <X size={18} />
+              </button>
+
+              {/* Header */}
+              <div className="relative overflow-hidden p-6 pb-5">
+                <div className="pointer-events-none absolute -left-10 -top-16 h-52 w-52 rounded-full bg-[#6a3f9e]/70 blur-3xl" />
+                <div className="pointer-events-none absolute -right-12 top-4 h-40 w-40 rounded-full bg-[#B9D63B]/20 blur-3xl" />
+
+                <div className="relative">
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold text-white ${GLASS}`}
+                  >
+                    Guest invitation
+                  </span>
+
+                  <h2 className="mt-4 pr-12 text-2xl font-bold leading-[1.05] tracking-tight">
+                    Invite someone to Purple
+                  </h2>
+
+                  <p className="mt-2 text-sm text-white/60">
+                    {inviteEvent.name} · {formatDate(inviteEvent.date)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="px-6 pb-6">
+                {!inviteResult ? (
+                  <form onSubmit={handleCreateInvite} className="space-y-4">
+                    <label className="block text-xs font-semibold text-white/60">
+                      Guest name
+                      <input
+                        required
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        placeholder="Enter guest name"
+                        className={`${DARK_INPUT} mt-1.5`}
+                      />
+                    </label>
+
+                    <label className="block text-xs font-semibold text-white/60">
+                      Guest mobile number
+                      <div className="mt-1.5 flex overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] focus-within:border-[#B9D63B]/70 focus-within:ring-4 focus-within:ring-[#B9D63B]/10">
+                        <span className="flex items-center border-r border-white/10 px-4 text-sm font-semibold text-[#B9D63B]">
+                          +91
+                        </span>
+
+                        <input
+                          required
+                          type="tel"
+                          inputMode="numeric"
+                          maxLength={10}
+                          value={guestMobile}
+                          onChange={(e) =>
+                            setGuestMobile(
+                              e.target.value.replace(/\D/g, "").slice(0, 10)
+                            )
+                          }
+                          placeholder="10-digit number"
+                          className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm text-white outline-none placeholder:text-white/35"
+                        />
+                      </div>
+                    </label>
+
+                    <p className="text-[11px] leading-5 text-white/45">
+                      Existing members cannot be invited as new guests.
+                      Duplicate invitations for the same event will be blocked.
                     </p>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <PassToggle
-                        active={!useGuestPass}
-                        disabled={Boolean(selectedState.membership)}
-                        onClick={() => setUseGuestPass(false)}
-                        icon={UserRound}
-                        label="Membership"
-                      />
-                      <PassToggle
-                        active={useGuestPass}
-                        disabled={!availableGuestPass}
-                        onClick={() => setUseGuestPass(true)}
-                        icon={Ticket}
-                        label="Free pass"
-                      />
-                    </div>
-
-                    {selectedState.membership && (
-                      <p className="mt-2 text-xs text-white/45">
-                        Membership already registered for this event.
+                    {inviteError && (
+                      <p className="rounded-2xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-300">
+                        {inviteError}
                       </p>
                     )}
-                    {!availableGuestPass && (
-                      <p className="mt-2 text-xs text-white/45">
-                        Your free guest pass is not available.
-                      </p>
-                    )}
-                  </div>
 
-                  {/* Free pass options */}
-                  {useGuestPass && (
+                    <button
+                      type="submit"
+                      disabled={inviteLoading}
+                      className={LIME_BTN}
+                    >
+                      <span className={SHINE} />
+
+                      {inviteLoading ? (
+                        <>
+                          <Loader2
+                            size={17}
+                            className="relative animate-spin"
+                          />
+                          <span className="relative">
+                            Checking number and creating invite...
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus size={17} className="relative" />
+                          <span className="relative">
+                            Create guest invitation
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                ) : (
+                  <div className="space-y-3">
                     <div className="rounded-3xl border border-[#B9D63B]/30 bg-gradient-to-br from-[#B9D63B]/20 via-[#B9D63B]/[0.06] to-transparent p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] text-[#1E2A00]">
-                          <Ticket size={19} />
-                        </div>
+                      <p className="flex items-center gap-2 text-sm font-bold text-[#DDF27A]">
+                        <CheckCircle2 size={17} />
+                        Invitation created
+                      </p>
 
-                        <div>
-                          <p className="font-semibold text-white">
-                            Who is using the free pass?
-                          </p>
-
-                          <p className="mt-1 text-xs leading-5 text-white/60">
-                            It won't use up one of your 4 membership
-                            experiences.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 grid grid-cols-2 gap-2">
-                        <PassToggle
-                          active={passFor === "self"}
-                          disabled={Boolean(selectedState.selfPass)}
-                          onClick={() => setPassFor("self")}
-                          icon={UserRound}
-                          label="Myself"
-                        />
-                        <PassToggle
-                          active={passFor === "guest"}
-                          disabled={Boolean(selectedState.guest)}
-                          onClick={() => setPassFor("guest")}
-                          icon={UserPlus}
-                          label="Guest"
-                        />
-                      </div>
-
-                      {passFor === "guest" && (
-                        <div className="mt-3 space-y-3">
-                          <input
-                            value={guestName}
-                            onChange={(e) => setGuestName(e.target.value)}
-                            placeholder="Guest name"
-                            disabled={loading}
-                            className={`w-full rounded-2xl px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#B9D63B]/70 disabled:opacity-50 ${GLASS_DARK}`}
-                          />
-
-                          <input
-                            value={guestMobile}
-                            onChange={(e) =>
-                              setGuestMobile(
-                                e.target.value.replace(/\D/g, "").slice(0, 10)
-                              )
-                            }
-                            placeholder="Guest mobile number"
-                            type="tel"
-                            inputMode="numeric"
-                            maxLength={10}
-                            disabled={loading}
-                            className={`w-full rounded-2xl px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#B9D63B]/70 disabled:opacity-50 ${GLASS_DARK}`}
-                          />
-
-                          <p className="text-[11px] leading-5 text-white/45">
-                            Your pass is reserved now and marked as used when
-                            the guest checks in.
-                          </p>
-                        </div>
-                      )}
-
-                      {passFor === "self" && (
-                        <p className="mt-3 text-[11px] leading-5 text-white/45">
-                          Your pass is reserved now for you.
-                        </p>
-                      )}
+                      <p className="mt-2 break-all text-xs text-white/75">
+                        {inviteResult.inviteUrl}
+                      </p>
                     </div>
-                  )}
 
-                  {/* Error */}
-                  {error && (
-                    <div className="rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-                      {error}
-                    </div>
-                  )}
+                    <button
+                      type="button"
+                      onClick={copyInvite}
+                      className={`relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full py-3 text-sm font-semibold text-white transition hover:brightness-125 active:scale-[0.98] ${GLASS}`}
+                    >
+                      {copied ? (
+                        <Check size={16} className="text-[#B9D63B]" />
+                      ) : (
+                        <Copy size={16} />
+                      )}
+                      {copied ? "Copied" : "Copy invitation link"}
+                    </button>
 
-                  {/* Confirm */}
-                  <button
-                    type="button"
-                    disabled={submitDisabled}
-                    onClick={handleRegister}
-                    className={useGuestPass ? PURPLE_BTN : LIME_BTN}
-                  >
-                    <span className="pointer-events-none absolute inset-x-4 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent opacity-70" />
+                    <button
+                      type="button"
+                      onClick={shareInviteWhatsApp}
+                      className={LIME_BTN}
+                    >
+                      <span className={SHINE} />
+                      <span className="relative">Share on WhatsApp</span>
+                    </button>
 
-                    {loading ? (
-                      <>
-                        <Loader2 size={18} className="relative animate-spin" />
-                        <span className="relative">Registering...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="relative">
-                          {useGuestPass
-                            ? passFor === "guest"
-                              ? "Register guest"
-                              : "Use free pass"
-                            : "Register with membership"}
-                        </span>
-                        <ArrowRight
-                          size={17}
-                          className="relative transition-transform duration-300 group-hover/btn:translate-x-0.5"
-                        />
-                      </>
-                    )}
-                  </button>
-
-                  <p className="text-center text-[11px] leading-5 text-white/40">
-                    Each registration gets its own QR code.
-                  </p>
-                </>
-              )}
+                    <button
+                      type="button"
+                      onClick={closeInvite}
+                      className="w-full rounded-full py-2.5 text-sm font-medium text-white/60 transition hover:text-white"
+                    >
+                      Done
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
-    </>
+          </div>,
+          document.body
+        )}
+    </main>
   );
 }
 
-/* =========================================================
-   EVENT CARD
-========================================================= */
-
-function EventCard({
-  event,
-  membership,
-  guest,
-  selfPass,
-  onRegister,
-  onShare,
-}) {
-  const d = event.date ? new Date(event.date) : null;
-  const month = d?.toLocaleString("en-US", { month: "short" }).toUpperCase();
-  const day = d?.getDate();
-  const weekday = d?.toLocaleString("en-US", { weekday: "short" });
-
-  const time = event.startTime
-    ? `${event.startTime}${event.endTime ? ` - ${event.endTime}` : ""}`
-    : null;
-
-  const seats = event.capacity ? `${event.capacity} seats` : "Limited seats";
-
-  const hasAny = Boolean(membership || guest || selfPass);
-
+function FilterField({ label, children }) {
   return (
-    <article className="group relative flex min-h-[28rem] w-full max-w-sm flex-col justify-end overflow-hidden rounded-[2rem] bg-black font-sans shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-      {/* Image */}
-      <img
-        src={event.image || FALLBACK_IMAGE}
-        alt={event.name || ""}
-        className="absolute inset-0 h-3/4 w-full scale-105 object-cover blur-[3px] transition duration-500 group-hover:scale-110 group-hover:blur-0"
-      />
-
-      {/* Colour wash */}
-      <div className="absolute inset-0 h-3/4 bg-gradient-to-br from-[#6a3f9e]/30 via-transparent to-pink-300/20 mix-blend-soft-light" />
-
-      {/* Fade to black */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent from-30% via-black/70 via-60% to-black to-85%" />
-
-      {/* Date badge (glass) */}
-      {d && (
-        <div
-          className={`absolute left-4 top-4 w-14 overflow-hidden rounded-2xl text-center ${GLASS}`}
-        >
-          <div className="bg-[#B9D63B] py-1 text-[10px] font-bold tracking-wider text-[#1E2A00]">
-            {month}
-          </div>
-          <div className="pt-1 text-lg font-bold leading-none text-white">
-            {day}
-          </div>
-          <div className="pb-1.5 text-[10px] font-medium text-white/70">
-            {weekday}
-          </div>
-        </div>
-      )}
-
-      {/* Share button */}
-      <button
-        type="button"
-        onClick={onShare}
-        aria-label="Share"
-        className={`absolute right-4 top-4 flex h-14 w-14 items-center justify-center overflow-hidden rounded-[1.25rem] text-white transition duration-300 ease-out hover:scale-105 active:scale-95 ${GLASS}`}
-      >
-        <span className="pointer-events-none absolute inset-x-1.5 top-0.5 h-1/2 rounded-t-[1rem] bg-gradient-to-b from-white/50 to-transparent opacity-60" />
-        <Share
-          size={20}
-          strokeWidth={2}
-          className="relative drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
-        />
-      </button>
-
-      {/* Bottom content */}
-      <div className="relative p-5">
-        <span
-          className={`relative mb-3 inline-flex items-center overflow-hidden rounded-full px-3.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white ${GLASS}`}
-        >
-          <span className="pointer-events-none absolute inset-x-1 top-px h-1/3 rounded-t-full bg-gradient-to-b from-[#B9D63B]/50 to-transparent opacity-60" />
-          <span className="relative drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]">
-            Sunday Experience
-          </span>
-        </span>
-
-        <h2 className="line-clamp-2 text-xl font-bold leading-[1.05] text-white">
-          {event.name}
-        </h2>
-
-        {event.description && (
-          <p className="mt-2 line-clamp-2 text-sm leading-5 text-white/60">
-            {event.description}
-          </p>
-        )}
-
-        {/* Details */}
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/70">
-          {time && (
-            <span className="flex items-center gap-1.5">
-              <Clock3 size={14} className="text-white/50" />
-              {time}
-            </span>
-          )}
-          {event.location && (
-            <span className="flex items-center gap-1.5">
-              <MapPin size={14} className="text-white/50" />
-              <span className="line-clamp-1">{event.location}</span>
-            </span>
-          )}
-          <span className="flex items-center gap-1.5">
-            <Users size={14} className="text-white/50" />
-            {seats}
-          </span>
-        </div>
-
-       
-
-        {/* Action */}
-        {membership ? (
-          <div className="relative mt-5 flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-[#B9D63B]/50 bg-gradient-to-br from-[#B9D63B]/40 via-[#B9D63B]/15 to-[#B9D63B]/10 py-3.5 text-sm font-semibold text-[#DDF27A] backdrop-blur-xl backdrop-saturate-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),inset_0_0_12px_rgba(185,214,59,0.2),0_6px_20px_rgba(185,214,59,0.15)]">
-            <span className="pointer-events-none absolute inset-x-4 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent opacity-60" />
-            <CheckCircle2 size={16} className="relative" />
-            <span className="relative">Registered</span>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={onRegister}
-            className={`mt-5 ${LIME_BTN}`}
-          >
-            <span className="pointer-events-none absolute inset-x-4 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent opacity-70" />
-            <span className="relative">
-              {guest || selfPass ? "Join yourself" : "Join the Run"}
-            </span>
-            <MergeIcon
-              size={16}
-              className="relative transition-transform duration-300 group-hover/btn:translate-x-0.5"
-            />
-          </button>
-        )}
-
-        {/* Extra pass actions once the member is in */}
-        {membership && !(guest && selfPass) && (
-          <button
-            type="button"
-            onClick={onRegister}
-            className={`mt-3 flex w-full items-center justify-center gap-2 rounded-full py-3 text-xs font-semibold text-white transition hover:brightness-125 active:scale-[0.98] ${GLASS}`}
-          >
-            <Ticket size={14} className="text-[#B9D63B]" />
-            Use free pass
-          </button>
-        )}
-      </div>
-    </article>
-  );
-}
-
-/* =========================================================
-   SMALL COMPONENTS
-========================================================= */
-
-function StatusRow({ icon: Icon, label, status }) {
-  const attended = status === "ATTENDED";
-
-  return (
-    <div
-      className={`flex items-center justify-between rounded-2xl px-3.5 py-2.5 ${GLASS}`}
-    >
-      <span className="flex min-w-0 items-center gap-2 text-xs font-medium text-white/80">
-        <span className="truncate">{label}</span>
+    <label className="block">
+      <span className="mb-1 block text-[11px] font-semibold text-[#6f6577]">
+        {label}
       </span>
 
-      <span
-        className={`ml-3 shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-          attended
-            ? "bg-[#B9D63B] text-[#1E2A00]"
-            : "bg-white/15 text-white/70"
-        }`}
-      >
-        {attended ? "Attended" : "Registered"}
-      </span>
-    </div>
-  );
-}
-
-function InfoBox({ icon: Icon, label, value }) {
-  return (
-    <div className={`rounded-2xl p-3.5 ${GLASS_DARK}`}>
-      <div className="flex items-center gap-2">
-        <Icon size={15} className="text-[#B9D63B]" />
-
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-white/45">
-          {label}
-        </span>
-      </div>
-
-      <p className="mt-1.5 truncate text-sm font-semibold text-white">
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function InfoLine({ icon: Icon, children }) {
-  return (
-    <div className="flex items-center gap-2 text-xs text-white/65">
-      <Icon size={14} className="shrink-0 text-[#B9D63B]" />
       {children}
-    </div>
-  );
-}
-
-function PassToggle({ active, onClick, icon: Icon, label, disabled = false }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`flex items-center justify-center gap-2 rounded-2xl border px-3 py-3 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
-        active
-          ? "border-[#B9D63B] bg-[#B9D63B] text-[#1E2A00] shadow-[0_4px_16px_rgba(185,214,59,0.35)]"
-          : "border-white/10 bg-white/[0.05] text-white/70 hover:bg-white/10"
-      }`}
-    >
-      <Icon size={16} />
-      {label}
-    </button>
+    </label>
   );
 }

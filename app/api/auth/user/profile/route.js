@@ -12,40 +12,33 @@ export async function GET() {
   try {
     const session = await auth();
 
-    // User must be logged in
-    if (!session?.user?.id) {
+    if (!session?.user?.memberId) {
       return NextResponse.json(
         {
           success: false,
           message: "Unauthorized",
         },
-        {
-          status: 401,
-        }
+        { status: 401 }
       );
     }
 
-    const userId = session.user.id;
+    const memberId = session.user.memberId;
 
-    if (!ObjectId.isValid(userId)) {
+    if (!ObjectId.isValid(memberId)) {
       return NextResponse.json(
         {
           success: false,
           message: "Invalid user session",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
     const db = await getDB();
 
-    const user = await db
-      .collection("members")
-      .findOne({
-        _id: new ObjectId(userId),
-      });
+    const user = await db.collection("members").findOne({
+      _id: new ObjectId(memberId),
+    });
 
     if (!user) {
       return NextResponse.json(
@@ -53,11 +46,71 @@ export async function GET() {
           success: false,
           message: "User not found",
         },
-        {
-          status: 404,
-        }
+        { status: 404 }
       );
     }
+
+    // =====================================================
+    // FIND INSPIRER AUTOMATICALLY
+    // =====================================================
+
+    let inspirerName = "";
+
+    /*
+     * Priority:
+     * 1. guest_invites
+     * 2. referral
+     * 3. existing invitedBy fields
+     */
+
+    const invite = await db
+      .collection("guest_invites")
+      .findOne(
+        {
+          guestUserId: user._id,
+        },
+        {
+          sort: {
+            registeredAt: 1,
+            createdAt: 1,
+          },
+        }
+      );
+
+    if (invite?.inviterMemberId) {
+      const inviter = await db
+        .collection("members")
+        .findOne(
+          {
+            _id: invite.inviterMemberId,
+          },
+          {
+            projection: {
+              name: 1,
+            },
+          }
+        );
+
+      if (inviter?.name) {
+        inspirerName = inviter.name;
+      }
+    }
+
+    /*
+     * Fallback to existing database value
+     */
+
+    if (!inspirerName) {
+      inspirerName =
+        user.invitedBy ||
+        user.inspirer ||
+        user.referrerName ||
+        "";
+    }
+
+    // =====================================================
+    // RESPONSE
+    // =====================================================
 
     return NextResponse.json({
       success: true,
@@ -67,26 +120,18 @@ export async function GET() {
 
         name: user.name || "",
 
-        age:
-          user.age ??
-          "",
+        age: user.age ?? "",
 
-        gender:
-          user.gender ||
-          "",
+        gender: user.gender || "",
 
-        city:
-          user.city ||
-          "",
+        city: user.city || "",
 
         mobile:
           user.mobile ||
           user.phone ||
           "",
 
-        email:
-          user.email ||
-          "",
+        email: user.email || "",
 
         instagram:
           user.instagram ||
@@ -103,11 +148,8 @@ export async function GET() {
           user.healthFitnessGoal ||
           "",
 
-        invitedBy:
-          user.invitedBy ||
-          user.inspirer ||
-          user.referrerName ||
-          "",
+        // Automatically determined
+        invitedBy: inspirerName,
 
         coachName:
           user.coachName ||
@@ -128,9 +170,7 @@ export async function GET() {
         success: false,
         message: "Failed to load profile",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
@@ -143,30 +183,25 @@ export async function PATCH(request) {
   try {
     const session = await auth();
 
-    // User must be logged in
-    if (!session?.user?.id) {
+    if (!session?.user?.memberId) {
       return NextResponse.json(
         {
           success: false,
           message: "Unauthorized",
         },
-        {
-          status: 401,
-        }
+        { status: 401 }
       );
     }
 
-    const userId = session.user.id;
+    const memberId = session.user.memberId;
 
-    if (!ObjectId.isValid(userId)) {
+    if (!ObjectId.isValid(memberId)) {
       return NextResponse.json(
         {
           success: false,
           message: "Invalid user session",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
@@ -176,78 +211,143 @@ export async function PATCH(request) {
 
     const users = db.collection("members");
 
-    /*
-      IMPORTANT:
-      Mobile is intentionally NOT accepted
-      from the request.
+    const userObjectId = new ObjectId(memberId);
 
-      The frontend cannot change mobile.
-    */
+    // =====================================================
+    // GET EXISTING USER
+    // =====================================================
+
+    const existingUser = await users.findOne({
+      _id: userObjectId,
+    });
+
+    if (!existingUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "User not found",
+        },
+        { status: 404 }
+      );
+    }
 
     const updateData = {};
 
-    /* =========================
-       NAME
-    ========================== */
+    // =====================================================
+    // NAME
+    // =====================================================
 
     if (typeof body.name === "string") {
-      updateData.name =
-        body.name.trim();
+      const name = body.name.trim();
+
+      if (name.length < 2) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Name must be at least 2 characters",
+          },
+          { status: 400 }
+        );
+      }
+
+      updateData.name = name;
     }
 
-    /* =========================
-       AGE
-    ========================== */
+    // =====================================================
+    // AGE
+    // =====================================================
 
     if (
       body.age === null ||
       body.age === "" ||
       typeof body.age === "number"
     ) {
+      if (
+        body.age !== null &&
+        body.age !== "" &&
+        (
+          body.age < 1 ||
+          body.age > 120
+        )
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Enter a valid age",
+          },
+          { status: 400 }
+        );
+      }
+
       updateData.age =
         body.age === ""
           ? null
           : body.age;
     }
 
-    /* =========================
-       GENDER
-    ========================== */
+    // =====================================================
+    // GENDER
+    // =====================================================
 
-    if (
-      typeof body.gender === "string"
-    ) {
+    if (typeof body.gender === "string") {
       updateData.gender =
         body.gender.trim();
     }
 
-    /* =========================
-       CITY
-    ========================== */
+    // =====================================================
+    // CITY
+    // =====================================================
 
-    if (
-      typeof body.city === "string"
-    ) {
-      updateData.city =
-        body.city.trim();
+    if (typeof body.city === "string") {
+      const city = body.city.trim();
+
+      if (city) {
+        /*
+         * IMPORTANT:
+         * Validate city against our cities collection.
+         */
+
+        const cityRecord =
+          await db.collection("cities").findOne({
+            city: {
+              $regex: `^${escapeRegex(city)}$`,
+              $options: "i",
+            },
+          });
+
+        if (!cityRecord) {
+          return NextResponse.json(
+            {
+              success: false,
+              message:
+                "Please select a city from the list",
+            },
+            { status: 400 }
+          );
+        }
+
+        // Save the canonical city name
+        updateData.city =
+          cityRecord.city;
+      } else {
+        updateData.city = "";
+      }
     }
 
-    /* =========================
-       EMAIL
-    ========================== */
+    // =====================================================
+    // EMAIL
+    // =====================================================
 
-    if (
-      typeof body.email === "string"
-    ) {
+    if (typeof body.email === "string") {
       updateData.email =
         body.email
           .trim()
           .toLowerCase();
     }
 
-    /* =========================
-       INSTAGRAM
-    ========================== */
+    // =====================================================
+    // INSTAGRAM
+    // =====================================================
 
     if (
       typeof body.instagram === "string"
@@ -256,9 +356,9 @@ export async function PATCH(request) {
         body.instagram.trim();
     }
 
-    /* =========================
-       OCCUPATION
-    ========================== */
+    // =====================================================
+    // OCCUPATION
+    // =====================================================
 
     if (
       typeof body.occupation === "string"
@@ -267,9 +367,9 @@ export async function PATCH(request) {
         body.occupation.trim();
     }
 
-    /* =========================
-       HEALTH GOAL
-    ========================== */
+    // =====================================================
+    // HEALTH GOAL
+    // =====================================================
 
     if (
       typeof body.healthGoal === "string"
@@ -278,20 +378,22 @@ export async function PATCH(request) {
         body.healthGoal.trim();
     }
 
-    /* =========================
-       INVITED BY
-    ========================== */
+    // =====================================================
+    // DO NOT ACCEPT invitedBy FROM CLIENT
+    // =====================================================
+    //
+    // invitedBy is controlled by the invitation/referral
+    // system.
+    //
+    // Do NOT do:
+    //
+    // updateData.invitedBy = body.invitedBy
+    //
+    // =====================================================
 
-    if (
-      typeof body.invitedBy === "string"
-    ) {
-      updateData.invitedBy =
-        body.invitedBy.trim();
-    }
-
-    /* =========================
-       COACH NAME
-    ========================== */
+    // =====================================================
+    // COACH NAME
+    // =====================================================
 
     if (
       typeof body.coachName === "string"
@@ -300,9 +402,9 @@ export async function PATCH(request) {
         body.coachName.trim();
     }
 
-    /* =========================
-       CONSENT
-    ========================= */
+    // =====================================================
+    // CONSENT
+    // =====================================================
 
     if (
       typeof body.consent === "boolean"
@@ -311,33 +413,32 @@ export async function PATCH(request) {
         body.consent;
     }
 
-    /* =========================
-       UPDATED AT
-    ========================== */
+    // =====================================================
+    // UPDATED AT
+    // =====================================================
 
-    updateData.updatedAt =
-      new Date();
+    updateData.updatedAt = new Date();
 
-    /* =========================
-       UPDATE USER
-    ========================== */
+    // =====================================================
+    // UPDATE
+    // =====================================================
 
     await users.updateOne(
       {
-        _id: new ObjectId(userId),
+        _id: userObjectId,
       },
       {
         $set: updateData,
       }
     );
 
-    /* =========================
-       GET UPDATED USER
-    ========================== */
+    // =====================================================
+    // GET UPDATED USER
+    // =====================================================
 
     const updatedUser =
       await users.findOne({
-        _id: new ObjectId(userId),
+        _id: userObjectId,
       });
 
     if (!updatedUser) {
@@ -346,15 +447,60 @@ export async function PATCH(request) {
           success: false,
           message: "User not found",
         },
-        {
-          status: 404,
-        }
+        { status: 404 }
       );
     }
 
-    /* =========================
-       RESPONSE
-    ========================== */
+    // =====================================================
+    // GET AUTOMATIC INSPIRER
+    // =====================================================
+
+    let inspirerName = "";
+
+    const invite = await db
+      .collection("guest_invites")
+      .findOne(
+        {
+          guestUserId: updatedUser._id,
+        },
+        {
+          sort: {
+            registeredAt: 1,
+            createdAt: 1,
+          },
+        }
+      );
+
+    if (invite?.inviterMemberId) {
+      const inviter = await db
+        .collection("members")
+        .findOne(
+          {
+            _id: invite.inviterMemberId,
+          },
+          {
+            projection: {
+              name: 1,
+            },
+          }
+        );
+
+      if (inviter?.name) {
+        inspirerName = inviter.name;
+      }
+    }
+
+    if (!inspirerName) {
+      inspirerName =
+        updatedUser.invitedBy ||
+        updatedUser.inspirer ||
+        updatedUser.referrerName ||
+        "";
+    }
+
+    // =====================================================
+    // RESPONSE
+    // =====================================================
 
     return NextResponse.json({
       success: true,
@@ -363,35 +509,28 @@ export async function PATCH(request) {
         "Profile updated successfully",
 
       profile: {
-        id: updatedUser._id.toString(),
+        id:
+          updatedUser._id.toString(),
 
         name:
           updatedUser.name || "",
 
         age:
-          updatedUser.age ??
-          "",
+          updatedUser.age ?? "",
 
         gender:
-          updatedUser.gender ||
-          "",
+          updatedUser.gender || "",
 
         city:
-          updatedUser.city ||
-          "",
+          updatedUser.city || "",
 
-        /*
-          Mobile comes directly
-          from database.
-        */
         mobile:
           updatedUser.mobile ||
           updatedUser.phone ||
           "",
 
         email:
-          updatedUser.email ||
-          "",
+          updatedUser.email || "",
 
         instagram:
           updatedUser.instagram ||
@@ -409,10 +548,7 @@ export async function PATCH(request) {
           "",
 
         invitedBy:
-          updatedUser.invitedBy ||
-          updatedUser.inspirer ||
-          updatedUser.referrerName ||
-          "",
+          inspirerName,
 
         coachName:
           updatedUser.coachName ||
@@ -431,11 +567,21 @@ export async function PATCH(request) {
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to update profile",
+        message:
+          "Failed to update profile",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
+}
+
+/* =========================================================
+   ESCAPE REGEX
+========================================================= */
+
+function escapeRegex(value) {
+  return value.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
 }

@@ -40,7 +40,7 @@ function buildOptions({ value, size, image }) {
 
       hideBackgroundDots: true,
 
-      imageSize: 0.20,
+      imageSize: 0.80,
 
       margin: 4,
 
@@ -93,7 +93,7 @@ function buildOptions({ value, size, image }) {
 
 export default function PandaQRCode({
   value,
-  size = 500,
+  size = 300,
   image = "/cheering.png",
   className = "",
 }) {
@@ -166,29 +166,18 @@ export default function PandaQRCode({
 
   return (
     <div
-      className={`relative mx-auto ${className}`}
+      className={`relative mx-auto ${className} `}
       style={{
         width: size,
         height: size,
       }}
     >
-      {/* Panda ears */}
-
-      <div
-        className="pointer-events-none absolute left-[4%] top-[3%] z-0 rounded-full"
-        style={{
-          width: size * 0.20,
-          height: size * 0.20,
-          backgroundColor: DARK,
-        }}
-      />
-
+ 
       <div
         className="pointer-events-none absolute right-[4%] top-[3%] z-0 rounded-full"
         style={{
           width: size * 0.20,
           height: size * 0.20,
-          backgroundColor: DARK,
         }}
       />
 
@@ -196,7 +185,7 @@ export default function PandaQRCode({
 
       <div
         ref={containerRef}
-        className="relative z-10 overflow-hidden  bg-white"
+        className="relative z-10 overflow-hidden bg-white rounded-2xl" 
         style={{
           width: size,
           height: size,

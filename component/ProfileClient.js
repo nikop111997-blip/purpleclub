@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import {
   User,
   CalendarDays,
@@ -12,34 +13,54 @@ import {
   UserRoundPlus,
   Users,
   ShieldCheck,
+  BadgeCheck,
   Pencil,
   Check,
   Loader2,
   ChevronDown,
   Search,
   X,
+  Lock,
+  AlertCircle,
 } from "lucide-react";
 
 /* =========================================================
-   FLAT, ONE-SCREEN PROFILE
-   lime   #B9D63B  (primary action)
-   purple #6a3f9e  (brand)
-   No blur, gradients or shadows: solid colours and thin borders.
+   PROFILE CARD + COMPACT FORM (ONE SCREEN ON DESKTOP)
+
+   purple #6a3f9e  brand
+   deep   #4B176B  banner / headings
+   lime   #B9D63B  primary action
+   ink    #1f1427  text
+   muted  #6b6275  secondary text
+   line   #e7e2ec  borders
 ========================================================= */
 
-const LABEL = "mb-1 block text-[11px] font-semibold text-[#6f6577]";
+const LABEL =
+  "mb-1 block text-xs font-medium text-[#4a3f54]";
+
 const ICON_CLASS =
-  "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8b7898]";
+  "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9a8fa6]";
+
+/* =========================================================
+   FIELD CLASS
+========================================================= */
 
 function fieldClass(disabled, hasIcon, extra = "") {
-  return `h-10 w-full rounded-xl border text-sm font-medium outline-none transition ${
-    hasIcon ? "pl-9" : "px-3"
-  } ${extra} ${
-    disabled
-      ? "cursor-not-allowed border-[#ece8ef] bg-[#f6f4f8] text-[#8b8190]"
-      : "border-[#e2dce8] bg-white text-[#24112f] placeholder:text-[#aaa0b0] focus:border-[#6a3f9e] focus:ring-2 focus:ring-[#6a3f9e]/15"
-  }`;
+  return `
+    h-10 w-full rounded-lg border text-sm outline-none transition-colors
+    ${hasIcon ? "pl-9" : "px-3"}
+    ${extra}
+    ${
+      disabled
+        ? "cursor-default border-[#eeeaf1] bg-[#faf9fb] font-medium text-[#3a2f45]"
+        : "border-[#d9d2e0] bg-white font-medium text-[#1f1427] placeholder:font-normal placeholder:text-[#a79eb0] hover:border-[#bfb4c9] focus:border-[#6a3f9e] focus:ring-4 focus:ring-[#6a3f9e]/10"
+    }
+  `;
 }
+
+/* =========================================================
+   INSTAGRAM ICON
+========================================================= */
 
 function Instagram({ size = 20, className = "" }) {
   return (
@@ -55,12 +76,25 @@ function Instagram({ size = 20, className = "" }) {
       strokeLinejoin="round"
       className={className}
     >
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <rect
+        width="20"
+        height="20"
+        x="2"
+        y="2"
+        rx="5"
+        ry="5"
+      />
+
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+
       <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
     </svg>
   );
 }
+
+/* =========================================================
+   OPTIONS
+========================================================= */
 
 const HEALTH_GOALS = [
   "Weight loss",
@@ -77,7 +111,12 @@ const HEALTH_GOALS = [
   "General wellness",
 ];
 
-const GENDER_OPTIONS = ["Male", "Female", "Other", "Prefer not to say"];
+const GENDER_OPTIONS = [
+  "Male",
+  "Female",
+  "Other",
+  "Prefer not to say",
+];
 
 /* =========================================================
    NORMALIZE PROFILE
@@ -86,18 +125,44 @@ const GENDER_OPTIONS = ["Male", "Female", "Other", "Prefer not to say"];
 function normalizeProfile(profile = {}) {
   return {
     name: profile.name || "",
+
     age: profile.age ?? "",
+
     gender: profile.gender || "",
+
     city: profile.city || "",
+
     mobile: profile.mobile || profile.phone || "",
+
     email: profile.email || "",
+
     instagram:
-      profile.instagram || profile.instagramHandle || profile.socialHandle || "",
+      profile.instagram ||
+      profile.instagramHandle ||
+      profile.socialHandle ||
+      "",
+
     occupation: profile.occupation || "",
-    healthGoal: profile.healthGoal || profile.healthFitnessGoal || "",
+
+    healthGoal:
+      profile.healthGoal ||
+      profile.healthFitnessGoal ||
+      "",
+
+    /*
+      Automatically populated by API.
+
+      Do not allow the client to manually
+      change this value.
+    */
     invitedBy:
-      profile.invitedBy || profile.inspirer || profile.referrerName || "",
+      profile.invitedBy ||
+      profile.inspirer ||
+      profile.referrerName ||
+      "",
+
     coachName: profile.coachName || "",
+
     consent:
       typeof profile.consent === "boolean"
         ? profile.consent
@@ -124,19 +189,29 @@ function InputField({
       <label className={LABEL}>{label}</label>
 
       <div className="relative">
-        {Icon && <Icon size={15} className={ICON_CLASS} />}
+        {Icon && (
+          <Icon
+            size={15}
+            className={ICON_CLASS}
+          />
+        )}
 
         <input
           type={type}
-          value={value}
+          value={value ?? ""}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
+          placeholder={disabled && !value ? "Not added" : placeholder}
           disabled={disabled}
-          className={fieldClass(disabled, Boolean(Icon), "pr-3")}
+          className={fieldClass(
+            disabled,
+            Boolean(Icon),
+            locked ? "pr-[4.75rem]" : "pr-3"
+          )}
         />
 
         {locked && (
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full bg-[#e9e5ec] px-2 py-0.5 text-[10px] font-semibold text-[#76677e]">
+          <span className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-md bg-[#efeaf3] px-1.5 py-0.5 text-[11px] font-medium text-[#6b6275]">
+            <Lock size={10} />
             Locked
           </span>
         )}
@@ -163,31 +238,45 @@ function SelectField({
       <label className={LABEL}>{label}</label>
 
       <div className="relative">
-        {Icon && <Icon size={15} className={ICON_CLASS} />}
+        {Icon && (
+          <Icon
+            size={15}
+            className={ICON_CLASS}
+          />
+        )}
 
         <select
-          value={value}
+          value={value ?? ""}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
           className={fieldClass(
             disabled,
             Boolean(Icon),
-            `appearance-none pr-9 ${disabled ? "" : "cursor-pointer"}`
+            `appearance-none pr-9 ${
+              disabled ? "" : "cursor-pointer"
+            }`
           )}
         >
-          <option value="">{placeholder}</option>
+          <option value="">
+            {disabled && !value ? "Not added" : placeholder}
+          </option>
 
           {options.map((option) => (
-            <option key={option} value={option}>
+            <option
+              key={option}
+              value={option}
+            >
               {option}
             </option>
           ))}
         </select>
 
-        <ChevronDown
-          size={15}
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6a3f9e]"
-        />
+        {!disabled && (
+          <ChevronDown
+            size={15}
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6a3f9e]"
+          />
+        )}
       </div>
     </div>
   );
@@ -195,11 +284,28 @@ function SelectField({
 
 /* =========================================================
    CITY FIELD
-   API: Open-Meteo Geocoding (free, no key, CORS enabled)
-   https://geocoding-api.open-meteo.com/v1/search
+
+   Uses:
+   GET /api/cities?q=ja
+
+   MongoDB:
+   cities collection
+
+   Example:
+   {
+     _id: ObjectId(...),
+     city: "Jaipur",
+     state: "Rajasthan"
+   }
+
+   Search is debounced by 400ms.
 ========================================================= */
 
-function CityField({ value, onChange, disabled = false }) {
+function CityField({
+  value,
+  onChange,
+  disabled = false,
+}) {
   const [query, setQuery] = useState(value || "");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -209,9 +315,26 @@ function CityField({ value, onChange, disabled = false }) {
   const wrapperRef = useRef(null);
   const controllerRef = useRef(null);
 
+  // The city that is already chosen / saved. Typing a different
+  // text must trigger a search; matching this one must not.
+  const chosenCityRef = useRef(value || "");
+
+  /* ---------------------------------------------
+     Parent changed the value from outside
+     (profile loaded, Cancel pressed)
+  --------------------------------------------- */
+
   useEffect(() => {
-    setQuery(value || "");
+    if ((value || "") !== query) {
+      setQuery(value || "");
+      chosenCityRef.current = value || "";
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
+
+  /* ---------------------------------------------
+     Debounced city search
+  --------------------------------------------- */
 
   useEffect(() => {
     if (disabled) {
@@ -222,7 +345,24 @@ function CityField({ value, onChange, disabled = false }) {
 
     const trimmed = query.trim();
 
-    if (trimmed.length < 2 || trimmed === value) {
+    // Search starts at 2 characters
+    if (trimmed.length < 2) {
+      setResults([]);
+      setOpen(false);
+      setSearched(false);
+
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
+
+      return;
+    }
+
+    // Already the chosen city: don't search again
+    if (
+      trimmed.toLowerCase() ===
+      chosenCityRef.current.trim().toLowerCase()
+    ) {
       setResults([]);
       setOpen(false);
       setSearched(false);
@@ -240,46 +380,36 @@ function CityField({ value, onChange, disabled = false }) {
 
         setLoading(true);
 
-        const url =
-          "https://geocoding-api.open-meteo.com/v1/search" +
-          `?name=${encodeURIComponent(trimmed)}` +
-          "&count=10&language=en&format=json&countryCode=IN";
-
-        const response = await fetch(url, { signal: controller.signal });
+        const response = await fetch(
+          `/api/cities?q=${encodeURIComponent(trimmed)}`,
+          {
+            method: "GET",
+            cache: "no-store",
+            credentials: "include",
+            signal: controller.signal,
+          }
+        );
 
         if (!response.ok) {
-          throw new Error("Failed to search cities");
+          throw new Error(
+            `City search failed (${response.status})`
+          );
         }
 
         const data = await response.json();
 
-        // No matches: the API omits "results" entirely.
-        const list = Array.isArray(data?.results) ? data.results : [];
-
-        // Remove duplicates (same city + state)
-        const seen = new Set();
-
-        const cities = list
-          .map((item) => ({
-            id: item.id,
-            name: item.name,
-            state: item.admin1 || "",
-          }))
-          .filter((item) => {
-            const key = `${item.name}|${item.state}`.toLowerCase();
-
-            if (!item.name || seen.has(key)) return false;
-
-            seen.add(key);
-            return true;
-          });
+        const cities = Array.isArray(data?.cities)
+          ? data.cities
+          : [];
 
         setResults(cities);
         setSearched(true);
         setOpen(true);
       } catch (error) {
+        // Abort is expected when the user keeps typing
         if (error?.name !== "AbortError") {
           console.error("CITY SEARCH ERROR:", error);
+
           setResults([]);
           setSearched(false);
           setOpen(false);
@@ -287,16 +417,35 @@ function CityField({ value, onChange, disabled = false }) {
       } finally {
         setLoading(false);
       }
-    }, 300);
+    }, 400);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [query, value, disabled]);
+  }, [query, disabled]);
+
+  /* ---------------------------------------------
+     Abort request on unmount
+  --------------------------------------------- */
+
+  useEffect(() => {
+    return () => {
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  /* ---------------------------------------------
+     Outside click
+  --------------------------------------------- */
 
   useEffect(() => {
     function handleOutsideClick(event) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target)
+      ) {
         setOpen(false);
       }
     }
@@ -308,24 +457,47 @@ function CityField({ value, onChange, disabled = false }) {
     };
   }, []);
 
+  /* ---------------------------------------------
+     Select city
+  --------------------------------------------- */
+
   function selectCity(city) {
-    setQuery(city.name);
-    onChange(city.name);
+    const cityName = city?.city || "";
+
+    // Remember it so we don't search for it again
+    chosenCityRef.current = cityName;
+
+    setQuery(cityName);
+
+    // Only the city name goes to the parent: "Jaipur"
+    onChange(cityName);
 
     setOpen(false);
     setResults([]);
+    setSearched(false);
   }
 
+  /* ---------------------------------------------
+     Clear city
+  --------------------------------------------- */
+
   function clearCity() {
+    chosenCityRef.current = "";
+
     setQuery("");
     onChange("");
 
     setResults([]);
     setOpen(false);
+    setSearched(false);
+
+    if (controllerRef.current) {
+      controllerRef.current.abort();
+    }
   }
 
   const dropdown =
-    "absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-[#e2dce8] bg-white";
+    "absolute z-50 mt-1 w-full overflow-hidden rounded-lg border border-[#d9d2e0] bg-white";
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -342,12 +514,16 @@ function CityField({ value, onChange, disabled = false }) {
             const newValue = e.target.value;
 
             setQuery(newValue);
+
+            // Keep the form in sync while typing
             onChange(newValue);
           }}
           onFocus={() => {
-            if (!disabled && results.length > 0) setOpen(true);
+            if (!disabled && results.length > 0) {
+              setOpen(true);
+            }
           }}
-          placeholder="Search your city"
+          placeholder={disabled && !query ? "Not added" : "Search your city"}
           autoComplete="off"
           className={fieldClass(disabled, true, "pr-9")}
         />
@@ -362,16 +538,16 @@ function CityField({ value, onChange, disabled = false }) {
             type="button"
             onClick={clearCity}
             aria-label="Clear city"
-            className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-[#8b7898] transition hover:bg-[#6a3f9e]/10 hover:text-[#6a3f9e]"
+            className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-[#9a8fa6] transition hover:bg-[#6a3f9e]/10 hover:text-[#6a3f9e]"
           >
             <X size={14} />
           </button>
-        ) : (
+        ) : !disabled ? (
           <Search
             size={14}
-            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#8b7898]"
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9a8fa6]"
           />
-        )}
+        ) : null}
       </div>
 
       {/* Results */}
@@ -379,17 +555,18 @@ function CityField({ value, onChange, disabled = false }) {
         <div className={`${dropdown} max-h-56 overflow-y-auto p-1`}>
           {results.map((city, index) => (
             <button
-              key={`${city.id ?? city.name}-${index}`}
+              key={`${city.id || city.city}-${index}`}
               type="button"
               onClick={() => selectCity(city)}
-              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition hover:bg-[#6a3f9e]/8"
+              className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left transition hover:bg-[#6a3f9e]/8"
             >
               <MapPin size={14} className="shrink-0 text-[#6a3f9e]" />
 
-              <span className="min-w-0 truncate text-sm font-medium text-[#33243d]">
-                {city.name}
+              <span className="min-w-0 truncate text-sm font-medium text-[#1f1427]">
+                {city.city}
+
                 {city.state && (
-                  <span className="font-normal text-[#8b8190]">
+                  <span className="font-normal text-[#6b6275]">
                     {" "}
                     · {city.state}
                   </span>
@@ -401,11 +578,17 @@ function CityField({ value, onChange, disabled = false }) {
       )}
 
       {/* No result */}
-      {!disabled && open && !loading && searched && results.length === 0 && (
-        <div className={`${dropdown} p-3 text-center text-xs text-[#8b8190]`}>
-          No Indian city found
-        </div>
-      )}
+      {!disabled &&
+        open &&
+        !loading &&
+        searched &&
+        results.length === 0 && (
+          <div
+            className={`${dropdown} p-3 text-center text-xs text-[#6b6275]`}
+          >
+            No Indian city found
+          </div>
+        )}
     </div>
   );
 }
@@ -415,39 +598,75 @@ function CityField({ value, onChange, disabled = false }) {
 ========================================================= */
 
 export default function ProfileClient() {
-  const [profile, setProfile] = useState(null);
-  const [form, setForm] = useState({});
+  const [profile, setProfile] =
+    useState(null);
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editing, setEditing] = useState(false);
+  const [form, setForm] =
+    useState({});
 
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [loading, setLoading] =
+    useState(true);
 
-  /* ---------- load ---------- */
+  const [saving, setSaving] =
+    useState(false);
+
+  const [editing, setEditing] =
+    useState(false);
+
+  const [message, setMessage] =
+    useState("");
+
+  const [error, setError] =
+    useState("");
+
+  /* =======================================================
+     LOAD PROFILE
+  ======================================================= */
 
   async function loadProfile() {
     try {
       setLoading(true);
+
       setError("");
 
-      const response = await fetch("/api/auth/user/profile", {
-        cache: "no-store",
-      });
+      const response = await fetch(
+        "/api/auth/user/profile",
+        {
+          method: "GET",
+          cache: "no-store",
+        }
+      );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
-      if (!response.ok || !data?.success) {
-        throw new Error(data?.message || "Failed to load profile");
+      if (
+        !response.ok ||
+        !data?.success
+      ) {
+        throw new Error(
+          data?.message ||
+            "Failed to load profile"
+        );
       }
 
       setProfile(data.profile);
-      setForm(normalizeProfile(data.profile));
-    } catch (err) {
-      console.error("PROFILE LOAD ERROR:", err);
 
-      setError(err?.message || "Failed to load your profile");
+      setForm(
+        normalizeProfile(
+          data.profile
+        )
+      );
+    } catch (err) {
+      console.error(
+        "PROFILE LOAD ERROR:",
+        err
+      );
+
+      setError(
+        err?.message ||
+          "Failed to load your profile"
+      );
     } finally {
       setLoading(false);
     }
@@ -457,335 +676,695 @@ export default function ProfileClient() {
     loadProfile();
   }, []);
 
-  /* ---------- update / cancel ---------- */
+  /* =======================================================
+     UPDATE FORM FIELD
+  ======================================================= */
 
-  function updateField(field, value) {
-    setForm((current) => ({ ...current, [field]: value }));
+  function updateField(
+    field,
+    value
+  ) {
+    setForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
   }
 
+  /* =======================================================
+     CANCEL EDITING
+  ======================================================= */
+
   function cancelEditing() {
-    setForm(normalizeProfile(profile));
+    setForm(
+      normalizeProfile(profile)
+    );
 
     setEditing(false);
+
     setError("");
+
     setMessage("");
   }
 
-  /* ---------- save ---------- */
+  /* =======================================================
+     SAVE PROFILE
+  ======================================================= */
 
   async function saveProfile() {
     try {
       setSaving(true);
+
       setError("");
+
       setMessage("");
 
       const age =
-        form.age === "" || form.age === null || form.age === undefined
+        form.age === "" ||
+        form.age === null ||
+        form.age === undefined
           ? null
           : Number(form.age);
 
+      /*
+        IMPORTANT:
+
+        invitedBy is intentionally NOT included.
+
+        The backend automatically determines
+        the Inspirer from guest_invites/referral.
+      */
       const payload = {
-        name: form.name?.trim() || "",
+        name:
+          form.name?.trim() || "",
+
         age,
-        gender: form.gender || "",
-        city: form.city?.trim() || "",
-        email: form.email?.trim().toLowerCase() || "",
-        instagram: form.instagram?.trim() || "",
-        occupation: form.occupation?.trim() || "",
-        healthGoal: form.healthGoal || "",
-        invitedBy: form.invitedBy?.trim() || "",
-        coachName: form.coachName?.trim() || "",
-        consent: Boolean(form.consent),
+
+        gender:
+          form.gender || "",
+
+        city:
+          form.city?.trim() || "",
+
+        email:
+          form.email
+            ?.trim()
+            .toLowerCase() || "",
+
+        instagram:
+          form.instagram?.trim() || "",
+
+        occupation:
+          form.occupation?.trim() || "",
+
+        healthGoal:
+          form.healthGoal || "",
+
+        coachName:
+          form.coachName?.trim() || "",
+
+        consent:
+          Boolean(form.consent),
       };
 
-      const response = await fetch("/api/auth/user/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        "/api/auth/user/profile",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify(
+            payload
+          ),
+        }
+      );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
-      if (!response.ok || !data?.success) {
-        throw new Error(data?.message || "Failed to update profile");
+      if (
+        !response.ok ||
+        !data?.success
+      ) {
+        throw new Error(
+          data?.message ||
+            "Failed to update profile"
+        );
       }
 
-      const updatedProfile = data.profile || {
-        ...profile,
-        ...payload,
-        // Never change mobile
-        mobile: form.mobile,
-      };
+      /*
+        API returns the latest profile,
+        including automatic invitedBy.
+      */
+      const updatedProfile =
+        data.profile || {
+          ...profile,
+          ...payload,
 
-      setProfile(updatedProfile);
-      setForm(normalizeProfile(updatedProfile));
+          /*
+            Mobile never changes.
+          */
+          mobile: form.mobile,
+        };
+
+      setProfile(
+        updatedProfile
+      );
+
+      setForm(
+        normalizeProfile(
+          updatedProfile
+        )
+      );
 
       setEditing(false);
-      setMessage("Profile updated successfully.");
+
+      setMessage(
+        "Profile updated successfully."
+      );
 
       setTimeout(() => {
         setMessage("");
       }, 3000);
     } catch (err) {
-      console.error("PROFILE SAVE ERROR:", err);
+      console.error(
+        "PROFILE SAVE ERROR:",
+        err
+      );
 
-      setError(err?.message || "Failed to update profile");
+      setError(
+        err?.message ||
+          "Failed to update profile"
+      );
     } finally {
       setSaving(false);
     }
   }
 
-  /* ---------- loading / error ---------- */
+  /* =======================================================
+     LOADING
+  ======================================================= */
 
   if (loading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center font-sans">
-        <div className="flex items-center gap-3 text-sm font-semibold text-[#6a3f9e]">
-          <Loader2 size={18} className="animate-spin" />
+        <div className="flex items-center gap-3 text-sm font-medium text-[#6a3f9e]">
+          <Loader2
+            size={18}
+            className="animate-spin"
+          />
+
           Loading profile...
         </div>
       </div>
     );
   }
 
+  /* =======================================================
+     ERROR
+  ======================================================= */
+
   if (error && !profile) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-5 font-sans text-sm text-red-700">
+      <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-5 font-sans text-sm text-red-700">
+        <AlertCircle size={16} className="mt-0.5 shrink-0" />
+
         {error}
       </div>
     );
   }
 
-  const initial = (form.name || "P").trim().charAt(0).toUpperCase();
+  const initial = (
+    form.name || "P"
+  )
+    .trim()
+    .charAt(0)
+    .toUpperCase();
 
-  /* ---------- UI ---------- */
+  /* Chips shown under the name (only when filled) */
+  const chips = [
+    form.healthGoal,
+    form.coachName && `Coach: ${form.coachName}`,
+    form.invitedBy && `Inspirer: ${form.invitedBy}`,
+  ].filter(Boolean);
+
+  /* Stats row at the bottom of the profile card */
+  const stats = [
+    {
+      icon: CalendarDays,
+      value: form.age !== "" && form.age !== null ? form.age : "—",
+      label: "Age",
+    },
+    {
+      icon: User,
+      value: form.gender || "—",
+      label: "Gender",
+    },
+    {
+      icon: MapPin,
+      value: form.city || "—",
+      label: "City",
+    },
+  ];
+
+  /* =======================================================
+     UI
+  ======================================================= */
 
   return (
     <section className="w-full font-sans">
-      {/* ================= HEADER ================= */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
+        {/* =================================================
+            PROFILE CARD
+        ================================================= */}
 
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#6a3f9e] text-lg font-bold text-white">
-            {initial}
-          </div>
-
-          <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold tracking-tight text-[#24112f]">
-              {form.name || "Complete your profile"}
-            </h1>
-
-            <p className="text-xs text-[#8a8190]">
-              Purple member · Profile details
-            </p>
-          </div>
-        </div>
-
-        {!editing ? (
-          <button
-            type="button"
-            onClick={() => {
-              setEditing(true);
-              setMessage("");
-              setError("");
+        <aside className="overflow-hidden rounded-2xl border border-[#e7e2ec] bg-white">
+          {/* Banner */}
+          <div
+            className="relative h-36"
+            style={{
+              background:
+                "radial-gradient(120% 140% at 85% 110%, rgba(185,214,59,0.85) 0%, rgba(185,214,59,0) 55%), linear-gradient(135deg, #4B176B 0%, #6a3f9e 100%)",
             }}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[#B9D63B] px-5 text-sm font-semibold text-[#1E2A00] transition hover:bg-[#c6e04c] active:scale-[0.98]"
           >
-            <Pencil size={14} />
-            Edit profile
-          </button>
-        ) : (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={cancelEditing}
-              disabled={saving}
-              className="h-10 rounded-full border border-[#e2dce8] bg-white px-5 text-sm font-semibold text-[#4B176B] transition hover:bg-[#f6f4f8] disabled:opacity-50"
-            >
-              Cancel
-            </button>
+            <img src="/dance.png" alt="Profile banner" className="h-full w-full object-contain opacity-60" />
+            <span className="absolute top-3 right-4 inline-flex items-center gap-1.5 rounded-full bg-white/20 border border-white/40 px-3 py-1 text-xs font-semibold text-[#fff]">
+              <span className="h-2 w-2 rounded-full bg-[#B9D63B]" />
+              Purple member
+            </span>
+          </div>
 
-            <button
-              type="button"
-              onClick={saveProfile}
-              disabled={saving}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[#B9D63B] px-5 text-sm font-semibold text-[#1E2A00] transition hover:bg-[#c6e04c] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {saving ? (
-                <>
-                  <Loader2 size={15} className="animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Check size={15} />
-                  Save changes
-                </>
+          <div className="px-5 pb-5">
+            {/* Avatar overlapping banner */}
+            {/* <div className="-mt-10 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#6a3f9e] text-3xl font-semibold text-white ring-2 ring-[#B9D63B]">
+              {initial}
+            </div> */}
+
+            {/* Name + verified */}
+            <div className="mt-3 flex items-center gap-2">
+              <h1 className="truncate text-xl font-semibold tracking-tight text-[#1f1427]">
+                {form.name ||
+                  "Complete your profile"}
+              </h1>
+
+              {form.name && (
+                <BadgeCheck
+                  size={20}
+                  className="shrink-0 text-[#6a3f9e]"
+                />
               )}
-            </button>
+            </div>
+
+            <p className="mt-0.5 text-sm text-[#4a3f54]">
+              {form.occupation || "Occupation not added"}
+            </p>
+
+            {/* Divider */}
+            <div className="my-4 h-px bg-[#eeeaf1]" />
+
+            {/* Chips */}
+            {chips.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {chips.map((chip) => (
+                  <span
+                    key={chip}
+                    className="rounded-full bg-[#6a3f9e] px-3 py-1 text-xs font-medium text-white"
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Contact lines */}
+            <div className="mt-4 space-y-2 text-sm text-[#4a3f54]">
+              <p className="flex items-center gap-2.5">
+                <Phone size={14} className="shrink-0 text-[#6a3f9e]" />
+
+                <span className="truncate">
+                  {form.mobile || "Mobile not added"}
+                </span>
+              </p>
+
+              <p className="flex items-center gap-2.5">
+                <Mail size={14} className="shrink-0 text-[#6a3f9e]" />
+
+                <span className="truncate">
+                  {form.email || "Email not added"}
+                </span>
+              </p>
+
+              <p className="flex items-center gap-2.5">
+                <Instagram size={14} className="shrink-0 text-[#6a3f9e]" />
+
+                <span className="truncate">
+                  {form.instagram || "Social handle not added"}
+                </span>
+              </p>
+            </div>
+
+            {/* Stats */}
+            <div className="mt-5 grid grid-cols-3 divide-x divide-[#e7e2ec] rounded-xl border border-[#e7e2ec] bg-[#faf9fb] py-3">
+              {stats.map(({ icon: Icon, value, label }) => (
+                <div
+                  key={label}
+                  className="flex min-w-0 flex-col items-center px-2"
+                >
+                  <span className="max-w-full truncate text-base font-semibold text-[#1f1427]">
+                    {value}
+                  </span>
+
+                  <span className="mt-0.5 inline-flex items-center gap-1 text-xs text-[#6b6275]">
+                    <Icon size={12} className="text-[#6a3f9e]" />
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-        )}
-      </header>
+        </aside>
 
-      {/* ================= MESSAGES ================= */}
+        {/* =================================================
+            DETAILS FORM
+        ================================================= */}
 
-      {message && (
-        <div className="mb-3 flex items-center gap-2 rounded-xl bg-[#B9D63B]/20 px-3 py-2 text-xs font-semibold text-[#3f5000]">
-          <Check size={14} />
-          {message}
-        </div>
-      )}
+        <div className="rounded-2xl border border-[#e7e2ec] bg-white p-5">
+          {/* Header + actions */}
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-[#1f1427]">
+                Profile details
+              </h2>
 
-      {error && (
-        <div className="mb-3 rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-700">
-          {error}
-        </div>
-      )}
+              <p className="text-xs text-[#6b6275]">
+                {editing
+                  ? "Update your information, then save your changes."
+                  : "Your information is used only for your Purple membership experience."}
+              </p>
+            </div>
 
-      {/* ================= FORM ================= */}
+            {!editing ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditing(true);
 
-      <div className="rounded-2xl border border-[#ece8ef] bg-white p-4 sm:p-5">
-        <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
-          <InputField
-            label="Name"
-            value={form.name}
-            onChange={(v) => updateField("name", v)}
-            placeholder="Enter your name"
-            icon={User}
-            disabled={!editing}
-          />
+                  setMessage("");
 
-          <InputField
-            label="Age"
-            value={form.age}
-            onChange={(v) => updateField("age", v)}
-            placeholder="Enter your age"
-            type="number"
-            icon={CalendarDays}
-            disabled={!editing}
-          />
+                  setError("");
+                }}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#B9D63B] px-5 text-sm font-semibold text-[#1E2A00] transition hover:bg-[#c6e04c] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#B9D63B]/40 active:scale-[0.98]"
+              >
+                <Pencil size={14} />
 
-          <SelectField
-            label="Gender"
-            value={form.gender}
-            onChange={(v) => updateField("gender", v)}
-            options={GENDER_OPTIONS}
-            icon={User}
-            placeholder="Select gender"
-            disabled={!editing}
-          />
+                Edit profile
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={
+                    cancelEditing
+                  }
+                  disabled={saving}
+                  className="h-10 rounded-lg border border-[#d9d2e0] bg-white px-5 text-sm font-semibold text-[#4B176B] transition hover:bg-[#faf9fb] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#6a3f9e]/15 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
 
-          <CityField
-            value={form.city}
-            onChange={(v) => updateField("city", v)}
-            disabled={!editing}
-          />
+                <button
+                  type="button"
+                  onClick={
+                    saveProfile
+                  }
+                  disabled={saving}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#B9D63B] px-5 text-sm font-semibold text-[#1E2A00] transition hover:bg-[#c6e04c] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#B9D63B]/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2
+                        size={15}
+                        className="animate-spin"
+                      />
 
-          <InputField
-            label="Mobile number"
-            value={form.mobile}
-            onChange={() => {}}
-            placeholder="Mobile number"
-            icon={Phone}
-            disabled
-            locked
-          />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check size={15} />
 
-          <InputField
-            label="Email"
-            value={form.email}
-            onChange={(v) => updateField("email", v)}
-            placeholder="Enter your email"
-            icon={Mail}
-            type="email"
-            disabled={!editing}
-          />
+                      Save changes
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
 
-          <InputField
-            label="Instagram / social handle"
-            value={form.instagram}
-            onChange={(v) => updateField("instagram", v)}
-            placeholder="@username"
-            icon={Instagram}
-            disabled={!editing}
-          />
-
-          <InputField
-            label="Occupation"
-            value={form.occupation}
-            onChange={(v) => updateField("occupation", v)}
-            placeholder="Enter your occupation"
-            icon={BriefcaseBusiness}
-            disabled={!editing}
-          />
-
-          <SelectField
-            label="Health / fitness goal"
-            value={form.healthGoal}
-            onChange={(v) => updateField("healthGoal", v)}
-            options={HEALTH_GOALS}
-            icon={HeartPulse}
-            placeholder="Select your goal"
-            disabled={!editing}
-          />
-
-          <InputField
-            label="Who invited you? (Inspirer)"
-            value={form.invitedBy}
-            onChange={(v) => updateField("invitedBy", v)}
-            placeholder="Enter inspirer's name"
-            icon={UserRoundPlus}
-            disabled={!editing}
-          />
-
-          <InputField
-            label="Coach name"
-            value={form.coachName}
-            onChange={(v) => updateField("coachName", v)}
-            placeholder="Enter coach name"
-            icon={Users}
-            disabled={!editing}
-          />
-
-          {/* Consent (fills the last cell) */}
-          <div>
-            <label className={LABEL}>Consent</label>
-
-            <label
-              className={`flex h-10 items-center gap-2.5 rounded-xl border px-3 transition ${
-                form.consent
-                  ? "border-[#B9D63B] bg-[#B9D63B]/15"
-                  : "border-[#e2dce8] bg-white"
-              } ${editing ? "cursor-pointer" : "cursor-default opacity-80"}`}
+          {/* Success message */}
+          {message && (
+            <div
+              role="status"
+              className="mb-3 flex items-center gap-2 rounded-lg border border-[#B9D63B]/50 bg-[#B9D63B]/15 px-3 py-2 text-sm font-medium text-[#3f5000]"
             >
-              <input
-                type="checkbox"
-                checked={Boolean(form.consent)}
-                onChange={(e) => updateField("consent", e.target.checked)}
-                disabled={!editing}
-                className="h-4 w-4 shrink-0 accent-[#6a3f9e]"
-              />
+              <Check size={15} />
 
-              <ShieldCheck size={14} className="shrink-0 text-[#6a3f9e]" />
+              {message}
+            </div>
+          )}
 
-              <span className="truncate text-xs font-medium text-[#2d1b38]">
-                I agree to share my profile info
-              </span>
-            </label>
+          {/* Error message */}
+          {error && (
+            <div
+              role="alert"
+              className="mb-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+            >
+              <AlertCircle size={15} className="mt-0.5 shrink-0" />
+
+              {error}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
+            {/* NAME */}
+
+            <InputField
+              label="Full name"
+              value={form.name}
+              onChange={(v) =>
+                updateField(
+                  "name",
+                  v
+                )
+              }
+              placeholder="Enter your name"
+              icon={User}
+              disabled={!editing}
+            />
+
+            {/* AGE */}
+
+            <InputField
+              label="Age"
+              value={form.age}
+              onChange={(v) =>
+                updateField(
+                  "age",
+                  v
+                )
+              }
+              placeholder="Enter your age"
+              type="number"
+              icon={CalendarDays}
+              disabled={!editing}
+            />
+
+            {/* GENDER */}
+
+            <SelectField
+              label="Gender"
+              value={form.gender}
+              onChange={(v) =>
+                updateField(
+                  "gender",
+                  v
+                )
+              }
+              options={
+                GENDER_OPTIONS
+              }
+              icon={User}
+              placeholder="Select gender"
+              disabled={!editing}
+            />
+
+            {/* CITY */}
+
+            <CityField
+              value={form.city}
+              onChange={(v) =>
+                updateField(
+                  "city",
+                  v
+                )
+              }
+              disabled={!editing}
+            />
+
+            {/* MOBILE */}
+
+            <InputField
+              label="Mobile number"
+              value={form.mobile}
+              onChange={() => {}}
+              placeholder="Mobile number"
+              icon={Phone}
+              disabled
+              locked
+            />
+
+            {/* EMAIL */}
+
+            <InputField
+              label="Email"
+              value={form.email}
+              onChange={(v) =>
+                updateField(
+                  "email",
+                  v
+                )
+              }
+              placeholder="Enter your email"
+              icon={Mail}
+              type="email"
+              disabled={!editing}
+            />
+
+            {/* INSTAGRAM */}
+
+            <InputField
+              label="Instagram / social handle"
+              value={form.instagram}
+              onChange={(v) =>
+                updateField(
+                  "instagram",
+                  v
+                )
+              }
+              placeholder="@username"
+              icon={Instagram}
+              disabled={!editing}
+            />
+
+            {/* OCCUPATION */}
+
+            <InputField
+              label="Occupation"
+              value={form.occupation}
+              onChange={(v) =>
+                updateField(
+                  "occupation",
+                  v
+                )
+              }
+              placeholder="Enter your occupation"
+              icon={BriefcaseBusiness}
+              disabled={!editing}
+            />
+
+            {/* HEALTH GOAL */}
+
+            <SelectField
+              label="Health / fitness goal"
+              value={form.healthGoal}
+              onChange={(v) =>
+                updateField(
+                  "healthGoal",
+                  v
+                )
+              }
+              options={
+                HEALTH_GOALS
+              }
+              icon={HeartPulse}
+              placeholder="Select your goal"
+              disabled={!editing}
+            />
+
+            {/* =================================================
+                INSPIRER
+
+                Automatically assigned.
+                User cannot edit it.
+            ================================================= */}
+
+            <InputField
+              label="Your Inspirer"
+              value={form.invitedBy}
+              onChange={() => {}}
+              placeholder="Automatically assigned"
+              icon={UserRoundPlus}
+              disabled
+              locked
+            />
+
+            {/* COACH */}
+
+            <InputField
+              label="Coach name"
+              value={form.coachName}
+              onChange={(v) =>
+                updateField(
+                  "coachName",
+                  v
+                )
+              }
+              placeholder="Enter coach name"
+              icon={Users}
+              disabled={!editing}
+            />
+
+            {/* =================================================
+                CONSENT
+            ================================================= */}
+
+            <div>
+              <label className={LABEL}>
+                Consent
+              </label>
+
+              <label
+                className={`
+                  flex h-10 items-center gap-2.5 rounded-lg border px-3 transition-colors
+                  ${
+                    form.consent
+                      ? "border-[#B9D63B] bg-[#B9D63B]/10"
+                      : "border-[#d9d2e0] bg-white"
+                  }
+                  ${
+                    editing
+                      ? "cursor-pointer hover:border-[#6a3f9e]/50"
+                      : "cursor-default border-[#eeeaf1] bg-[#faf9fb]"
+                  }
+                `}
+              >
+                <input
+                  type="checkbox"
+                  checked={Boolean(
+                    form.consent
+                  )}
+                  onChange={(e) =>
+                    updateField(
+                      "consent",
+                      e.target.checked
+                    )
+                  }
+                  disabled={!editing}
+                  className="h-4 w-4 shrink-0 accent-[#6a3f9e]"
+                />
+
+                <ShieldCheck
+                  size={14}
+                  className="shrink-0 text-[#6a3f9e]"
+                />
+
+                <span className="truncate text-xs font-medium text-[#1f1427]">
+                  I agree to share my profile info
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
 
-        {/* Footnotes */}
-        <div className="mt-4 flex flex-col gap-1 border-t border-[#f0edf3] pt-3 text-[11px] leading-4 text-[#8a8190] sm:flex-row sm:justify-between">
-          <p className="flex items-center gap-1.5">
-            <Phone size={12} className="shrink-0 text-[#6a3f9e]" />
+          {/* Footnote */}
+          <p className="mt-4 flex items-center gap-1.5 border-t border-[#eeeaf1] pt-3 text-xs text-[#6b6275]">
+            <Lock
+              size={12}
+              className="shrink-0 text-[#6a3f9e]"
+            />
+
             Your mobile number is linked to your membership and can't be
             changed.
-          </p>
-
-          <p>
-            Your information is used only for your Purple membership
-            experience.
           </p>
         </div>
       </div>
