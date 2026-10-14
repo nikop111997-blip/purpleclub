@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { QRCodeSVG } from "qrcode.react";
 import {
   CalendarDays,
@@ -22,49 +23,55 @@ import {
 } from "lucide-react";
 
 /* =========================================================
-   THEME TOKENS
-   lime   #B9D63B  (primary action)
-   purple #6a3f9e  (atmosphere)
-   ink    #120d1a  (dark surfaces)
+   THEME TOKENS  (light, solid surfaces, no blur)
+   lime   #B9D63B  primary action / progress
+   purple #6a3f9e  brand
+   ink    #24112f  text
+   line   #ECE6F3  borders
+   tint   #F7F3FB  soft purple wash
 ========================================================= */
 
-// Reusable liquid-glass surface
-const GLASS =
-  "border border-white/25 bg-gradient-to-br from-white/25 via-white/[0.07] to-white/[0.04] backdrop-blur-xl backdrop-saturate-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.55),inset_0_0_12px_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.25)]";
+const CARD =
+  "rounded-3xl border border-[#ECE6F3] bg-white shadow-[0_1px_2px_rgba(36,17,47,0.04),0_8px_24px_-12px_rgba(106,63,158,0.12)]";
 
-// Dark glass for panels / inputs
-const GLASS_DARK =
-  "border border-white/10 bg-white/[0.05] shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]";
+const SOFT_BOX = "rounded-2xl border border-[#ECE6F3] bg-[#FAF8FD]";
 
-// Solid lime primary button
+const ICON_TILE =
+  "flex shrink-0 items-center justify-center rounded-xl bg-[#F1EAF8] text-[#6a3f9e]";
+
+const LIME_TILE =
+  "flex shrink-0 items-center justify-center rounded-xl bg-[#B9D63B] text-[#1E2A00]";
+
 const LIME_BTN =
-  "group/btn relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full border border-white/40 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] px-6 py-3.5 text-sm font-semibold text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(88,112,0,0.25),0_8px_24px_rgba(185,214,59,0.35)] transition duration-300 ease-out hover:brightness-105 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(88,112,0,0.25),0_12px_32px_rgba(185,214,59,0.5)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-full bg-[#B9D63B] px-6 py-3 text-sm font-semibold text-[#1E2A00] shadow-[0_1px_2px_rgba(88,112,0,0.25)] transition hover:bg-[#c6e04a] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#B9D63B]/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50";
 
-// Notion-style status tags (tuned for dark surfaces)
+const OUTLINE_BTN =
+  "flex items-center justify-center gap-1.5 rounded-full border border-[#E3DAEE] bg-white font-semibold transition hover:bg-[#F7F3FB] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#6a3f9e]/15 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40";
+
 const STATUS_CONFIG = {
   INVITED: {
     label: "Invited",
-    className: "bg-white/10 text-white/70",
-    dot: "bg-white/50",
+    className: "bg-[#F1EAF8] text-[#5a3a80]",
+    dot: "bg-[#9a86ab]",
   },
   REGISTERED: {
     label: "Registered",
-    className: "bg-[#6a3f9e]/40 text-[#e0c9f7]",
-    dot: "bg-[#c79cf5]",
+    className: "bg-[#E6D9F3] text-[#4B176B]",
+    dot: "bg-[#6a3f9e]",
   },
   ATTENDED: {
     label: "Attended",
-    className: "bg-sky-400/15 text-sky-200",
-    dot: "bg-sky-300",
+    className: "bg-[#EDF5C8] text-[#44590d]",
+    dot: "bg-[#769000]",
   },
   MEMBER: {
     label: "Member",
-    className: "bg-[#B9D63B]/20 text-[#DDF27A]",
-    dot: "bg-[#B9D63B]",
+    className: "bg-[#B9D63B] text-[#1E2A00]",
+    dot: "bg-[#1E2A00]",
   },
   CANCELLED: {
     label: "Cancelled",
-    className: "bg-red-400/15 text-red-300",
+    className: "bg-red-50 text-red-600",
     dot: "bg-red-400",
   },
 };
@@ -130,6 +137,32 @@ export default function GuestPassClient() {
   const [selectedInvite, setSelectedInvite] = useState(null);
   const [copied, setCopied] = useState(false);
   const [query, setQuery] = useState("");
+
+  // The popup renders into document.body, so wait until mounted.
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock page scroll and close on Escape while the popup is open.
+  useEffect(() => {
+    if (!selectedInvite) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(e) {
+      if (e.key === "Escape") setSelectedInvite(null);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedInvite]);
 
   // ---------------- LOAD ----------------
 
@@ -236,9 +269,12 @@ export default function GuestPassClient() {
       `Hey ${invite.guestName}, I’ve invited you to a Purple experience.\n\n` +
       `Register here:\n${invite.inviteUrl}`;
 
+    // wa.me needs the country code: add 91 to a 10-digit Indian number
+    const digits = String(invite.guestMobile || "").replace(/\D/g, "");
+    const number = digits.length === 10 ? `91${digits}` : digits;
+
     const url =
-      `https://wa.me/${invite.guestMobile || ""}` +
-      `?text=${encodeURIComponent(message)}`;
+      `https://wa.me/${number}` + `?text=${encodeURIComponent(message)}`;
 
     window.open(url, "_blank", "noopener,noreferrer");
   }
@@ -314,7 +350,7 @@ export default function GuestPassClient() {
       <div className="flex min-h-[60vh] items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-6 w-6 animate-spin text-[#6a3f9e]" />
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[#6f6577]">
             Loading your Purple community...
           </p>
         </div>
@@ -325,16 +361,16 @@ export default function GuestPassClient() {
   // ---------------- MAIN ----------------
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans text-[#24112f]">
       {/* ================= HEADER ================= */}
 
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold leading-[1.05] tracking-tight text-[#1a0f24] sm:text-4xl">
+          <h1 className="text-3xl font-bold tracking-tight text-[#1a0f24] sm:text-4xl">
             Your Purple Circle
           </h1>
 
-          <p className="mt-3 max-w-xl text-sm leading-6 text-gray-500 sm:text-base">
+          <p className="mt-2 max-w-xl text-sm leading-6 text-[#6f6577] sm:text-base">
             Invite people, help them experience Purple, and grow your journey
             from Inspirer to Icon to Ambassador.
           </p>
@@ -347,16 +383,18 @@ export default function GuestPassClient() {
           }}
           className={LIME_BTN}
         >
-          <span className="pointer-events-none absolute inset-x-4 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent opacity-70" />
-          <UserPlus size={16} className="relative" />
-          <span className="relative">Invite someone</span>
+          <UserPlus size={16} />
+          Invite someone
         </button>
       </header>
 
       {/* ================= ERROR ================= */}
 
       {error && (
-        <div className="flex items-center gap-3 rounded-2xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
           <X size={16} />
           {error}
         </div>
@@ -364,114 +402,107 @@ export default function GuestPassClient() {
 
       {/* ================= OVERVIEW ================= */}
 
-      <section className="relative overflow-hidden rounded-[2rem] bg-[#120d1a] p-6 text-white shadow-xl sm:p-8">
-        <div className="pointer-events-none absolute -left-12 -top-16 h-60 w-60 rounded-full bg-[#6a3f9e]/70 blur-3xl" />
-        <div className="pointer-events-none absolute -right-14 top-4 h-48 w-48 rounded-full bg-[#B9D63B]/20 blur-3xl" />
-
-        <div className="relative">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            {/* Level */}
-            <div className="flex items-center gap-4">
-              <div
-                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl text-[#B9D63B] ${GLASS}`}
-              >
-                {milestone.icon}
-              </div>
-
-              <div>
-                <span
-                  className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold text-white ${GLASS}`}
-                >
-                  Current journey
-                </span>
-
-                <h2 className="mt-2 text-2xl font-bold leading-[1.05] tracking-tight">
-                  {milestone.title}
-                </h2>
-
-                <p className="mt-1 text-xs text-white/60">
-                  {milestone.description}
-                </p>
-              </div>
+      <section className={`${CARD} p-6 sm:p-8`}>
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          {/* Level */}
+          <div className="flex items-center gap-4">
+            <div className={`h-14 w-14 text-2xl ${LIME_TILE}`}>
+              {milestone.icon}
             </div>
 
-            {/* Counts */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              <SummaryItem value={summary.totalInvites} label="Invited" />
-              <SummaryItem value={summary.attendedGuests} label="Experienced" />
-              <SummaryItem
-                value={summary.successfulReferrals}
-                label="Members"
-                highlight
-              />
+            <div>
+              <p className="text-xs font-medium text-[#6a3f9e]">
+                Current journey
+              </p>
+
+              <h2 className="text-2xl font-bold tracking-tight text-[#24112f]">
+                {milestone.title}
+              </h2>
+
+              <p className="mt-0.5 text-xs text-[#6f6577]">
+                {milestone.description}
+              </p>
             </div>
           </div>
 
-          {/* Progress */}
-          <div className="mt-8">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-white">
-                  Referral journey
-                </p>
+          {/* Counts */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <SummaryItem value={summary.totalInvites} label="Invited" />
+            <SummaryItem value={summary.attendedGuests} label="Experienced" />
+            <SummaryItem
+              value={summary.successfulReferrals}
+              label="Members"
+              highlight
+            />
+          </div>
+        </div>
 
-                <p className="text-xs text-white/55">
-                  {successful >= 100
-                    ? "Purple Ambassador achieved"
-                    : `${progress.remaining} more successful ${
-                        progress.remaining === 1 ? "referral" : "referrals"
-                      } to reach ${progress.target}.`}
-                </p>
-              </div>
+        {/* Progress */}
+        <div className="mt-8 border-t border-[#ECE6F3] pt-6">
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-[#24112f]">
+                Referral journey
+              </p>
 
-              <span className="text-sm font-bold text-[#DDF27A]">
-                {successful}/100
-              </span>
+              <p className="text-xs text-[#6f6577]">
+                {successful >= 100
+                  ? "Purple Ambassador achieved"
+                  : `${progress.remaining} more successful ${
+                      progress.remaining === 1 ? "referral" : "referrals"
+                    } to reach ${progress.target}.`}
+              </p>
             </div>
 
-            <div className={`h-2.5 overflow-hidden rounded-full ${GLASS_DARK}`}>
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-[#CBE75A] to-[#B9D63B] shadow-[0_0_12px_rgba(185,214,59,0.6)] transition-all duration-700"
-                style={{ width: `${progress.percentage}%` }}
-              />
-            </div>
+            <span className="text-sm font-bold text-[#4B176B]">
+              {successful}/100
+            </span>
+          </div>
 
-            <div className="mt-3 grid grid-cols-3 text-[11px] text-white/40">
-              <span className={successful >= 1 ? "font-semibold text-[#DDF27A]" : ""}>
-                1 · Inspirer
-              </span>
-              <span
-                className={`text-center ${
-                  successful >= 10 ? "font-semibold text-[#DDF27A]" : ""
-                }`}
-              >
-                10 · Icon
-              </span>
-              <span
-                className={`text-right ${
-                  successful >= 100 ? "font-semibold text-[#DDF27A]" : ""
-                }`}
-              >
-                100 · Ambassador
-              </span>
-            </div>
+          <div
+            className="h-2.5 overflow-hidden rounded-full bg-[#F1EAF8]"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(progress.percentage)}
+          >
+            <div
+              className="h-full min-w-[8px] rounded-full bg-[#B9D63B] transition-all duration-700"
+              style={{ width: `${progress.percentage}%` }}
+            />
+          </div>
+
+          <div className="mt-3 grid grid-cols-3 text-[11px] text-[#9a929d]">
+            <span className={successful >= 1 ? "font-semibold text-[#4B176B]" : ""}>
+              1 · Inspirer
+            </span>
+            <span
+              className={`text-center ${
+                successful >= 10 ? "font-semibold text-[#4B176B]" : ""
+              }`}
+            >
+              10 · Icon
+            </span>
+            <span
+              className={`text-right ${
+                successful >= 100 ? "font-semibold text-[#4B176B]" : ""
+              }`}
+            >
+              100 · Ambassador
+            </span>
           </div>
         </div>
       </section>
 
       {/* ================= INVITES TABLE ================= */}
 
-      <section className="relative overflow-hidden rounded-[2rem] bg-[#120d1a] text-white shadow-xl">
-        <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[#6a3f9e]/40 blur-3xl" />
-
+      <section className={`${CARD} overflow-hidden`}>
         {/* Toolbar */}
-        <div className="relative flex flex-col gap-3 border-b border-white/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex flex-col gap-3 border-b border-[#ECE6F3] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex items-center gap-3">
-            <h2 className="text-sm font-bold text-white">My invitations</h2>
+            <h2 className="text-sm font-bold text-[#24112f]">My invitations</h2>
 
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-white ${GLASS}`}
-            >
+            <span className="rounded-full bg-[#F1EAF8] px-2.5 py-0.5 text-[11px] font-semibold text-[#6a3f9e]">
               {invites.length}
             </span>
           </div>
@@ -479,39 +510,38 @@ export default function GuestPassClient() {
           <div className="relative w-full sm:w-64">
             <Search
               size={14}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40"
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8b7898]"
             />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search"
-              className={`w-full rounded-full py-2 pl-9 pr-4 text-xs text-white outline-none transition placeholder:text-white/35 focus:border-[#B9D63B]/70 ${GLASS_DARK}`}
+              placeholder="Search by name, mobile or experience"
+              aria-label="Search invitations"
+              className="w-full rounded-full border border-[#E3DAEE] bg-[#FAF8FD] py-2 pl-9 pr-4 text-xs text-[#24112f] outline-none transition placeholder:text-[#aaa0b0] focus:border-[#6a3f9e]/50 focus:bg-white focus:ring-4 focus:ring-[#6a3f9e]/10"
             />
           </div>
         </div>
 
         {invites.length === 0 ? (
-          <div className="relative px-6 py-16 text-center">
-            <div
-              className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl text-[#B9D63B] ${GLASS}`}
-            >
+          <div className="px-6 py-16 text-center">
+            <div className={`mx-auto h-16 w-16 rounded-2xl ${ICON_TILE}`}>
               <Users size={26} />
             </div>
 
-            <h3 className="mt-5 text-xl font-bold text-white">
+            <h3 className="mt-5 text-xl font-bold text-[#24112f]">
               No invitations yet
             </h3>
 
-            <p className="mx-auto mt-2 max-w-sm text-sm text-white/60">
+            <p className="mx-auto mt-2 max-w-sm text-sm text-[#6f6577]">
               Invite someone to your next Purple experience and start your
               Inspirer journey.
             </p>
           </div>
         ) : (
-          <div className="relative overflow-x-auto">
+          <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] border-collapse text-left">
               <thead>
-                <tr className="border-b border-white/10 text-[11px] font-medium text-white/45">
+                <tr className="border-b border-[#ECE6F3] bg-[#FAF8FD] text-[11px] font-medium text-[#8a8190]">
                   <Th icon={UserRound}>Name</Th>
                   <Th icon={Tag}>Status</Th>
                   <Th icon={Phone}>Mobile</Th>
@@ -538,7 +568,7 @@ export default function GuestPassClient() {
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-6 py-10 text-center text-xs text-white/45"
+                      className="px-6 py-10 text-center text-xs text-[#8a8190]"
                     >
                       No invitations match “{query}”.
                     </td>
@@ -549,9 +579,9 @@ export default function GuestPassClient() {
           </div>
         )}
 
-        {/* Footer count, Notion style */}
+        {/* Footer count */}
         {invites.length > 0 && (
-          <div className="relative border-t border-white/10 px-5 py-3 text-[11px] text-white/40 sm:px-6">
+          <div className="border-t border-[#ECE6F3] px-5 py-3 text-[11px] text-[#9a929d] sm:px-6">
             {filteredInvites.length}{" "}
             {filteredInvites.length === 1 ? "invitation" : "invitations"}
           </div>
@@ -572,19 +602,22 @@ export default function GuestPassClient() {
           ))}
       </div>
 
-      {/* ================= DETAIL MODAL ================= */}
+      {/* ================= DETAIL POPUP (portal) ================= */}
 
-      {selectedInvite && (
-        <InviteModal
-          invite={selectedInvite}
-          copied={copied === selectedInvite.id}
-          onCopy={copyInvite}
-          onWhatsApp={shareWhatsApp}
-          onShare={shareInvite}
-          onDownload={downloadQR}
-          onClose={() => setSelectedInvite(null)}
-        />
-      )}
+      {mounted &&
+        selectedInvite &&
+        createPortal(
+          <InviteModal
+            invite={selectedInvite}
+            copied={copied === selectedInvite.id}
+            onCopy={copyInvite}
+            onWhatsApp={shareWhatsApp}
+            onShare={shareInvite}
+            onDownload={downloadQR}
+            onClose={() => setSelectedInvite(null)}
+          />,
+          document.body
+        )}
     </div>
   );
 }
@@ -598,21 +631,19 @@ function SummaryItem({ value, label, highlight = false }) {
     <div
       className={`min-w-[90px] rounded-2xl px-4 py-3 ${
         highlight
-          ? "border border-[#B9D63B]/30 bg-gradient-to-br from-[#B9D63B]/20 via-[#B9D63B]/[0.06] to-transparent shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
-          : GLASS_DARK
+          ? "border border-[#B9D63B]/50 bg-[#F4F9DC]"
+          : "border border-[#ECE6F3] bg-[#FAF8FD]"
       }`}
     >
       <p
         className={`text-2xl font-bold ${
-          highlight ? "text-[#DDF27A]" : "text-white"
+          highlight ? "text-[#44590d]" : "text-[#24112f]"
         }`}
       >
         {value}
       </p>
 
-      <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/45">
-        {label}
-      </p>
+      <p className="mt-0.5 text-[11px] font-semibold text-[#6f6577]">{label}</p>
     </div>
   );
 }
@@ -621,7 +652,7 @@ function Th({ icon: Icon, children }) {
   return (
     <th className="px-4 py-2.5 font-medium first:pl-5 sm:first:pl-6">
       <span className="flex items-center gap-1.5">
-        <Icon size={13} className="text-white/35" />
+        <Icon size={13} className="text-[#8b7898]" />
         {children}
       </span>
     </th>
@@ -633,7 +664,7 @@ function StatusTag({ status }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold ${config.className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${config.className}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
       {config.label}
@@ -649,28 +680,26 @@ function InviteRow({ invite, copied, onCopy, onWhatsApp, onDownload, onOpen }) {
   return (
     <tr
       onClick={onOpen}
-      className="group cursor-pointer border-b border-white/[0.07] text-xs transition last:border-b-0 hover:bg-white/[0.04]"
+      className="group cursor-pointer border-b border-[#F1ECF6] text-xs transition last:border-b-0 hover:bg-[#FAF8FD]"
     >
       {/* Name */}
       <td className="py-3 pl-5 pr-4 sm:pl-6">
         <div className="flex items-center gap-2.5">
           <div
-            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-              invite.isMember
-                ? "bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] text-[#1E2A00]"
-                : GLASS_DARK + " text-[#B9D63B]"
+            className={`h-8 w-8 rounded-lg ${
+              invite.isMember ? LIME_TILE : ICON_TILE
             }`}
           >
-            {invite.isMember ? <Check size={14} /> : <UserPlus size={13} />}
+            {invite.isMember ? <Check size={15} /> : <UserPlus size={14} />}
           </div>
 
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">
+            <p className="truncate text-sm font-semibold text-[#24112f]">
               {invite.guestName}
             </p>
 
             {invite.isMember && (
-              <p className="text-[10px] font-semibold text-[#DDF27A]">
+              <p className="text-[10px] font-semibold text-[#5a7000]">
                 Purple Inspirer
               </p>
             )}
@@ -684,17 +713,17 @@ function InviteRow({ invite, copied, onCopy, onWhatsApp, onDownload, onOpen }) {
       </td>
 
       {/* Mobile */}
-      <td className="px-4 py-3 font-mono text-white/70">
+      <td className="px-4 py-3 text-[#4a4150] tabular-nums">
         {invite.guestMobile || "—"}
       </td>
 
       {/* Experience */}
-      <td className="px-4 py-3 text-white/70">
+      <td className="px-4 py-3 text-[#4a4150]">
         {invite.event?.name || "Purple Experience"}
       </td>
 
       {/* Invited */}
-      <td className="whitespace-nowrap px-4 py-3 text-white/50">
+      <td className="whitespace-nowrap px-4 py-3 text-[#8a8190]">
         {formatDate(invite.createdAt)}
       </td>
 
@@ -709,10 +738,10 @@ function InviteRow({ invite, copied, onCopy, onWhatsApp, onDownload, onOpen }) {
               <button
                 type="button"
                 onClick={() => onCopy(invite)}
-                className={`flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] font-semibold text-white transition hover:brightness-125 active:scale-95 ${GLASS_DARK}`}
+                className={`${OUTLINE_BTN} h-8 px-3 text-[11px] text-[#4B176B]`}
               >
                 {copied ? (
-                  <Check size={13} className="text-[#B9D63B]" />
+                  <Check size={13} className="text-[#5a7000]" />
                 ) : (
                   <Copy size={13} />
                 )}
@@ -722,7 +751,7 @@ function InviteRow({ invite, copied, onCopy, onWhatsApp, onDownload, onOpen }) {
               <button
                 type="button"
                 onClick={() => onWhatsApp(invite)}
-                className={`flex h-8 items-center rounded-full px-3 text-[11px] font-semibold text-[#5ee58f] transition hover:brightness-125 active:scale-95 ${GLASS_DARK}`}
+                className={`${OUTLINE_BTN} h-8 px-3 text-[11px] text-[#1b8a4a]`}
               >
                 WhatsApp
               </button>
@@ -732,7 +761,7 @@ function InviteRow({ invite, copied, onCopy, onWhatsApp, onDownload, onOpen }) {
                 onClick={() => onDownload(invite)}
                 title="Download QR"
                 aria-label="Download QR"
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-white transition hover:brightness-125 active:scale-95 ${GLASS_DARK}`}
+                className={`${OUTLINE_BTN} h-8 w-8 text-[#4B176B]`}
               >
                 <QrCode size={14} />
               </button>
@@ -741,7 +770,7 @@ function InviteRow({ invite, copied, onCopy, onWhatsApp, onDownload, onOpen }) {
 
           <ChevronRight
             size={16}
-            className="ml-1 text-white/25 transition group-hover:translate-x-0.5 group-hover:text-[#B9D63B]"
+            className="ml-1 text-[#b8afbd] transition group-hover:translate-x-0.5 group-hover:text-[#4B176B]"
           />
         </div>
       </td>
@@ -772,64 +801,60 @@ function InviteModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 font-sans backdrop-blur-md"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Purple invitation"
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#24112f]/35 p-4 font-sans"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-3xl border border-white/10 bg-[#120d1a] text-white shadow-2xl"
+        className="relative max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-3xl border border-[#ECE6F3] bg-white text-[#24112f] shadow-[0_24px_60px_rgba(36,17,47,0.25)]"
       >
         {/* Header */}
-        <div className="relative overflow-hidden px-4 pb-4 pt-4">
-          <div className="pointer-events-none absolute -left-10 -top-14 h-40 w-40 rounded-full bg-[#6a3f9e]/70 blur-3xl" />
-          <div className="pointer-events-none absolute -right-10 top-2 h-28 w-28 rounded-full bg-[#B9D63B]/20 blur-3xl" />
+        <div className="flex items-start justify-between gap-3 border-b border-[#F1ECF6] px-5 pb-4 pt-5">
+          <div className="min-w-0">
+            <p className="text-[11px] font-medium text-[#6a3f9e]">
+              Purple invitation
+            </p>
 
-          <div className="relative flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <span
-                className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-white ${GLASS}`}
-              >
-                Purple invitation
-              </span>
+            <h2 className="mt-1 truncate text-lg font-bold leading-tight tracking-tight text-[#1a0f24]">
+              {invite.guestName}
+            </h2>
 
-              <h2 className="mt-2 truncate text-lg font-bold leading-tight tracking-tight">
-                {invite.guestName}
-              </h2>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <StatusTag status={invite.status} />
 
-              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                <StatusTag status={invite.status} />
-
-                {invite.isMember && (
-                  <span className="rounded-md bg-[#B9D63B]/20 px-2 py-0.5 text-[11px] font-semibold text-[#DDF27A]">
-                    Purple Inspirer
-                  </span>
-                )}
-              </div>
+              {invite.isMember && (
+                <span className="rounded-full bg-[#EDF5C8] px-2.5 py-0.5 text-[11px] font-semibold text-[#44590d]">
+                  Purple Inspirer
+                </span>
+              )}
             </div>
-
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white transition hover:scale-105 active:scale-95 ${GLASS}`}
-            >
-              <X size={15} />
-            </button>
           </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className={`${OUTLINE_BTN} h-8 w-8 shrink-0 text-[#4B176B]`}
+          >
+            <X size={15} />
+          </button>
         </div>
 
-        <div className="space-y-3 px-4 pb-4">
+        <div className="space-y-3 p-5">
           {/* Event */}
-          <div className={`rounded-2xl px-3.5 py-3 ${GLASS_DARK}`}>
+          <div className={`${SOFT_BOX} px-3.5 py-3`}>
             <div className="flex items-center gap-1.5">
-              <CalendarDays size={13} className="text-[#B9D63B]" />
-              <span className="truncate text-xs font-semibold text-white">
+              <CalendarDays size={13} className="text-[#6a3f9e]" />
+              <span className="truncate text-xs font-semibold text-[#24112f]">
                 {invite.event?.name || "Purple Experience"}
               </span>
             </div>
 
             {details.length > 0 && (
-              <p className="mt-1 text-[11px] leading-4 text-white/55">
+              <p className="mt-1 text-[11px] leading-4 text-[#6f6577]">
                 {details.join(" · ")}
               </p>
             )}
@@ -838,8 +863,8 @@ function InviteModal({
           {hasLink ? (
             <div className="flex items-stretch gap-3">
               {/* QR */}
-              <div className="flex shrink-0 flex-col items-center rounded-2xl border border-[#B9D63B]/30 bg-gradient-to-br from-[#B9D63B]/20 via-[#B9D63B]/[0.06] to-transparent p-2.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
-                <div className="rounded-xl bg-white p-1.5">
+              <div className="flex shrink-0 flex-col items-center rounded-2xl border border-[#ECE6F3] bg-[#FAF8FD] p-2.5">
+                <div className="rounded-xl border border-[#ECE6F3] bg-white p-1.5">
                   <QRCodeSVG
                     value={invite.inviteUrl}
                     size={104}
@@ -853,7 +878,7 @@ function InviteModal({
                   href={invite.inviteUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-[#DDF27A] hover:underline"
+                  className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-[#4B176B] hover:underline"
                 >
                   Open page
                   <ExternalLink size={10} />
@@ -865,11 +890,10 @@ function InviteModal({
                 <button
                   type="button"
                   onClick={() => onShare(invite)}
-                  className="group/btn relative flex items-center justify-center gap-1.5 overflow-hidden rounded-full border border-white/40 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] px-3 py-2 text-xs font-semibold text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(88,112,0,0.25),0_6px_16px_rgba(185,214,59,0.3)] transition hover:brightness-105 active:scale-[0.98]"
+                  className="flex items-center justify-center gap-1.5 rounded-full bg-[#B9D63B] px-3 py-2 text-xs font-semibold text-[#1E2A00] transition hover:bg-[#c6e04a] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#B9D63B]/40 active:scale-[0.98]"
                 >
-                  <span className="pointer-events-none absolute inset-x-3 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent opacity-70" />
-                  <Share2 size={14} className="relative" />
-                  <span className="relative">Share</span>
+                  <Share2 size={14} />
+                  Share
                 </button>
 
                 <ModalButton
@@ -892,7 +916,7 @@ function InviteModal({
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-amber-300/30 bg-amber-400/10 p-3 text-[11px] leading-4 text-amber-200">
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-[11px] leading-4 text-amber-800">
               This invitation was created before share links were enabled.
               Create a new invitation to get a link and QR code.
             </div>
@@ -909,11 +933,11 @@ function ModalButton({ onClick, disabled, icon: Icon, label, green = false }) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition hover:brightness-125 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 ${GLASS} ${
-        green ? "text-[#5ee58f]" : "text-white"
+      className={`${OUTLINE_BTN} px-3 py-2 text-xs ${
+        green ? "text-[#1b8a4a]" : "text-[#4B176B]"
       }`}
     >
-      {Icon && <Icon size={14} className={green ? "" : "text-[#B9D63B]"} />}
+      {Icon && <Icon size={14} className={green ? "" : "text-[#6a3f9e]"} />}
       {label}
     </button>
   );

@@ -24,16 +24,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-/* =========================================================
-   PROFILE CARD + COMPACT FORM (ONE SCREEN ON DESKTOP)
-
-   purple #6a3f9e  brand
-   deep   #4B176B  banner / headings
-   lime   #B9D63B  primary action
-   ink    #1f1427  text
-   muted  #6b6275  secondary text
-   line   #e7e2ec  borders
-========================================================= */
 
 const LABEL =
   "mb-1 block text-xs font-medium text-[#4a3f54]";
@@ -118,9 +108,6 @@ const GENDER_OPTIONS = [
   "Prefer not to say",
 ];
 
-/* =========================================================
-   NORMALIZE PROFILE
-========================================================= */
 
 function normalizeProfile(profile = {}) {
   return {
@@ -170,9 +157,6 @@ function normalizeProfile(profile = {}) {
   };
 }
 
-/* =========================================================
-   INPUT FIELD
-========================================================= */
 
 function InputField({
   label,
@@ -220,9 +204,6 @@ function InputField({
   );
 }
 
-/* =========================================================
-   SELECT FIELD
-========================================================= */
 
 function SelectField({
   label,
@@ -282,24 +263,6 @@ function SelectField({
   );
 }
 
-/* =========================================================
-   CITY FIELD
-
-   Uses:
-   GET /api/cities?q=ja
-
-   MongoDB:
-   cities collection
-
-   Example:
-   {
-     _id: ObjectId(...),
-     city: "Jaipur",
-     state: "Rajasthan"
-   }
-
-   Search is debounced by 400ms.
-========================================================= */
 
 function CityField({
   value,
@@ -593,9 +556,7 @@ function CityField({
   );
 }
 
-/* =========================================================
-   PROFILE CLIENT
-========================================================= */
+
 
 export default function ProfileClient() {
   const [profile, setProfile] =
@@ -619,9 +580,6 @@ export default function ProfileClient() {
   const [error, setError] =
     useState("");
 
-  /* =======================================================
-     LOAD PROFILE
-  ======================================================= */
 
   async function loadProfile() {
     try {
@@ -914,7 +872,7 @@ export default function ProfileClient() {
 
   return (
     <section className="w-full font-sans">
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[440px_minmax(0,1fr)] lg:items-start">
         {/* =================================================
             PROFILE CARD
         ================================================= */}
@@ -922,7 +880,7 @@ export default function ProfileClient() {
         <aside className="overflow-hidden rounded-2xl border border-[#e7e2ec] bg-white">
           {/* Banner */}
           <div
-            className="relative h-36"
+            className="relative h-46"
             style={{
               background:
                 "radial-gradient(120% 140% at 85% 110%, rgba(185,214,59,0.85) 0%, rgba(185,214,59,0) 55%), linear-gradient(135deg, #4B176B 0%, #6a3f9e 100%)",
@@ -936,12 +894,7 @@ export default function ProfileClient() {
           </div>
 
           <div className="px-5 pb-5">
-            {/* Avatar overlapping banner */}
-            {/* <div className="-mt-10 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#6a3f9e] text-3xl font-semibold text-white ring-2 ring-[#B9D63B]">
-              {initial}
-            </div> */}
-
-            {/* Name + verified */}
+            
             <div className="mt-3 flex items-center gap-2">
               <h1 className="truncate text-xl font-semibold tracking-tight text-[#1f1427]">
                 {form.name ||
@@ -956,7 +909,7 @@ export default function ProfileClient() {
               )}
             </div>
 
-            <p className="mt-0.5 text-sm text-[#4a3f54]">
+            <p className="mt-0.5 text-xs text-[#4a3f54]">
               {form.occupation || "Occupation not added"}
             </p>
 
@@ -969,7 +922,7 @@ export default function ProfileClient() {
                 {chips.map((chip) => (
                   <span
                     key={chip}
-                    className="rounded-full bg-[#6a3f9e] px-3 py-1 text-xs font-medium text-white"
+                    className="rounded-full bg-[#6a3f9e]/20 text-[#6a3f9e] border border-[#6a3f9e]/60 px-3 py-1 text-xs font-medium "
                   >
                     {chip}
                   </span>
@@ -1126,7 +1079,7 @@ export default function ProfileClient() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 xl:grid-cols-2">
             {/* NAME */}
 
             <InputField
@@ -1302,7 +1255,8 @@ export default function ProfileClient() {
               }
               placeholder="Enter coach name"
               icon={Users}
-              disabled={!editing}
+              disabled
+              locked
             />
 
             {/* =================================================

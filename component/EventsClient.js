@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+
+import MemberDashboardTour from "@/component/MemberDashboardTour";
 import {
   CalendarDays,
   Clock3,
@@ -302,14 +304,16 @@ export default function EventsClient({
     <main className="relative isolate font-sans">
       {/* ================= HEADER + MEMBERSHIP ================= */}
 
-      <div className="flex flex-wrap items-start justify-between gap-x-4">
-        <header className="mb-5 flex items-center gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-x-4"
+      
+      >
+        <header className="mb-5 flex items-center gap-3" >
           <img
             src="/calender.png"
             alt="Purple Club"
             className="h-14 w-14 shrink-0 rounded-full object-cover"
           />
-
+          <div className=" flex gap-2">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-[#1a0f24] sm:text-3xl">
               Upcoming events
@@ -318,10 +322,19 @@ export default function EventsClient({
             <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
               Find your next Purple experience by club, city or date.
             </p>
+            
+          </div>
+        
+          <MemberDashboardTour group="events-page"/>
           </div>
         </header>
 
-        <section className="mb-4 flex flex-col gap-3 rounded-3xl p-3.5 sm:flex-row sm:items-center sm:justify-between">
+        <section className="mb-4 flex flex-col gap-3 rounded-3xl p-3.5 sm:flex-row sm:items-center sm:justify-between" 
+        data-tg-tour="Check your membership status here. An active membership lets you use your Member QR at event check-in."
+data-tg-title="Your Membership"
+data-tg-group="events-page"
+data-tg-order="1"
+        >
           <div className="flex min-w-0 items-center gap-3">
             <div className="min-w-0">
               <h2 className="text-sm font-bold text-[#24112f]">
@@ -360,7 +373,12 @@ export default function EventsClient({
 
       {/* ================= FILTERS ================= */}
 
-      <section className="mb-6 rounded-3xl p-3.5">
+      <section className="mb-6 rounded-3xl p-3.5" 
+      data-tg-tour="Filter events by club, city, and date range."
+data-tg-title="Find Events"
+data-tg-group="events-page"
+data-tg-order="2"
+      >
         <div className="flex flex-col gap-3 xl:flex-row xl:items-end">
           <div className="grid flex-1 grid-cols-2 gap-2.5 xl:grid-cols-4">
             <FilterField label="Club">
@@ -435,7 +453,9 @@ export default function EventsClient({
       {/* ================= EVENT CARDS ================= */}
 
       {filteredEvents.length === 0 ? (
-        <div className="flex flex-col items-center rounded-[2rem] border border-dashed border-[#6a3f9e]/25 bg-white/40 p-10 text-center backdrop-blur-md">
+        <div className="flex flex-col items-center rounded-[2rem] border border-dashed border-[#6a3f9e]/25 bg-white/40 p-10 text-center backdrop-blur-md" 
+        
+        >
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#6a3f9e]/15 bg-gradient-to-br from-[#6a3f9e]/20 to-[#6a3f9e]/5 text-[#4B176B] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]">
             <CalendarDays size={26} />
           </div>
@@ -458,12 +478,17 @@ export default function EventsClient({
           </button>
         </div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {filteredEvents.map((event) => {
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4 "
+        data-tg-tour="Browse event cards to view schedules, locations, and membership requirements."
+data-tg-title="Explore Events"
+data-tg-group="events-page"
+data-tg-order="3">
+          {filteredEvents.map((event, index) => {
             const d = parseDay(event.date);
 
             return (
               <article
+              
                 key={event.id}
                 className="group relative flex min-h-[430px] flex-col justify-end overflow-hidden rounded-[2rem] bg-black shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/30"
               >

@@ -56,12 +56,26 @@ export async function GET() {
 
     let inspirerName = "";
 
-    /*
-     * Priority:
-     * 1. guest_invites
-     * 2. referral
-     * 3. existing invitedBy fields
-     */
+    let coachName = "";
+
+if (user?.coachId) {
+  const coachId = user.coachId;
+
+  const coachObjectId =
+    coachId instanceof ObjectId
+      ? coachId
+      : ObjectId.isValid(String(coachId))
+        ? new ObjectId(String(coachId))
+        : null;
+
+  if (coachObjectId) {
+    const coach = await db.collection("members").findOne({
+      _id: coachObjectId,
+    });
+
+    coachName = coach?.name || coach?.fullName || "";
+  }
+}
 
     const invite = await db
       .collection("guest_invites")
@@ -152,7 +166,7 @@ export async function GET() {
         invitedBy: inspirerName,
 
         coachName:
-          user.coachName ||
+          coachName ||
           "",
 
         consent:

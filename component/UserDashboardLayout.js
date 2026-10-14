@@ -13,7 +13,8 @@ export default function UserDashboardLayout({
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#F7F5F1]">
       {/* Sidebar */}
-      <UserSidebar
+      <UserSidebar 
+      session={session}
         open={sidebarOpen}
         setOpen={setSidebarOpen}
       />

@@ -1,91 +1,54 @@
+
 "use client";
 
 import { useEffect, useRef } from "react";
 
-const PURPLE = "#6a3f9e";
 const DARK = "#120d1a";
 
 function buildOptions({ value, size, image }) {
   return {
     width: size,
     height: size,
-
     type: "svg",
+    data: String(value).trim(),
 
-    data: value,
+    // Keep the panda image optional.
+    ...(image ? { image } : {}),
 
-    image,
+    // White border around the QR for reliable detection.
+    margin: 4,
 
-    /*
-     * IMPORTANT
-     * Large white quiet-zone around the QR.
-     * Browser scanners need this.
-     */
-    margin: 32,
-
-    /*
-     * H = highest error correction.
-     * Important because we have a panda image in the center.
-     */
     qrOptions: {
       errorCorrectionLevel: "H",
     },
 
-    /*
-     * Keep the panda image small.
-     * 0.20 is much safer than 0.32 for browser scanners.
-     */
     imageOptions: {
       crossOrigin: "anonymous",
-
       hideBackgroundDots: true,
 
-      imageSize: 0.80,
-
+      // Keep the center image small.
+      imageSize: 0.18,
       margin: 4,
-
-      /*
-       * Prevent the image from affecting
-       * the finder patterns.
-       */
       saveAsBlob: true,
     },
 
-    /*
-     * ALWAYS use a white QR background.
-     */
     backgroundOptions: {
       color: "#ffffff",
     },
 
-    /*
-     * Keep QR dots dark and high contrast.
-     *
-     * Do NOT use purple/lime gradient here.
-     * Some browser QR decoders struggle with
-     * low-contrast gradient modules.
-     */
+    // Square modules improve compatibility with scanners.
     dotsOptions: {
-      type: "rounded",
-
+      type: "square",
       color: DARK,
     },
 
-    /*
-     * Standard square finder patterns.
-     *
-     * These are extremely important for
-     * browser-based QR scanners.
-     */
     cornersSquareOptions: {
       type: "square",
-
       color: DARK,
     },
 
     cornersDotOptions: {
       type: "square",
-
       color: DARK,
     },
   };
@@ -93,31 +56,30 @@ function buildOptions({ value, size, image }) {
 
 export default function PandaQRCode({
   value,
-  size = 300,
+  size = 220,
   image = "/cheering.png",
   className = "",
 }) {
+  console.log(value)
   const containerRef = useRef(null);
   const qrRef = useRef(null);
 
   useEffect(() => {
-    if (!value || !containerRef.current) {
-      return;
-    }
-
     let cancelled = false;
 
     async function generateQR() {
+      const container = containerRef.current;
+
+      if (!container || !value || !String(value).trim()) {
+        container?.replaceChildren();
+        return;
+      }
+
       try {
         const { default: QRCodeStyling } =
           await import("qr-code-styling");
 
-        if (
-          cancelled ||
-          !containerRef.current
-        ) {
-          return;
-        }
+        if (cancelled || !containerRef.current) return;
 
         const options = buildOptions({
           value,
@@ -125,31 +87,17 @@ export default function PandaQRCode({
           image,
         });
 
-        /*
-         * First render
-         */
         if (!qrRef.current) {
-          qrRef.current =
-            new QRCodeStyling(options);
-
-          containerRef.current.innerHTML = "";
-
-          qrRef.current.append(
-            containerRef.current
-          );
-
-          return;
+          qrRef.current = new QRCodeStyling(options);
+        } else {
+          qrRef.current.update(options);
         }
 
-        /*
-         * Update existing QR
-         */
-        qrRef.current.update(options);
+        // Clear previous output before appending the current QR.
+        container.replaceChildren();
+        qrRef.current.append(container);
       } catch (error) {
-        console.error(
-          "Panda QR generation error:",
-          error
-        );
+        console.error("Panda QR generation error:", error);
       }
     }
 
@@ -160,35 +108,29 @@ export default function PandaQRCode({
     };
   }, [value, size, image]);
 
-  if (!value) {
+  if (!value || !String(value).trim()) {
     return null;
   }
 
   return (
     <div
-      className={`relative mx-auto ${className} `}
+      className={`mx-auto ${className}`}
       style={{
         width: size,
         height: size,
+        maxWidth: "100%",
       }}
     >
- 
-      <div
-        className="pointer-events-none absolute right-[4%] top-[3%] z-0 rounded-full"
-        style={{
-          width: size * 0.20,
-          height: size * 0.20,
-        }}
-      />
-
-      {/* QR */}
-
       <div
         ref={containerRef}
-        className="relative z-10 overflow-hidden bg-white rounded-2xl" 
+        role="img"
+        aria-label="Member QR code"
+        className="overflow-hidden bg-white rounded-2xl"
         style={{
           width: size,
           height: size,
+          maxWidth: "100%",
+          aspectRatio: "1 / 1",
         }}
       />
     </div>

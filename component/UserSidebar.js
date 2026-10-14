@@ -15,8 +15,14 @@ import {
   X,
   ChevronRight,
   BadgeCheckIcon,
+  ScanLine,
+  UserPlus2Icon
 } from "lucide-react";
-
+const scanMenuItem = {
+  label: "Scan Member Attendance",
+  href: "/dashboard/scan",
+  icon: ScanLine,
+};
 const menuItems = [
   {
     label: "Dashboard",
@@ -39,9 +45,9 @@ const menuItems = [
     icon: Ticket,
   },
   {
-    label: "Guest Pass",
+    label: "Guest Invites",
     href: "/dashboard/guest-pass",
-    icon: QrCode,
+    icon: UserPlus2Icon,
   },
   {
     label: "Attendance",
@@ -118,9 +124,12 @@ function Tooltip({ children }) {
   );
 }
 
-export default function UserSidebar({ open, setOpen }) {
+export default function UserSidebar({ open, setOpen, session }) {
   const pathname = usePathname();
-
+const visibleMenuItems =
+  session?.user?.role === "SUPERCOACH"
+    ? [...menuItems, scanMenuItem]
+    : menuItems;
   function isActive(href) {
     if (href === "/dashboard") {
       return pathname === href;
@@ -407,7 +416,7 @@ export default function UserSidebar({ open, setOpen }) {
             </p>
 
             <nav className="space-y-1.5">
-              {menuItems.map((item) => {
+              {visibleMenuItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
 
@@ -627,7 +636,7 @@ export default function UserSidebar({ open, setOpen }) {
                   gap-3
                 "
               >
-                {menuItems.map((item) => {
+                {visibleMenuItems.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.href);
 
