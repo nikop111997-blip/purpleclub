@@ -467,7 +467,7 @@ export default function HomePage({ session }) {
         >
           <div
             ref={sideTextRef}
-            style={{ opacity: 0 }}
+            style={{ opacity: 100 }}
             className="mx-auto w-full max-w-[720px] group-data-[layout=side]:mx-0"
           >
             <h2 className="mb-[1.2vh] text-[clamp(1.3rem,min(6vw,4.4svh),2.5rem)] font-bold uppercase leading-[0.98] tracking-[-0.04em] text-[#d4ff3f]">
@@ -485,73 +485,7 @@ export default function HomePage({ session }) {
           </div>
         </div>
 
-        {/* FRAME 3 BACKGROUND (no will-change: GSAP already promotes it) */}
-        <div
-          ref={bgRef}
-          className="pointer-events-none absolute -left-[6%] top-0 z-[5] h-full w-[112%] overflow-hidden"
-        />
-
-        {/* FRAME 3 CARD STRIP */}
-        <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
-          <div
-            ref={trackRef}
-            className="absolute left-0 top-0 flex will-change-transform"
-          >
-            {POSES.map((pose, i) => (
-              <div key={i} className="pose-card shrink-0">
-                <div className="pose-inner relative h-full w-full overflow-hidden">
-                  <img
-                    src={pose.src}
-                    alt=""
-                    draggable="false"
-                    decoding="async"
-                    loading="eager"
-                    className={`pose-img absolute inset-0 box-border h-full w-full select-none object-contain ${
-                      pose.pad ? "pt-8 md:pt-10" : ""
-                    }`}
-                  />
-                  <p className="absolute left-3 top-0 text-base font-bold tracking-[-0.03em] text-lime-300 sm:left-6 sm:text-xl md:text-2xl">
-                    {pose.caption}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Scroll progress for the strip */}
-          <div
-            ref={progressRef}
-            className="absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-[8%] right-[8%] h-[2px] bg-[#2b1553]/20 md:left-[18%] md:right-[18%]"
-          >
-            <div
-              ref={progressFillRef}
-              className="h-full origin-left bg-[#ccff00]"
-              style={{ transform: "scaleX(0)" }}
-            />
-          </div>
-        </div>
-
-        {/* PANDA: size and position are set from JS (measure), so it adapts
-            to any screen. The width here is only the pre-JS fallback. */}
-        <div
-          ref={characterRef}
-          className="pointer-events-none absolute left-0 top-0 z-20 w-[min(80vw,420px)] max-w-none will-change-transform"
-        >
-          <img
-            ref={pandaImgRef}
-            src={PANDA_SRC}
-            alt=""
-            draggable="false"
-            decoding="async"
-            loading="eager"
-            onLoad={refreshOnce}
-            onError={() => {
-              // Keep the rest of the page usable if the panda asset is missing.
-              gsap.set(characterRef.current, { autoAlpha: 0 });
-            }}
-            className="block h-auto w-full select-none"
-          />
-        </div>
+    
       </section>
 
       {/* No min-h-screen here: that was adding the blank area after the last section */}
