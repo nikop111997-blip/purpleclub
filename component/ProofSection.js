@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import React from 'react';
 
-export default function ProofSection({session}) {
+export default function ProofSection() {
   return (
     <div className="w-full font-sans overflow-hidden">
       
@@ -98,9 +98,7 @@ Think of it as a run club that also stretches, breathes and stays back to chat.
             </p>
             
             <div>
-              <a href={`${session?"/dashboard":'/auth'}`} className="bg-[#d4ff3f] text-black font-bold border border-gray-500 px-6 py-4 rounded-full hover:bg-[#bce628] transition-colors text-sm mb-12">
-                Be a Purple Person
-              </a>
+            
             </div>
 
             {/* Signature Area */}
