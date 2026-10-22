@@ -6,13 +6,13 @@ import { SplitText } from "gsap/SplitText"; // Premium Plugin
 import { useGSAP } from "@gsap/react";
 
 const IMAGES = [
-  { layer: 2, src: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=800&auto=format&fit=crop", alt: "Person tying running shoes on a track" },
-  { layer: 2, src: "https://images.unsplash.com/photo-1530549387789-4c1017266635?q=80&w=800&auto=format&fit=crop", alt: "Man running on an outdoor track" },
-  { layer: 1, src: "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?q=80&w=800&auto=format&fit=crop", alt: "Person running up a mountain trail" },
-  { layer: 2, src: "https://images.unsplash.com/photo-1502224562085-639556652f33?q=80&w=800&auto=format&fit=crop", alt: "Person running on an open road" },
-  { layer: 3, src: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800&auto=format&fit=crop", alt: "Woman running by the water" },
-  { layer: 1, src: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=800&auto=format&fit=crop", alt: "Athlete sprinting" },
-  { layer: 3, src: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop", alt: "Close up of running shoes in motion" },
+  { layer: 2, src: "https://ajaysethi.vercel.app/_next/image?url=%2Fdswa.jpg&w=1920&q=75", alt: "Person tying running shoes on a track" },
+  { layer: 2, src: "https://ajaysethi.vercel.app/_next/image?url=%2Fhabibi.jpg&w=1920&q=75", alt: "Man running on an outdoor track" },
+  { layer: 1, src: "https://ajaysethi.vercel.app/_next/image?url=%2Ffeminist.jpg&w=1920&q=75", alt: "Person running up a mountain trail" },
+  { layer: 2, src: "https://ajaysethi.vercel.app/_next/image?url=%2Ffeminist.jpg&w=1920&q=75", alt: "Person running on an open road" },
+  { layer: 3, src: "https://ajaysethi.vercel.app/_next/image?url=%2Fjums.jpg&w=1920&q=75", alt: "Woman running by the water" },
+  { layer: 1, src: "https://www.kayapalat.in/_next/image?url=https%3A%2F%2Fframerusercontent.com%2Fimages%2FdpoEu6bAixQRYKwFTttRq5qg84U.jpg%3Fscale-down-to%3D1024%26width%3D1200%26height%3D1298&w=1920&q=75", alt: "Athlete sprinting" },
+  { layer: 3, src: "https://www.kayapalat.in/_next/image?url=https%3A%2F%2Fframerusercontent.com%2Fimages%2FVKXAstdJwrG80aBOXAVESiEMlw.png%3Fscale-down-to%3D2048%26width%3D3034%26height%3D1433&w=3840&q=75", alt: "Close up of running shoes in motion" },
   { layer: 3, src: "https://images.unsplash.com/photo-1486218119243-13883505764c?q=80&w=800&auto=format&fit=crop", alt: "Man running in nature during sunset" },
   { layer: 1, src: "https://images.unsplash.com/photo-1486218119243-13883505764c?q=80&w=800&auto=format&fit=crop", alt: "Group of people running a marathon" },
   { layer: 3, src: "https://images.unsplash.com/photo-1513593771513-7b58b6c4af38?q=80&w=800&auto=format&fit=crop", alt: "Jogging through a forest trail" },

@@ -5,6 +5,7 @@ import HomePage from "@/component/Homepage";
 import ScrollExperience from "@/component/Kamp";
 import OneSundaySection from "@/component/Onesundaysection";
 import ScrollBoxes from "@/component/ScrollBoxes";
+import ScrollSlider from "@/component/Scrollslider";
 import TestimonialSection from "@/component/Testimonial";
 import VideoScrollSection from "@/component/VideoScrollSection";
 import { auth } from "@/lib/auth";
@@ -14,12 +15,15 @@ export default async function Page(){
   return(
     <>
     <HomePage session={session}/>
+    
     <AboutRunClub />
     <ScrollBoxes session={session}/>
     <ChillZone/>
     <ScrollExperience/>
     <VideoScrollSection/>
+    <ScrollSlider/>
     <TestimonialSection/>
+    
     <FaqSection session={session}/>
     </>
   )
