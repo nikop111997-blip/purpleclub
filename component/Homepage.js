@@ -66,6 +66,13 @@ export default function HomePage({session}) {
         return;
       }
 
+      // Keep the first frame visible if an animation cannot be initialized.
+      gsap.set(heroText, { autoAlpha: 1, y: 0 });
+      gsap.set(character, { autoAlpha: 1 });
+      gsap.set(sideText, { autoAlpha: 0 });
+      gsap.set(track, { clearProps: "transform" });
+      gsap.set(progress, { autoAlpha: 0 });
+
       const cards = gsap.utils.toArray(".pose-card", section);
       const inners = gsap.utils.toArray(".pose-inner", section);
       const imgs = gsap.utils.toArray(".pose-img", section);
@@ -431,7 +438,7 @@ export default function HomePage({session}) {
         <div
           ref={sideWrapRef}
           data-layout="stack"
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-30 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-center sm:px-10
+          className="group pointer-events-none absolute inset-x-0 bottom-0 z-30 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-center sm:px-10
             data-[layout=side]:inset-y-0 data-[layout=side]:right-auto data-[layout=side]:flex data-[layout=side]:w-1/2 data-[layout=side]:items-center
             data-[layout=side]:px-0 data-[layout=side]:pb-0 data-[layout=side]:pl-[6%] data-[layout=side]:pr-[3%] data-[layout=side]:text-left"
         >
@@ -510,7 +517,14 @@ export default function HomePage({session}) {
             src="/main.png"
             alt=""
             draggable="false"
-            onLoad={() => ScrollTrigger.refresh()}
+            onLoad={() => {
+              // The image's natural dimensions are needed by measure().
+              requestAnimationFrame(() => ScrollTrigger.refresh());
+            }}
+            onError={() => {
+              // Keep the rest of the page usable if the panda asset is missing.
+              gsap.set(characterRef.current, { autoAlpha: 0 });
+            }}
             className="block h-auto w-full select-none"
           />
         </div>
