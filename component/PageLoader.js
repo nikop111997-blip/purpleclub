@@ -29,48 +29,25 @@ export default function PageLoader() {
   const [count, setCount] = useState(0);
   const [showLogo, setShowLogo] = useState(false);
 
-  /*
-   * ============================================================
-   * PANDA HOLD
-   * ============================================================
-   *
-   * Panda appears in the center first.
-   * After a short delay, the logo appears and
-   * the panda smoothly moves to the RIGHT.
-   */
-
+  // Panda appears first, then the logo slides in and the panda moves right.
   useEffect(() => {
     const timer = setTimeout(
-      () => {
-        setShowLogo(true);
-      },
+      () => setShowLogo(true),
       reduceMotion ? 0 : PANDA_HOLD_MS
     );
-
     return () => clearTimeout(timer);
   }, [reduceMotion]);
 
-  /*
-   * ============================================================
-   * PROGRESS
-   * ============================================================
-   */
-
+  // Progress counter
   useEffect(() => {
     let holdTimer;
 
     const controls = animate(0, 100, {
       duration: reduceMotion ? 0.5 : COUNT_SECONDS,
       ease: EASE_SLIDE,
-
-      onUpdate: (value) => {
-        setCount(Math.round(value));
-      },
-
+      onUpdate: (value) => setCount(Math.round(value)),
       onComplete: () => {
-        holdTimer = setTimeout(() => {
-          setLoading(false);
-        }, HOLD_MS);
+        holdTimer = setTimeout(() => setLoading(false), HOLD_MS);
       },
     });
 
@@ -80,41 +57,15 @@ export default function PageLoader() {
     };
   }, [reduceMotion]);
 
-  /*
-   * ============================================================
-   * CURTAIN EXIT
-   * ============================================================
-   */
-
   const frontExit = reduceMotion
-    ? {
-        opacity: 0,
-        transition: {
-          duration: 0.3,
-        },
-      }
-    : {
-        y: "-100%",
-        transition: {
-          duration: 0.9,
-          ease: EASE_CURTAIN,
-        },
-      };
+    ? { opacity: 0, transition: { duration: 0.3 } }
+    : { y: "-100%", transition: { duration: 0.9, ease: EASE_CURTAIN } };
 
   const backExit = reduceMotion
-    ? {
-        opacity: 0,
-        transition: {
-          duration: 0.3,
-        },
-      }
+    ? { opacity: 0, transition: { duration: 0.3 } }
     : {
         y: "-100%",
-        transition: {
-          duration: 0.9,
-          delay: 0.08,
-          ease: EASE_CURTAIN,
-        },
+        transition: { duration: 0.9, delay: 0.08, ease: EASE_CURTAIN },
       };
 
   return (
@@ -124,15 +75,11 @@ export default function PageLoader() {
           key="page-loader"
           role="status"
           aria-label="Loading"
-          className="
-            fixed
-            inset-0
-            z-[999999]
-            h-[100dvh]
-            w-full
-            overflow-hidden
-            overscroll-none
-          "
+          // translate="no" + notranslate stops Google Translate / browser
+          // translators from wrapping the changing counter text in <font>
+          // tags, which is the most common cause of the removeChild error.
+          translate="no"
+          className="notranslate fixed inset-0 z-[999999] h-[100dvh] w-full overflow-hidden overscroll-none"
           style={{
             height: "100dvh",
             width: "100%",
@@ -140,238 +87,90 @@ export default function PageLoader() {
             touchAction: "none",
           }}
         >
-          {/* =====================================================
-              BACK CURTAIN
-             ===================================================== */}
-
+          {/* BACK CURTAIN */}
           <motion.div
-            className="
-              absolute
-              inset-0
-              h-full
-              w-full
-              overflow-hidden
-            "
+            className="absolute inset-0 h-full w-full overflow-hidden"
+            style={{ backgroundColor: BACK_COLOR }}
             exit={backExit}
-          >
-            <div
-              className="
-                absolute
-                inset-0
-                h-full
-                w-full
-              "
-              style={{
-                backgroundColor: BACK_COLOR,
-              }}
-            />
-          </motion.div>
+          />
 
-          {/* =====================================================
-              FRONT CURTAIN
-             ===================================================== */}
-
+          {/* FRONT CURTAIN */}
           <motion.div
-            className="
-              absolute
-              inset-0
-              h-full
-              w-full
-              overflow-hidden
-            "
+            className="absolute inset-0 h-full w-full overflow-hidden"
             exit={frontExit}
           >
             <div
-              className="
-                relative
-                flex
-                h-full
-                w-full
-                flex-col
-                items-center
-                justify-center
-                overflow-hidden
-              "
-              style={{
-                backgroundColor: FRONT_COLOR,
-              }}
+              className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden"
+              style={{ backgroundColor: FRONT_COLOR }}
             >
-              {/* =================================================
-                  BACKGROUND GLOW
-                 ================================================= */}
-
+              {/* BACKGROUND GLOW */}
               <motion.div
-                className="
-                  pointer-events-none
-                  absolute
-                  -left-[25%]
-                  -top-[30%]
-                  h-[80vmax]
-                  w-[80vmax]
-                  rounded-full
-                  bg-[radial-gradient(circle,rgba(150,105,210,0.5),transparent_65%)]
-                "
-                animate={
-                  reduceMotion
-                    ? {}
-                    : {
-                        x: [0, 60, 0],
-                        y: [0, 40, 0],
-                      }
-                }
-                transition={{
-                  duration: 9,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
+                className="pointer-events-none absolute -left-[25%] -top-[30%] h-[80vmax] w-[80vmax] rounded-full bg-[radial-gradient(circle,rgba(150,105,210,0.5),transparent_65%)]"
+                animate={reduceMotion ? {} : { x: [0, 60, 0], y: [0, 40, 0] }}
+                transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <motion.div
+                className="pointer-events-none absolute -bottom-[30%] -right-[25%] h-[70vmax] w-[70vmax] rounded-full bg-[radial-gradient(circle,rgba(40,18,72,0.55),transparent_65%)]"
+                animate={reduceMotion ? {} : { x: [0, -50, 0], y: [0, -30, 0] }}
+                transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
               />
 
-              <motion.div
-                className="
-                  pointer-events-none
-                  absolute
-                  -bottom-[30%]
-                  -right-[25%]
-                  h-[70vmax]
-                  w-[70vmax]
-                  rounded-full
-                  bg-[radial-gradient(circle,rgba(40,18,72,0.55),transparent_65%)]
-                "
-                animate={
-                  reduceMotion
-                    ? {}
-                    : {
-                        x: [0, -50, 0],
-                        y: [0, -30, 0],
-                      }
-                }
-                transition={{
-                  duration: 10,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-
-              {/* =================================================
-                  DOT TEXTURE
-                 ================================================= */}
-
+              {/* DOT TEXTURE */}
               <div
-                className="
-                  pointer-events-none
-                  absolute
-                  inset-0
-                  opacity-50
-                "
+                className="pointer-events-none absolute inset-0 opacity-50"
                 style={{
                   backgroundImage:
                     "radial-gradient(rgba(255,255,255,0.12) 1px, transparent 1px)",
                   backgroundSize: "20px 20px",
-
                   maskImage:
                     "radial-gradient(ellipse at center, black 15%, transparent 70%)",
-
                   WebkitMaskImage:
                     "radial-gradient(ellipse at center, black 15%, transparent 70%)",
                 }}
               />
 
-              {/* =================================================
-                  LOGO + PANDA
-                 ================================================= */}
+              {/* LOGO + PANDA */}
+              <div className="relative z-10 flex items-center justify-center">
+                {/* LOGO: always mounted and animated by state. The nested
+                    AnimatePresence was removed because mounting and
+                    unmounting DOM nodes inside the exiting loader is what
+                    triggers removeChild errors. */}
+                <motion.div
+                  className="relative z-20 -mr-[18px] w-[150px] sm:-mr-[10px] sm:w-[220px] md:w-[260px]"
+                  initial={
+                    reduceMotion
+                      ? { opacity: 0 }
+                      : { opacity: 0, x: 50, clipPath: "inset(0 0 0 100%)" }
+                  }
+                  animate={
+                    showLogo
+                      ? reduceMotion
+                        ? { opacity: 1 }
+                        : { opacity: 1, x: 0, clipPath: "inset(0 0 0 0%)" }
+                      : reduceMotion
+                      ? { opacity: 0 }
+                      : { opacity: 0, x: 50, clipPath: "inset(0 0 0 100%)" }
+                  }
+                  transition={{
+                    duration: reduceMotion ? 0 : 1.05,
+                    delay: showLogo ? 0.05 : 0,
+                    ease: EASE_SLIDE,
+                  }}
+                >
+                  <img
+                    src={LOGO_SRC}
+                    alt="Purple Club"
+                    draggable={false}
+                    className="block h-auto w-full select-none"
+                  />
+                </motion.div>
 
-              <div
-                className="
-                  relative
-                  z-10
-                  flex
-                  items-center
-                  justify-center
-                "
-              >
-                {/* =================================================
-                    LOGO
-                    Appears on the LEFT
-                   ================================================= */}
-
-                <AnimatePresence>
-                  {showLogo && (
-                    <motion.div
-                      className="
-                        relative
-                        z-20
-                        w-[150px]
-                        -mr-[18px]
-                        sm:w-[220px]
-                        sm:-mr-[10px]
-                        md:w-[260px]
-                      "
-                      initial={
-                        reduceMotion
-                          ? {
-                              opacity: 0,
-                            }
-                          : {
-                              opacity: 0,
-                              x: 50,
-                              clipPath: "inset(0 0 0 100%)",
-                            }
-                      }
-                      animate={
-                        reduceMotion
-                          ? {
-                              opacity: 1,
-                            }
-                          : {
-                              opacity: 1,
-                              x: 0,
-                              clipPath: "inset(0 0 0 0%)",
-                            }
-                      }
-                      exit={{
-                        opacity: 0,
-                      }}
-                      transition={{
-                        duration: reduceMotion ? 0 : 1.05,
-                        delay: 0.05,
-                        ease: EASE_SLIDE,
-                      }}
-                    >
-                      <img
-                        src={LOGO_SRC}
-                        alt="Purple Club"
-                        draggable={false}
-                        className="
-                          block
-                          h-auto
-                          w-full
-                          select-none
-                        "
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* =================================================
-                    PANDA
-                    Starts CENTER → moves RIGHT
-                   ================================================= */}
-
+                {/* PANDA: starts centre, moves right */}
                 <motion.img
                   src={PANDA_SRC}
                   alt=""
                   draggable={false}
-                  className="
-                    relative
-                    z-30
-                    h-auto
-                    w-[115px]
-                    select-none
-                    drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)]
-                    sm:w-[150px]
-                    md:w-[180px]
-                    lg:w-[200px]
-                  "
+                  className="relative z-30 h-auto w-[115px] select-none drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)] sm:w-[150px] md:w-[180px] lg:w-[200px]"
                   initial={{
                     opacity: 0,
                     scale: reduceMotion ? 1 : 0.75,
@@ -382,32 +181,12 @@ export default function PageLoader() {
                     opacity: 1,
                     scale: 1,
                     y: 0,
-
-                    /*
-                     * CENTER → RIGHT
-                     */
-                    x: showLogo
-                      ? reduceMotion
-                        ? 35
-                        : 55
-                      : 0,
+                    x: showLogo ? (reduceMotion ? 35 : 55) : 0,
                   }}
                   transition={{
-                    opacity: {
-                      duration: 0.7,
-                      ease: EASE_OUT,
-                    },
-
-                    scale: {
-                      duration: 0.9,
-                      ease: EASE_OUT,
-                    },
-
-                    y: {
-                      duration: 0.9,
-                      ease: EASE_OUT,
-                    },
-
+                    opacity: { duration: 0.7, ease: EASE_OUT },
+                    scale: { duration: 0.9, ease: EASE_OUT },
+                    y: { duration: 0.9, ease: EASE_OUT },
                     x: {
                       duration: reduceMotion ? 0 : 1.15,
                       ease: EASE_SLIDE,
@@ -416,67 +195,25 @@ export default function PageLoader() {
                 />
               </div>
 
-              {/* =================================================
-                  PROGRESS
-                 ================================================= */}
-
+              {/* PROGRESS */}
               <motion.div
-                className="
-                  relative
-                  z-10
-                  mt-10
-                  flex
-                  flex-col
-                  items-center
-                  gap-3
-                "
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: 1,
-                }}
-                exit={{
-                  opacity: 0,
-                }}
-                transition={{
-                  duration: 0.5,
-                  delay: 0.4,
-                }}
+                className="relative z-10 mt-10 flex flex-col items-center gap-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
               >
-                {/* Progress line */}
-
-                <div
-                  className="
-                    h-px
-                    w-32
-                    overflow-hidden
-                    bg-white/20
-                    sm:w-40
-                  "
-                >
-                  <motion.div
-                    className="
-                      h-full
-                      origin-left
-                      bg-white
-                    "
-                    style={{
-                      width: `${count}%`,
-                    }}
+                <div className="h-px w-32 overflow-hidden bg-white/20 sm:w-40">
+                  {/* scaleX instead of width: no layout work on every tick */}
+                  <div
+                    className="h-full w-full origin-left bg-white"
+                    style={{ transform: `scaleX(${count / 100})` }}
                   />
                 </div>
 
-                {/* Counter */}
-
                 <span
-                  className="
-                    text-[10px]
-                    font-light
-                    tabular-nums
-                    tracking-[0.4em]
-                    text-white/60
-                  "
+                  translate="no"
+                  className="notranslate text-[10px] font-light tabular-nums tracking-[0.4em] text-white/60"
                 >
                   {String(count).padStart(3, "0")}
                 </span>

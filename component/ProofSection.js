@@ -1,16 +1,14 @@
 import Image from 'next/image';
 import React from 'react';
 
-export default function ProofSection() {
+export default function ProofSection({session}) {
   return (
     <div className="w-full font-sans overflow-hidden">
       
       {/* Top Green Gradient Section */}
       <section className="w-full bg-[#6b3fa0] pt-24 pb-48 z-0">
         
-        {/* Custom Glowing Background Effect */}
-        <div className="absolute top-[120%] right-[-70%] w-[160%] h-[200%] rounded-full bg-[radial-gradient(circle,_#d4ff3f_0%,_transparent_100%)] opacity-100 blur-[100px] pointer-events-none -z-10"></div>
-        <div className="absolute top-[60%] left-[-10%] w-[180%] h-[150%] rounded-full bg-[radial-gradient(circle,_#d4ff3f_0%,_transparent_100%)] opacity-40 blur-[80px] pointer-events-none -z-10"></div>
+
 
         <div className="max-w-[1400px] mx-auto px-6 lg:px-8 relative z-10">
           
@@ -98,7 +96,9 @@ Think of it as a run club that also stretches, breathes and stays back to chat.
             </p>
             
             <div>
-            
+              <a href={`${session?"/dashboard":'/auth'}`} className="bg-[#d4ff3f] text-black font-bold border border-gray-500 px-6 py-4 rounded-full hover:bg-[#bce628] transition-colors text-sm mb-12">
+                Be a Purple Person
+              </a>
             </div>
 
             {/* Signature Area */}

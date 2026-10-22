@@ -16,6 +16,7 @@ export default async function Layout({ children }) {
   return (
 
 <>
+<PageLoader />
           <Navbar session={session} />
         {children}
        <Footer/> 

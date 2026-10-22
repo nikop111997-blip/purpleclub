@@ -61,7 +61,7 @@ export default function HomePage({ session }) {
       // Keep the first frame visible if an animation cannot be initialized.
       gsap.set(heroText, { autoAlpha: 1, y: 0 });
       gsap.set(character, { autoAlpha: 1 });
-      gsap.set(sideText, { autoAlpha: 0 });
+      gsap.set(sideText, { opacity: 0, visibility: "visible" });
 
       // Everything that depends on screen size lives here and is recomputed
       // on every ScrollTrigger refresh (resize / rotate).
@@ -120,7 +120,7 @@ export default function HomePage({ session }) {
         sideWrap.dataset.layout = isSide ? "side" : "stack";
 
         gsap.set(heroText, { opacity: 1, y: 0 });
-        gsap.set(sideText, { opacity: 0, x: 0, y: 0 });
+        gsap.set(sideText, { autoAlpha: 0, x: 0, y: 0 });
         gsap.set(character, {
           left: 0,
           top: 0,
@@ -186,8 +186,8 @@ export default function HomePage({ session }) {
         );
         tl.fromTo(
           sideText,
-          { opacity: 0, x: isSide ? -70 : 0, y: isSide ? 0 : 30 },
-          { opacity: 1, x: 0, y: 0, duration: 1, ease: "power2.out" },
+          { autoAlpha: 0, x: isSide ? -70 : 0, y: isSide ? 0 : 30 },
+          { autoAlpha: 1, x: 0, y: 0, duration: 1, ease: "power2.out" },
           0.55
         );
         // Short hold so frame 2 can be read before the section unpins
@@ -274,7 +274,6 @@ export default function HomePage({ session }) {
         >
           <div
             ref={sideTextRef}
-            style={{ opacity: 0 }}
             className="mx-auto w-full max-w-[720px] group-data-[layout=side]:mx-0"
           >
             <h2 className="mb-[1.2vh] text-[clamp(1.3rem,min(6vw,4.4svh),2.5rem)] font-bold uppercase leading-[0.98] tracking-[-0.04em] text-[#d4ff3f]">
