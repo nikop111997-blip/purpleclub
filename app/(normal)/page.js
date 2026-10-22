@@ -22,7 +22,6 @@ export default async function Page(){
     <OneSundaySection/>
     <ScrollExperience/>
     <VideoScrollSection/>
-    <ScrollSlider/>
     <TestimonialSection/>
     
     <FaqSection session={session}/>
