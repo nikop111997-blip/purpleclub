@@ -3,21 +3,7 @@
 import React, { useId, useRef, useState } from "react";
 import Link from "next/link";
 
-/**
- * Homepage 7: "One Sunday can be the beginning"
- *
- * Usage:
- *   <OneSundaySection />
- *   <OneSundaySection nextParty={{ href: "/purple-party", dateLabel: "Sun, 14 Dec" }} />
- *
- * IMAGES (put these files in /public, or change the paths below)
- *   LOGO_SRC            -> Purple Club logo shown top-left of every card
- *   card.image          -> picture shown in the middle of each card front
- * If an image is missing the card falls back to the text name / gradient emblem,
- * so nothing breaks while you are still adding assets.
- */
 
-const LOGO_SRC = "/logo.png";
 
 /* ---------- Tiny inline icon set (no extra dependency) ---------- */
 const ICONS = {
@@ -123,7 +109,7 @@ const CARDS = [
     title: "Charter Circle",
     tag: "Start a city",
     size: "sm",
-    image: "/charter.png",
+    image: "/medi.png",
     stops: ["#5b8cff", "#c77dff", "#ff7a59"],
     backTitle: "Help your city come alive.",
     backBody:
@@ -346,7 +332,7 @@ function FlipCard({ card, nextParty, session }) {
           <div className="mt-3 flex h-8 items-center">
             {logoOk ? (
               <img
-                src={LOGO_SRC}
+                src='/logod.png'
                 alt="Purple Club"
                 draggable="false"
                 onError={() => setLogoOk(false)}

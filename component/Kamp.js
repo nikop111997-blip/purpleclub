@@ -117,7 +117,7 @@ export default function ScrollExperience() {
       <main className="m-0 overflow-hidden bg-[#d4ff3f] font-sans">
         {/* Zoom Section */}
         <div ref={zoomContainerRef} className="zoom-container">
-          <h3 ref={headingRef} className="heading-zoom zoom-item font-semibold">
+          <h3 ref={headingRef} className="heading-zoom zoom-item font-semibold dark:text-black">
             Good things grow when we <br />
             <span className="text-[#6b3fa0]">share them.</span>
           </h3>
