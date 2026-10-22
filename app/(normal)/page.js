@@ -14,6 +14,14 @@ export default async function Page(){
   return(
     <>
     <HomePage session={session}/>
+    <AboutRunClub />
+    <ScrollBoxes session={session}/>
+    <ChillZone/>
+    <OneSundaySection session={session}/>
+    <ScrollExperience/>
+    <VideoScrollSection/>
+    <TestimonialSection/>
+    <FaqSection session={session}/>
     </>
   )
 }
