@@ -19,6 +19,7 @@ export default async function Page(){
     <AboutRunClub />
     <ScrollBoxes session={session}/>
     <ChillZone/>
+    <OneSundaySection/>
     <ScrollExperience/>
     <VideoScrollSection/>
     <ScrollSlider/>
