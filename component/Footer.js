@@ -15,7 +15,7 @@ export default function Footer() {
               {/* Logo Icon */}
               <div className="relative w-36 h-8 flex items-center justify-center">
                 <img
-  src="/logos.png"
+  src="/logod.png"
   alt=""
   draggable="false"
   className="
@@ -27,8 +27,8 @@ export default function Footer() {
 />
               </div>
             </div>
-            <p className="text-gray-800 text-lg mb-8 max-w-xs leading-snug">
-              Get High on Life
+            <p className="text-gray-800 text-md mb-2 max-w-sm leading-snug">
+              by Kayapalat. COME ALIVE. India's Active Lifestyle Movement.
             </p>
             
             {/* Social Icons */}
@@ -46,6 +46,10 @@ export default function Footer() {
                 <LinkedInIcon />
               </SocialLink>
             </div>
+            <p className="text-sm text-gray-800 mt-4">
+  © {new Date().getFullYear()} Purple Club. All rights reserved.{" "}
+  <span className="mx-1">|</span> Design and Developed By <Link href={'https://www.giptechnologies.com/'}>GIP Technologies</Link>
+</p>
           </div>
 
        
@@ -78,7 +82,7 @@ export default function Footer() {
           <div className="relative w-32 h-32 md:w-64 md:h-64 flex-shrink-0 flex items-center justify-center">
            
           <img
-  src="/retail-character.svg"
+  src="/main.png"
   alt=""
   draggable="false"
   className="
@@ -86,15 +90,14 @@ export default function Footer() {
     h-auto
     w-full
     select-none
-    animate-mascot
   "
 />
           </div>
           
           {/* Giant Text */}
-          <h1 className="text-[10vw] md:text-[16vw] font-bold tracking-tight text-[#6b3fa0] leading-none bg-clip-border">
+          <h4 className="text-[10vw] md:text-[12vw] font-bold tracking-tight text-[#6b3fa0] leading-none bg-clip-border">
             purpleclub
-          </h1>
+          </h4>
         </div>
     </footer>
   );

@@ -1,21 +1,27 @@
 import AboutRunClub from "@/component/AboutRunClub";
 import ChillZone from "@/component/ChillZone";
+import FaqSection from "@/component/FAQ";
 import HomePage from "@/component/Homepage";
 import ScrollExperience from "@/component/Kamp";
+import OneSundaySection from "@/component/Onesundaysection";
 import ScrollBoxes from "@/component/ScrollBoxes";
 import TestimonialSection from "@/component/Testimonial";
 import VideoScrollSection from "@/component/VideoScrollSection";
+import { auth } from "@/lib/auth";
 
-export default function Page(){
+export default async function Page(){
+  const session =  await auth()
   return(
     <>
-    <HomePage/>
+    <HomePage session={session}/>
     <AboutRunClub />
-    <ScrollBoxes/>
+    <ScrollBoxes session={session}/>
     <ChillZone/>
+    <OneSundaySection session={session}/>
     <ScrollExperience/>
     <VideoScrollSection/>
     <TestimonialSection/>
+    <FaqSection session={session}/>
     </>
   )
 }

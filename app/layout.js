@@ -26,14 +26,15 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-[#d4ff3f]`}
     >
-      <PageTransitionProvider>  
+      
 
-      <body className="min-h-full flex flex-col">{children}
+      <body className="min-h-full flex flex-col">
+        <PageTransitionProvider>  {children}
 
-    
+    </PageTransitionProvider>
        
       </body>
-      </PageTransitionProvider>
+      
 
     </html>
   );

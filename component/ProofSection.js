@@ -1,26 +1,32 @@
+import Image from 'next/image';
 import React from 'react';
 
-export default function ProofSection() {
+export default function ProofSection({session}) {
   return (
     <div className="w-full font-sans overflow-hidden">
       
       {/* Top Green Gradient Section */}
-      <section className="relative w-full bg-[#6b3fa0] pt-24 pb-48 z-0">
+      <section className="w-full bg-[#6b3fa0] pt-24 pb-48 z-0">
         
         {/* Custom Glowing Background Effect */}
         <div className="absolute top-[120%] right-[-70%] w-[160%] h-[200%] rounded-full bg-[radial-gradient(circle,_#d4ff3f_0%,_transparent_100%)] opacity-100 blur-[100px] pointer-events-none -z-10"></div>
         <div className="absolute top-[60%] left-[-10%] w-[180%] h-[150%] rounded-full bg-[radial-gradient(circle,_#d4ff3f_0%,_transparent_100%)] opacity-40 blur-[80px] pointer-events-none -z-10"></div>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-8 relative z-10">
           
           {/* Header Row */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
+            <div>
+            <p className='bg-[#d4ff3f]/45 border border-[#d4ff3f] text-white text-sm py-1 mb-2 w-fit px-4 rounded-full'>What can you expect?</p>
             <h2 className="text-[#d4ff3f] text-3xl md:text-[2.5rem] font-bold leading-[1.05] tracking-tight max-w-3xl">
-              THE PURPLE EXPERIENCE.<br/><span className='text-white'> WWhat Happens on a Purple Sunday?</span>
+              Four ways to come alive
             </h2>
+            <p className='max-w-2xl mt-3 text-white font-medium text-lg md:text-lg'>Purple Club brings people together for welcoming, coach-led Sunday mornings built around movement, meditation, fuel and connection.</p>
+            </div>
             <div className="text-left md:text-right">
-              <p className="text-white mb-4 max-w-[400px] text-lg md:text-xl md:ml-auto font-medium">
-                90 minutes of movement, energy, connection and fun — designed to leave you feeling better than when you arrived.
+              <p className="text-white mb-4 max-w-[400px] text-lg md:text-lg md:ml-auto font-medium">
+                
+Think of it as a run club that also stretches, breathes and stays back to chat.
 
               </p>
               <button className="bg-[#d4ff3f] text-black border border-gray-800 font-semibold px-8 py-3.5 rounded-full hover:bg-[#bce628] transition-colors text-sm">
@@ -30,39 +36,49 @@ export default function ProofSection() {
           </div>
 
           {/* Stats Cards Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 md:mt-24 ">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 md:mt-24 ">
             
             {/* Card 1 */}
             <div className="bg-[#d4ff3f] rounded-[2rem] border p-8 md:p-10 flex flex-col justify-between h-[320px] rotate-12 hover:rotate-0 transform transition-all duration-400">
-              <div className="flex items-start">
-                <span className="text-6xl md:text-7xl font-bold tracking-tighter">MOVE</span>
+              <div className="flex flex-col items-start">
+                <span className="text-sm font-bold tracking-tighter">MOVE</span>
+                <p className='text-3xl md:text-4xl font-bold tracking-tighter'>Find your pace</p>
               </div>
-              <p className="text-black font-medium text-[18px] leading-snug mt-12 ">
-                Warm up. Work out. Challenge yourself. Move at your own level.
+              <p className="text-black font-medium text-[14px] leading-snug mt-12 ">
+               Guided movement and playful games, with an option for every level. Nobody keeps score, except on Speed Thrills Sundays.
               </p>
             </div>
 
             {/* Card 2 */}
             <div className="bg-[#F8F9FA] rounded-[2rem] border border-[#0e0e0d] p-8 md:p-10 flex flex-col justify-between h-[320px] -rotate-6 hover:rotate-0 transform transition-all duration-400">
-              <div className="flex items-start text-black">
-                <span className="text-6xl md:text-7xl font-bold tracking-tighter">RESET</span>
+              <div className="flex flex-col items-start text-black">
+                <span className="text-sm font-bold tracking-tighter">MEDITATE</span>
+                <span className="text-3xl md:text-4xl font-bold tracking-tighter">Make room to pause.</span>
               </div>
-              <p className="text-black font-medium text-[18px] leading-snug mt-12 ">
-                Recover, breathe, refuel and learn something that helps you live better.
+              <p className="text-black font-medium text-[14px] leading-snug mt-12 ">
+                A few quiet minutes to breathe and settle. Even the restless ones manage it.
 
               </p>
             </div>
 
             {/* Card 3 */}
             <div className="bg-[#6b3fa0] rounded-[2rem] border border-white p-8 md:p-10 flex flex-col justify-between min-h-[220px] rotate-8 shadow-2xl hover:rotate-0 transform transition-all duration-400">
-              <div className="flex items-start text-white">
-                <span className="text-6xl md:text-7xl font-bold tracking-tighter">CONNECT</span>
+              <div className="flex flex-col items-start text-white">
+                <span className="text-sm font-bold tracking-tighter">FUEL</span>
+                <span className="text-3xl md:text-4xl font-bold tracking-tighter">Refuel and reconnect</span>
               </div>
-              <p className="text-white/90 font-medium text-[18px] leading-snug mt-12 ">
-                Meet your people, share the energy and become part of the Purple Tribe.
+              <p className="text-white/90 font-medium text-[14px] leading-snug mt-12 ">
+                Some Sundays end with a Purple Fuel experience. The event page tells you what is served and what is in it before you book.
               </p>
             </div>
-
+   <div className="bg-[#da0d7e] rounded-[2rem] border border-white p-8 md:p-10 flex flex-col justify-between min-h-[220px] -rotate-8 shadow-2xl hover:rotate-0 transform transition-all duration-400">
+              <div className="flex flex-col items-start text-white"><span className="text-sm font-bold tracking-tighter">CONNECT</span>
+                <span className="text-3xl md:text-4xl font-bold tracking-tighter">CONNECT</span>
+              </div>
+              <p className="text-white/90 font-medium text-[14px] leading-snug mt-12 ">
+                A friendly hello, a shared laugh and a group photo you will actually want to post
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -78,13 +94,13 @@ export default function ProofSection() {
               Let Your Lifestyle <br className="hidden md:block"/>Inspire Others.
             </h3>
             <p className="text-gray-700 text-[16px] leading-relaxed mb-8 max-w-[450px]">
-             We believe healthy living is contagious. When you choose movement, energy, growth and community, you don't just change your own life. You show the people around you what's possible
+            Being active had started to look unusual, and I wanted Sunday mornings to change that. Come once. If it feels like your kind of Sunday, stay
             </p>
             
             <div>
-              <button className="bg-[#d4ff3f] text-black font-bold border border-gray-500 px-6 py-4 rounded-full hover:bg-[#bce628] transition-colors text-sm mb-12">
+              <a href={`${session?"/dashboard":'/auth'}`} className="bg-[#d4ff3f] text-black font-bold border border-gray-500 px-6 py-4 rounded-full hover:bg-[#bce628] transition-colors text-sm mb-12">
                 Be a Purple Person
-              </button>
+              </a>
             </div>
 
             {/* Signature Area */}
@@ -104,25 +120,24 @@ export default function ProofSection() {
           {/* Using an inner shadow/gradient trick to anchor the portrait visually */}
        
             
-  <video
-    src="/FD.mp4"
-    autoPlay
-    loop
-    muted
-    playsInline
-    preload="auto"
-    className="
+  <img
+  src="https://framerusercontent.com/images/VaJVz7sLas8kHWe1d2ITuHvrA.png?width=429&height=607"
+  alt="Purple Club"
+  width={800}
+  height={1000}
+  priority
+  className="
     ml-24
     sm:ml-0
     sm:mt-0
     -mt-10
-      object-contain
-      w-[44%]
-      contrast-125
-      object-bottom
-      pointer-events-none
-    "
-  />
+    object-contain
+    w-[44%]
+    contrast-125
+    object-bottom
+    pointer-events-none
+  "
+/>
 </div>
 <div className="absolute bottom-0 left-0 z-20 w-full h-20 bg-gradient-to-t from-[#d4ff3f] to-transparent"></div>
       </section>

@@ -1,504 +1,734 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
   ArrowUpRight,
   CalendarDays,
   Check,
-  Clock3,
+  Copy,
   Crown,
   HeartPulse,
   Loader2,
+  Lock,
   MapPin,
+  MoreHorizontal,
   Package,
   Search,
+  Shirt,
   ShieldCheck,
+  ShoppingCart,
+  Sparkles,
   Users,
-  Verified,
   X,
 } from "lucide-react";
 
 /* =========================================================
-   THEME
+   TOKENS
 ========================================================= */
 
-const GLASS_LIGHT =
-  "border border-white/70 bg-gradient-to-br from-white/75 via-white/45 to-white/30 backdrop-blur-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_32px_-8px_rgba(106,63,158,0.15)]";
+const CARD =
+  "rounded-[1.5rem] border border-[#ece3f4] bg-white shadow-[0_1px_2px_rgba(75,23,107,0.04)]";
 
-const GLASS_ROW =
-  "border border-white/80 bg-white/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(106,63,158,0.05)] backdrop-blur-md";
+const BTN_DARK =
+  "inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#3a1054] px-4 text-[13px] font-semibold text-white transition hover:bg-[#4B176B] active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4B176B] disabled:cursor-not-allowed disabled:opacity-45";
 
-const GLASS_ON_PURPLE =
-  "border border-white/30 bg-gradient-to-br from-white/30 via-white/10 to-white/5 backdrop-blur-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.6),0_6px_18px_rgba(40,15,70,0.25)]";
+const BTN_LIME =
+  "inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#C4E04A] px-4 text-[13px] font-bold text-[#1E2A00] transition hover:bg-[#B9D63B] active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E2A00] disabled:cursor-not-allowed disabled:opacity-45";
+
+const BTN_OUTLINE =
+  "inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-[#3a1054]/30 bg-white px-4 text-[13px] font-semibold text-[#3a1054] transition hover:bg-[#f6f0fb] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4B176B] disabled:opacity-50";
 
 const ICON_TILE =
-  "flex shrink-0 items-center justify-center rounded-xl border border-[#6a3f9e]/15 bg-gradient-to-br from-[#6a3f9e]/20 to-[#6a3f9e]/5 text-[#4B176B]";
-
-const LIME_TILE =
-  "flex shrink-0 items-center justify-center rounded-xl border border-white/60 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] text-[#1E2A00] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_4px_12px_rgba(185,214,59,0.3)]";
-
-const LIME_BTN =
-  "group relative inline-flex h-10 shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/50 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] px-5 text-sm font-semibold text-[#1E2A00] shadow-[0_8px_24px_rgba(185,214,59,0.3)] transition hover:brightness-105 active:scale-[0.98]";
-
-const SHINE =
-  "pointer-events-none absolute inset-x-4 top-px h-1/2 rounded-t-full bg-gradient-to-b from-white/60 to-transparent";
+  "flex shrink-0 items-center justify-center rounded-full border border-[#ece3f4] bg-white text-[#3a1054]";
 
 /* =========================================================
    HELPERS
 ========================================================= */
 
+const DAY = 86400000;
+
 function formatDate(date) {
   if (!date) return "—";
-
-  const parsed = new Date(date);
-
-  if (Number.isNaN(parsed.getTime())) return "—";
-
-  return parsed.toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function formatPlan(plan) {
-  const normalized = String(plan || "").toUpperCase();
-
-  if (normalized === "PURPLE_MEMBERSHIP") {
-    return "Purple Membership";
-  }
-
-  if (normalized === "CHARTER_MEMBERSHIP") {
-    return "Charter Membership";
-  }
-
+  const p = String(plan || "").toUpperCase();
+  if (p === "PURPLE_MEMBERSHIP") return "Purple Membership";
+  if (p === "CHARTER_MEMBERSHIP") return "Charter Membership";
   return (
-    normalized.replaceAll("_", " ").replace(/\b\w/g, (char) =>
-      char.toUpperCase()
-    ) || "Purple Membership"
+    p.replaceAll("_", " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()) ||
+    "Purple Membership"
   );
 }
 
-/* =========================================================
-   IMAGE WITH ICON FALLBACK
-========================================================= */
+function money(n) {
+  return `₹${Number(n || 0).toLocaleString("en-IN")}`;
+}
 
-function PngImage({
-  src,
-  alt,
-  icon: Icon,
-  className = "",
-  iconSize = 30,
-}) {
-  const [failed, setFailed] = useState(false);
+function effectiveStatus(m, now = Date.now()) {
+  if (!m) return "INACTIVE";
+  const s = String(m.status || "").toUpperCase();
+  if (s === "ACTIVE" && m.endDate && new Date(m.endDate).getTime() <= now) return "EXPIRED";
+  return s || "INACTIVE";
+}
 
-  return (
-    <div
-      className={`relative flex items-center justify-center ${className}`}
-    >
-      {!failed ? (
-        <img
-          src={src}
-          alt={alt}
-          className="relative z-10 h-full w-full object-contain"
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-b from-[#8a5cc4] to-[#6a3f9e] text-white shadow-lg">
-          <Icon size={iconSize * 0.75} />
-        </div>
-      )}
-    </div>
+
+const BENEFIT_DEFS = [
+  {
+    key: "tshirt",
+    title: "Purple T-shirt",
+    note: "Tick once you have it in hand",
+    icon: Shirt,
+    included: (m) =>
+      (m.purpleKit?.included === true && m.purpleKit?.tshirtIncluded !== false) ||
+      m.firstMembershipBenefits?.tshirt === true,
+    collected: (m) => m.purpleKit?.tshirt === true,
+  },
+  {
+    key: "shaker",
+    title: "Purple shaker",
+    note: "Tick once you have it in hand",
+    icon: Package,
+    included: (m) => m.purpleKit?.included === true && m.purpleKit?.shakerIncluded !== false,
+    collected: (m) => m.purpleKit?.shaker === true,
+  },
+  {
+    key: "bodyAssessment",
+    title: "Body assessment",
+    note: "Tick once it has been done",
+    icon: HeartPulse,
+    included: (m) =>
+      m.bodyAssessment?.included === true || m.firstMembershipBenefits?.bodyAssessment === true,
+    collected: (m) => m.bodyAssessment?.completed === true,
+  },
+];
+
+function receiptFor(m, key) {
+  return m.receiptConfirmations?.[key] || m.benefitReceipts?.[key] || null;
+}
+
+function resolveBenefits(history) {
+  const ordered = [...history].sort(
+    (a, b) =>
+      new Date(b.createdAt || b.startDate || 0) - new Date(a.createdAt || a.startDate || 0)
   );
+
+  return BENEFIT_DEFS.map((def) => {
+    const sources = ordered.filter((m) => def.included(m));
+    if (!sources.length) return { ...def, included: false, received: false, ownerId: null };
+
+    const done = sources.find(
+      (m) => receiptFor(m, def.key)?.received === true || def.collected(m)
+    );
+    if (done) {
+      return {
+        ...def,
+        included: true,
+        received: true,
+        confirmedAt: receiptFor(done, def.key)?.confirmedAt || null,
+        ownerId: String(done._id ?? done.id),
+      };
+    }
+
+    const owner = sources[0];
+    return {
+      ...def,
+      included: true,
+      received: false,
+      ownerId: String(owner._id ?? owner.id),
+      fromFirst: owner.isFirstMembership === true,
+    };
+  });
 }
 
 /* =========================================================
-   CARD
+   SMALL PIECES
 ========================================================= */
 
-function Card({
-  icon: Icon,
-  title,
-  hint,
-  image,
-  imageAlt,
-  children,
-  className = "",
-}) {
-  return (
-    <section
-      className={`flex flex-col rounded-[2rem] p-5 font-sans ${GLASS_LIGHT} ${className}`}
-    >
-      {image && (
-        <PngImage
-          src={image}
-          alt={imageAlt || title}
-          icon={Icon}
-          className="mb-4 h-32 rounded-3xl"
-        />
-      )}
-
-      <div className="mb-4 flex items-center gap-3">
-        <div className={`h-10 w-10 ${ICON_TILE}`}>
-          <Icon size={18} />
-        </div>
-
-        <div className="min-w-0">
-          <h2 className="truncate text-base font-bold text-[#24112f]">
-            {title}
-          </h2>
-
-          {hint && (
-            <p className="truncate text-xs text-[#8b8190]">{hint}</p>
-          )}
-        </div>
-      </div>
-
-      {children}
-    </section>
-  );
-}
-
-/* =========================================================
-   STATUS BADGE
-========================================================= */
-
-function StatusBadge({ status }) {
-  const isActive = String(status).toUpperCase() === "ACTIVE";
-
+function StatusPill({ status }) {
+  const s = String(status || "").toUpperCase();
+  const active = s === "ACTIVE";
+  const label = active ? "Active" : s === "EXPIRED" ? "Expired" : s ? s[0] + s.slice(1).toLowerCase() : "Inactive";
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold ${
-        isActive
-          ? "border-white/50 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] text-[#1E2A00]"
-          : `text-white ${GLASS_ON_PURPLE}`
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+        active ? "bg-[#C4E04A] text-[#1E2A00]" : "bg-[#efe7f6] text-[#6b5a7a]"
       }`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
-      {isActive ? "Active" : status || "Inactive"}
+      {label}
     </span>
   );
 }
 
-/* =========================================================
-   LEGEND
-========================================================= */
-
-function Legend({ dot, label, value }) {
+function CardHeader({ icon: Icon, title, right }) {
   return (
-    <div className={`rounded-2xl px-1.5 py-2.5 text-center ${GLASS_ROW}`}>
-      <p className="text-lg font-bold leading-none text-[#24112f]">
-        {value}
-      </p>
-
-      <p className="mt-1.5 flex items-center justify-center gap-1 text-[11px] font-medium text-[#75677d]">
-        <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-        {label}
-      </p>
+    <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-2.5">
+        <div className={`h-9 w-9 ${ICON_TILE}`}>
+          <Icon size={16} />
+        </div>
+        <h2 className="truncate text-sm font-bold text-[#24112f]">{title}</h2>
+      </div>
+      {right}
     </div>
   );
 }
 
 /* =========================================================
-   SUNDAY EXPERIENCES
+   CHARTER UPSELL (top strip)
 ========================================================= */
 
-function ExperienceCard({ experiences }) {
-  const total = Number(experiences?.total || 0);
-  const used = Number(experiences?.used || 0);
-  const reserved = Number(experiences?.reserved || 0);
-
-  const remaining = Math.max(total - used - reserved, 0);
-
-  const usedPct =
-    total > 0 ? Math.min((used / total) * 100, 100) : 0;
-
-  const reservedPct =
-    total > 0
-      ? Math.min((reserved / total) * 100, 100 - usedPct)
-      : 0;
+function CharterStrip({ onOpen, image = "/charter.png" }) {
+  const [imgFailed, setImgFailed] = useState(false);
 
   return (
-    <Card
-      icon={CalendarDays}
-      title="Sunday experiences"
-      hint="Included with your plan"
-      image="/sunday.png"
-    >
-    </Card>
-  );
-}
-
-/* =========================================================
-   PURPLE KIT
-========================================================= */
-
-function KitItem({ name, completed }) {
-  return (
-    <div
-      className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 ${GLASS_ROW}`}
-    >
-      <div
-        className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-          completed ? LIME_TILE : ICON_TILE
-        }`}
-      >
-        {completed ? <Check size={15} /> : <Clock3 size={15} />}
+    <section className="relative max-w-full overflow-hidden rounded-[1.75rem] bg-gradient-to-b from-[#cfade4] via-[#450374] to-[#1d0830] text-white shadow-[0_20px_40px_-20px_rgba(132,52,183,0.7)]">
+      {/* Image */}
+      <div className="relative h-56">
+        {!imgFailed && (
+          <img
+            src={image}
+            alt="Purple Club Charter"
+            className="h-full w-full object-cover object-top pt-4"
+            onError={() => setImgFailed(true)}
+          />
+        )}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#5a1f85] via-[#1d0830]/60 " />
       </div>
 
-      <p className="min-w-0 flex-1 truncate text-sm font-semibold text-[#2b1836]">
-        {name}
-      </p>
+      {/* Content */}
+      <div className="-mt-6 px-5 pb-5">
+        <h2 className="relative text-xl font-extrabold leading-tight tracking-tight">
+          Bring Purple Club to your city/area, become a Charter member
+        </h2>
+        <p className="mt-2 text-sm text-white/75">
+          Get a chance to become a coach operator for {money(15999)} a year.
+        </p>
 
-      <span
-        className={`text-[11px] font-bold ${
-          completed ? "text-[#526600]" : "text-[#8b8190]"
-        }`}
-      >
-        {completed ? "Collected" : "Pending"}
-      </span>
-    </div>
-  );
-}
-
-function PurpleKitCard({ kit }) {
-  const included = Boolean(kit?.included);
-  const tshirt = Boolean(kit?.tshirt);
-  const shaker = Boolean(kit?.shaker);
-
-  return (
-    <Card
-      icon={Package}
-      title="Purple kit"
-      hint="T-shirt and shaker"
-      image="/mer.png"
-    >
-      {included ? (
-        <div className="space-y-2.5">
-          <KitItem name="Purple T-shirt" completed={tshirt} />
-          <KitItem name="Purple shaker" completed={shaker} />
-        </div>
-      ) : (
-        <div
-          className={`flex flex-1 flex-col items-center justify-center rounded-2xl p-4 text-center ${GLASS_ROW}`}
-        >
-          <Package size={22} className="text-[#8b8190]" />
-          <p className="mt-2 text-sm font-bold text-[#3b2a45]">
-            Kit not included
-          </p>
-        </div>
-      )}
-    </Card>
-  );
-}
-
-/* =========================================================
-   BODY ASSESSMENT
-========================================================= */
-
-function BodyAssessmentCard({ assessment }) {
-  const included = Boolean(assessment?.included);
-  const completed = Boolean(assessment?.completed);
-
-  return (
-    <Card
-      icon={HeartPulse}
-      title="Body assessment"
-      hint="Body composition"
-      image="/ass.png"
-    >
-      {!included ? (
-        <div
-          className={`flex flex-1 items-center justify-center rounded-2xl p-4 text-center ${GLASS_ROW}`}
-        >
-          <p className="text-xs font-semibold text-[#8b8190]">
-            Not included in this membership
-          </p>
-        </div>
-      ) : (
-        <div
-          className={`flex flex-1 flex-col justify-between rounded-3xl p-4 ${GLASS_ROW}`}
-        >
-          <div className="flex items-start gap-3">
-            <div
-              className={`flex h-11 w-11 items-center justify-center rounded-xl ${
-                completed ? LIME_TILE : ICON_TILE
-              }`}
-            >
-              {completed ? <Check size={20} /> : <Activity size={20} />}
-            </div>
-
-            <div className="min-w-0">
-              <p className="text-base font-bold text-[#2b1836]">
-                {completed ? "Completed" : "Pending"}
-              </p>
-
-              <p className="mt-1 text-xs leading-5 text-[#8b8190]">
-                {completed && assessment.completedAt
-                  ? `Done on ${formatDate(assessment.completedAt)}`
-                  : "Your included assessment is waiting to be completed."}
-              </p>
-            </div>
-          </div>
-
-          <span
-            className={`mt-4 w-fit rounded-full border px-3 py-1.5 text-[11px] font-bold ${
-              completed
-                ? "border-[#B9D63B]/60 bg-[#B9D63B]/20 text-[#44590d]"
-                : "border-[#6a3f9e]/20 bg-[#6a3f9e]/10 text-[#4B176B]"
-            }`}
-          >
-            {completed ? "Completed" : "Pending"}
-          </span>
-        </div>
-      )}
-    </Card>
-  );
-}
-
-/* =========================================================
-   BENEFITS TIMELINE
-========================================================= */
-
-const BENEFITS = [
-  {
-    title: "Purple Kit",
-    desc: "T-shirt and shaker",
-    icon: Package,
-    image: "/images/benefits/purple-kit.png",
-  },
-  {
-    title: "4 Sunday Experiences",
-    desc: "Guided community sessions",
-    icon: CalendarDays,
-    image: "/images/benefits/sunday-experience.png",
-  },
-  {
-    title: "Body Composition Assessment",
-    desc: "Know your starting point",
-    icon: Activity,
-    image: "/images/benefits/body-assessment.png",
-  },
-  {
-    title: "Purple Health Snapshot",
-    desc: "Your health at a glance",
-    icon: HeartPulse,
-    image: "/images/benefits/health-snapshot.png",
-  },
-  {
-    title: "Community Access",
-    desc: "Join the Purple community",
-    icon: Users,
-    image: "/images/benefits/community.png",
-  },
-  {
-    title: "Inspirer → Icon Journey",
-    desc: "Grow and earn recognition",
-    icon: Crown,
-    image: "/images/benefits/journey.png",
-  },
-];
-
-function BenefitsTimeline() {
-  return (
-    <section className={`rounded-[2rem] p-5 sm:p-6 ${GLASS_LIGHT}`}>
-      <div className="mb-6 flex items-center gap-3">
-        <div className={`flex h-10 w-10 items-center justify-center ${ICON_TILE}`}>
-          <ShieldCheck size={18} />
-        </div>
-
-        <div className="min-w-0">
-          <h2 className="text-base font-bold text-[#24112f]">
-            Benefits
-          </h2>
-          <p className="text-xs text-[#8b8190]">
-            Included with your membership
-          </p>
-        </div>
+        <button type="button" onClick={onOpen} className={`${BTN_LIME} mt-5 w-full`}>
+          Explore Open Locations
+          <ArrowUpRight size={14} />
+        </button>
       </div>
-
-      <ol className="relative grid gap-5 lg:grid-cols-6 lg:gap-4">
-        <span className="pointer-events-none absolute left-[8%] right-[8%] top-[5.75rem] hidden h-0.5 rounded-full bg-gradient-to-r from-[#6a3f9e]/30 via-[#B9D63B] to-[#6a3f9e]/30 lg:block" />
-
-        {BENEFITS.map(({ title, desc, icon: Icon, image }, index) => (
-          <li
-            key={title}
-            className="relative flex gap-4 lg:flex-col lg:items-center lg:gap-0 lg:text-center"
-          >
-            {index < BENEFITS.length - 1 && (
-              <span className="pointer-events-none absolute bottom-[-1.25rem] left-[2.75rem] top-[5.5rem] w-0.5 rounded-full bg-gradient-to-b from-[#B9D63B] to-[#6a3f9e]/30 lg:hidden" />
-            )}
-
-            <PngImage
-              src={image}
-              alt={title}
-              icon={Icon}
-              className="h-[5.5rem] w-[5.5rem] shrink-0 rounded-3xl lg:h-24 lg:w-full"
-            />
-
-            <span className="absolute left-[2.1rem] top-[5.1rem] z-10 hidden h-3 w-3 rounded-full border-2 border-white bg-[#B9D63B] shadow-[0_0_8px_rgba(185,214,59,0.8)] max-lg:block lg:static lg:mt-3 lg:block lg:h-3.5 lg:w-3.5" />
-
-            <div className="min-w-0 self-center lg:mt-3 lg:self-auto">
-              <div className="flex items-center gap-2 lg:justify-center">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/60 bg-gradient-to-b from-[#CBE75A] to-[#B9D63B] text-[#1E2A00]">
-                  <Icon size={12} strokeWidth={2.5} />
-                </span>
-
-                <p className="text-sm font-bold leading-tight text-[#2b1836]">
-                  {title}
-                </p>
-              </div>
-
-              <p className="mt-1 text-xs text-[#8b8190]">{desc}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
     </section>
   );
 }
 
 /* =========================================================
-   CHARTER UPGRADE BANNER
+   PASS CARD (primary, wide)
 ========================================================= */
 
-function CharterUpgradeCard({ onUpgrade }) {
+function PlanSwitch({ isCharter, onCharter }) {
+  const base = "rounded-full px-3.5 py-1.5 text-xs font-bold transition";
   return (
-    <div className="relative overflow-hidden rounded-[2rem] bg-[#6a3f9e] p-5 text-white shadow-[0_20px_50px_-20px_rgba(106,63,158,0.6)] sm:p-6">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(255,255,255,0.2),transparent_40%),radial-gradient(circle_at_90%_90%,rgba(185,214,59,0.22),transparent_40%),linear-gradient(160deg,#7a4cb0_0%,#6a3f9e_50%,#5a2f8c_100%)]" />
-
-      <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div
-            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-[#E4F58C] ${GLASS_ON_PURPLE}`}
-          >
-            <Crown size={22} />
-          </div>
-
-          <div className="min-w-0">
-            <h2 className="text-lg font-bold">Charter Membership</h2>
-            <p className="mt-0.5 text-sm text-white/75">
-              Exclusive benefits, premium experiences and Charter recognition.
-            </p>
-          </div>
-        </div>
-
-        <button type="button" onClick={onUpgrade} className={LIME_BTN}>
-          <span className={SHINE} />
-          <span className="relative">Explore Charter Clubs</span>
-          <ArrowUpRight
-            size={15}
-            className="relative transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-          />
+    <div className="inline-flex items-center gap-0.5 rounded-full bg-[#f3ecf9] p-1">
+      <span
+        className={`${base} ${
+          !isCharter ? "bg-white text-[#3a1054] shadow-sm" : "text-[#8b7a99]"
+        }`}
+      >
+        Purple
+      </span>
+      {isCharter ? (
+        <span className={`${base} bg-white text-[#3a1054] shadow-sm`}>Charter</span>
+      ) : (
+        <button
+          type="button"
+          onClick={onCharter}
+          className={`${base} text-[#8b7a99] hover:text-[#3a1054] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4B176B]`}
+        >
+          Charter
         </button>
-      </div>
+      )}
     </div>
   );
 }
 
+function MemberId({ id }) {
+  const [copied, setCopied] = useState(false);
+  if (!id) return null;
+  const short = String(id).slice(-8).toUpperCase();
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(String(id));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+
+  return (
+    <div className="text-right">
+      <p className="text-[11px] text-[#8b8190]">Member ID</p>
+      <button
+        type="button"
+        onClick={copy}
+        className="mt-0.5 inline-flex items-center gap-1.5 text-sm font-bold tracking-wide text-[#24112f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4B176B]"
+        aria-label="Copy member ID"
+      >
+        {short}
+        {copied ? <Check size={13} className="text-[#526600]" /> : <Copy size={13} className="text-[#8b8190]" />}
+      </button>
+    </div>
+  );
+}
+
+function PassCard({ membership, status, isCharter, onCharter, onJumpHistory }) {
+  const active = status === "ACTIVE";
+  const end = membership.endDate ? new Date(membership.endDate).getTime() : null;
+  const daysLeft = end ? Math.max(Math.ceil((end - Date.now()) / DAY), 0) : null;
+
+  return (
+    <section className={`${CARD} flex flex-col p-4 sm:p-5 lg:col-span-2`}>
+      <div className="flex items-start justify-between gap-3">
+        <PlanSwitch isCharter={isCharter} onCharter={onCharter} />
+        <MemberId id={membership.memberId} />
+      </div>
+
+      <div className="mt-5">
+        <p className="text-xs text-[#8b8190]">{active ? "Active membership" : "Previous membership"}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+          {active && daysLeft !== null ? (
+            <p className="text-4xl font-bold tracking-tight text-[#1a0f24] sm:text-5xl">
+              {daysLeft}
+              <span className="ml-2 text-lg font-semibold text-[#8b8190]">
+                {daysLeft === 1 ? "day left" : "days left"}
+              </span>
+            </p>
+          ) : (
+            <p className="text-4xl font-bold tracking-tight text-[#1a0f24] sm:text-5xl">
+              {active ? "No expiry" : "Expired"}
+            </p>
+          )}
+          <StatusPill status={status} />
+        </div>
+        <p className="mt-1.5 text-sm font-semibold text-[#3a1054]">{formatPlan(membership.plan)}</p>
+      </div>
+
+      <dl className="mt-4 grid grid-cols-3 gap-2">
+        {[
+          ["Started", formatDate(membership.startDate)],
+          [active ? "Ends" : "Ended", membership.endDate ? formatDate(membership.endDate) : "No expiry"],
+          ["Paid", money(membership.amount)],
+        ].map(([label, value]) => (
+          <div key={label} className="rounded-xl bg-[#faf6fd] px-3 py-2">
+            <dt className="text-[11px] text-[#8b8190]">{label}</dt>
+            <dd className="mt-0.5 truncate text-[13px] font-bold text-[#24112f]">{value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        {active ? (
+          !isCharter && (
+            <button type="button" className={BTN_DARK} onClick={onCharter}>
+              <Crown size={14} /> Upgrade to Charter
+            </button>
+          )
+        ) : (
+          <button type="button" className={BTN_DARK} onClick={() => window.location.assign("/membership/plans")}>
+            <ShoppingCart size={14} /> Renew membership
+          </button>
+        )}
+        <button type="button" className={BTN_OUTLINE} onClick={onJumpHistory}>
+          View history
+        </button>
+        <MoreHorizontal size={16} className="mx-1 text-[#b3a6bf]" aria-hidden />
+
+        <button
+          type="button"
+          onClick={active ? onCharter : () => window.location.assign("/membership/plans")}
+          aria-label={active ? "Explore Charter" : "Renew membership"}
+          className="ml-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#C4E04A] text-[#1E2A00] transition hover:bg-[#B9D63B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E2A00]"
+        >
+          <ArrowUpRight size={20} />
+        </button>
+      </div>
+    </section>
+  );
+}
+
 /* =========================================================
-   CHARTER CLUB SELECTOR MODAL
+   BENEFITS CARD (lime, with permanent receipt confirmation)
+========================================================= */
+
+function BenefitsCard({ benefits, onSubmit, saving, error }) {
+  const [draft, setDraft] = useState({});
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const shown = benefits.filter((b) => b.included);
+  const pending = shown.filter((b) => !b.received);
+  const selected = pending.filter((b) => draft[b.key]);
+
+  async function confirm() {
+    try {
+      await onSubmit(selected);
+      setConfirmOpen(false);
+      setDraft({});
+    } catch {
+      /* keep dialog open for retry */
+    }
+  }
+
+  return (
+    <>
+      <section className="relative flex flex-col overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-[#CFE95F] to-[#B9D63B] p-4 text-[#1E2A00] sm:p-5">
+        <Sparkles
+          size={150}
+          strokeWidth={1}
+          className="pointer-events-none absolute -right-10 -top-8 text-white/25"
+          aria-hidden
+        />
+
+        <div className="relative flex items-center justify-between">
+          <span className="inline-flex items-center gap-2 rounded-full bg-[#3a1054] py-1 pl-3.5 pr-1 text-xs font-semibold text-white">
+            Your benefits
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#3a1054]">
+              <Package size={13} />
+            </span>
+          </span>
+        </div>
+
+        <div className="relative mt-4">
+          <p className="text-xs font-medium text-[#1E2A00]/70">
+            {shown.length ? (pending.length ? "Waiting for your confirmation" : "All confirmed") : "Nothing included"}
+          </p>
+          <p className="mt-1 flex items-baseline gap-2 text-4xl font-bold tracking-tight">
+            {pending.length}
+            <span className="text-base font-semibold text-[#1E2A00]/70">to confirm</span>
+          </p>
+        </div>
+
+        <ul className="relative mt-4 space-y-2">
+          {!shown.length && (
+            <li className="rounded-2xl bg-white/45 p-3 text-xs font-medium">
+              No kit or assessment is included with your memberships.
+            </li>
+          )}
+
+          {shown.map((b) => {
+            const Icon = b.icon;
+            const checked = b.received || Boolean(draft[b.key]);
+            return (
+              <li key={b.key}>
+                <label
+                  className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 transition ${
+                    b.received
+                      ? "bg-white/35"
+                      : checked
+                        ? "bg-white/80 ring-2 ring-[#3a1054]"
+                        : "cursor-pointer bg-white/55 hover:bg-white/70"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="peer sr-only"
+                    checked={checked}
+                    disabled={b.received || saving}
+                    onChange={(e) => setDraft((d) => ({ ...d, [b.key]: e.target.checked }))}
+                  />
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/80 text-[#3a1054]">
+                    <Icon size={15} />
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[13px] font-bold">{b.title}</span>
+                    <span className="block truncate text-[11px] text-[#1E2A00]/70">
+                      {b.received
+                        ? b.confirmedAt
+                          ? `Confirmed ${formatDate(b.confirmedAt)}`
+                          : "Received"
+                        : b.fromFirst
+                          ? "From your first membership"
+                          : b.note}
+                    </span>
+                  </span>
+
+                  <span
+                    aria-hidden
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#3a1054] ${
+                      b.received
+                        ? "border-transparent bg-[#3a1054] text-white"
+                        : checked
+                          ? "border-[#3a1054] bg-[#3a1054] text-white"
+                          : "border-[#1E2A00]/40 bg-white/60 text-transparent"
+                    }`}
+                  >
+                    {b.received ? <Lock size={11} /> : <Check size={13} strokeWidth={3} />}
+                  </span>
+                </label>
+              </li>
+            );
+          })}
+        </ul>
+
+        {pending.length > 0 && (
+          <div className="relative mt-4">
+            <button
+              type="button"
+              className={`${BTN_DARK} w-full`}
+              disabled={!selected.length || saving}
+              onClick={() => setConfirmOpen(true)}
+            >
+              {saving ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+              Confirm {selected.length ? `${selected.length} selected` : "receipt"}
+            </button>
+            <p className="mt-2 text-center text-[11px] text-[#1E2A00]/70">
+              Confirmed items are locked permanently.
+            </p>
+          </div>
+        )}
+
+        {error && !confirmOpen && (
+          <p role="alert" className="relative mt-2 text-xs font-semibold text-red-800">
+            {error}
+          </p>
+        )}
+      </section>
+
+      {confirmOpen && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#24112f]/60 p-4 backdrop-blur-sm">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="receipt-title"
+            className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl"
+          >
+            <h3 id="receipt-title" className="text-base font-bold text-[#24112f]">
+              Confirm you received these?
+            </h3>
+            <p className="mt-1.5 text-sm text-[#75677d]">This can't be changed once confirmed.</p>
+
+            <ul className="mt-3 space-y-1.5">
+              {selected.map((b) => (
+                <li key={b.key} className="flex items-center gap-2 text-sm font-semibold text-[#2b1836]">
+                  <Check size={15} className="text-[#6a3f9e]" />
+                  {b.title}
+                </li>
+              ))}
+            </ul>
+
+            {error && (
+              <p role="alert" className="mt-3 text-sm text-red-600">
+                {error}
+              </p>
+            )}
+
+            <div className="mt-5 flex gap-2">
+              <button type="button" className={`${BTN_OUTLINE} flex-1`} disabled={saving} onClick={() => setConfirmOpen(false)}>
+                Go back
+              </button>
+              <button type="button" className={`${BTN_DARK} flex-1`} disabled={saving || !selected.length} onClick={confirm}>
+                {saving ? "Saving…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* =========================================================
+   VALIDITY (donut)
+========================================================= */
+
+function ValidityCard({ membership, status }) {
+  const active = status === "ACTIVE";
+  const start = new Date(membership.startDate).getTime();
+  const end = membership.endDate ? new Date(membership.endDate).getTime() : null;
+  const now = Date.now();
+
+  const totalDays = end ? Math.max(Math.round((end - start) / DAY), 1) : null;
+  const daysLeft = end ? Math.max(Math.ceil((end - now) / DAY), 0) : null;
+  const pct = end ? (active ? Math.min(Math.max(((now - start) / (end - start)) * 100, 0), 100) : 100) : 0;
+
+  const R = 52;
+  const C = 2 * Math.PI * R;
+
+  return (
+    <section className={`${CARD} p-4`}>
+      <CardHeader
+        icon={CalendarDays}
+        title="Validity"
+        right={
+          totalDays && (
+            <span className="rounded-full border border-[#ece3f4] px-3 py-1 text-xs font-semibold text-[#3a1054]">
+              {totalDays} days
+            </span>
+          )
+        }
+      />
+
+      <div className="flex flex-col items-center py-1">
+        <div className="relative h-36 w-36">
+          <svg viewBox="0 0 128 128" className="h-full w-full -rotate-90" role="img" aria-label={`${Math.round(pct)} percent of membership elapsed`}>
+            <circle cx="64" cy="64" r={R} fill="none" stroke="#ece3f4" strokeWidth="11" />
+            <circle
+              cx="64"
+              cy="64"
+              r={R}
+              fill="none"
+              stroke={active ? "#B9D63B" : "#cdb9e0"}
+              strokeWidth="11"
+              strokeLinecap="round"
+              strokeDasharray={C}
+              strokeDashoffset={C - (C * pct) / 100}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <p className="text-2xl font-bold text-[#24112f]">{active && daysLeft !== null ? daysLeft : "0"}</p>
+            <p className="text-[11px] text-[#8b8190]">days left</p>
+          </div>
+        </div>
+
+        <p className="mt-2 rounded-full border border-[#ece3f4] px-3 py-1.5 text-xs text-[#75677d]">
+          {Math.round(pct)}% of your period used
+        </p>
+      </div>
+
+      <div className="mt-3 flex items-center justify-between text-xs text-[#75677d]">
+        <span>{formatDate(membership.startDate)}</span>
+        <span className="font-semibold text-[#24112f]">
+          {membership.endDate ? formatDate(membership.endDate) : "No expiry"}
+        </span>
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================
+   INCLUDED
+========================================================= */
+
+const INCLUDED = [
+  { title: "Purple kit", desc: "T-shirt and shaker", icon: Package },
+  { title: "4 Sunday experiences", desc: "Guided community sessions", icon: CalendarDays },
+  { title: "Body composition assessment", desc: "Know your starting point", icon: Activity },
+  { title: "Purple health snapshot", desc: "Your health at a glance", icon: HeartPulse },
+  { title: "Community access", desc: "Join the Purple community", icon: Users },
+  { title: "Inspirer to Icon journey", desc: "Grow and earn recognition", icon: Crown },
+];
+
+function IncludedCard({ sunday }) {
+  const total = Number(sunday?.total || 0);
+  const used = Number(sunday?.used || 0);
+  const reserved = Number(sunday?.reserved || 0);
+  const usedPct = total ? Math.min((used / total) * 100, 100) : 0;
+  const reservedPct = total ? Math.min((reserved / total) * 100, 100 - usedPct) : 0;
+
+  return (
+    <section className={`${CARD} p-4`}>
+      <CardHeader icon={ShieldCheck} title="What's included" />
+
+      {total > 0 && (
+        <div className="mb-3 rounded-xl bg-[#faf6fd] p-3">
+          <div className="flex items-baseline justify-between text-xs">
+            <span className="font-semibold text-[#24112f]">Sunday experiences</span>
+            <span className="text-[#75677d]">
+              {used} used, {reserved} reserved of {total}
+            </span>
+          </div>
+          <div className="mt-2 flex h-2 overflow-hidden rounded-full bg-[#ece3f4]">
+            <div className="h-full bg-[#6a3f9e]" style={{ width: `${usedPct}%` }} />
+            <div className="h-full bg-[#B9D63B]" style={{ width: `${reservedPct}%` }} />
+          </div>
+        </div>
+      )}
+
+      <ul className="divide-y divide-[#f3ecf9]">
+        {INCLUDED.map(({ title, desc, icon: Icon }) => (
+          <li key={title} className="flex items-center gap-3 py-2 first:pt-0 last:pb-0">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3ecf9] text-[#4B176B]">
+              <Icon size={14} />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-[13px] font-semibold text-[#2b1836]">{title}</span>
+              <span className="block truncate text-[11px] text-[#8b8190]">{desc}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/* =========================================================
+   HISTORY (transactions style)
+========================================================= */
+
+function HistoryCard({ history, sectionRef }) {
+  const [expanded, setExpanded] = useState(false);
+  const rows = expanded ? history : history.slice(0, 4);
+
+  return (
+    <section ref={sectionRef} id="membership-history" className={`${CARD} scroll-mt-4 p-4`}>
+      <CardHeader
+        icon={ShoppingCart}
+        title="Membership history"
+        right={
+          history.length > 4 && (
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="rounded-full border border-[#ece3f4] px-3 py-1 text-xs font-semibold text-[#3a1054] hover:bg-[#f6f0fb]"
+            >
+              {expanded ? "Show less" : "View all"}
+            </button>
+          )
+        }
+      />
+
+      {!history.length ? (
+        <p className="rounded-xl bg-[#faf6fd] p-4 text-center text-xs text-[#7d7184]">No memberships yet.</p>
+      ) : (
+        <ul className="divide-y divide-[#f3ecf9]">
+          {rows.map((m, i) => {
+            const status = effectiveStatus(m);
+            const charter = String(m.plan || "").toUpperCase() === "CHARTER_MEMBERSHIP";
+            const Icon = charter ? Crown : ShieldCheck;
+            return (
+              <li key={String(m._id || m.id || i)} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                <span className={`h-9 w-9 ${ICON_TILE}`}>
+                  <Icon size={15} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[13px] font-semibold text-[#2b1836]">
+                    {formatPlan(m.plan)}
+                  </span>
+                  <span className="block truncate text-[11px] text-[#8b8190]">
+                    {formatDate(m.startDate)}
+                    {m.isFirstMembership ? ", first membership" : ""}
+                  </span>
+                </span>
+                <span className="text-right">
+                  <span className="block text-[13px] font-bold text-[#24112f]">{money(m.amount)}</span>
+                  <span
+                    className={`block text-[11px] font-semibold ${
+                      status === "ACTIVE" ? "text-[#526600]" : "text-[#8b8190]"
+                    }`}
+                  >
+                    {status === "ACTIVE" ? "Active" : status === "EXPIRED" ? "Expired" : status.toLowerCase()}
+                  </span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+/* =========================================================
+   CHARTER CLUB MODAL
 ========================================================= */
 
 function CharterClubModal({ onClose }) {
@@ -512,46 +742,18 @@ function CharterClubModal({ onClose }) {
     try {
       setLoading(true);
       setError("");
-
-      const response = await fetch("/api/clubs/charter-availability", {
-        method: "GET",
-        cache: "no-store",
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || data?.success === false) {
-        throw new Error(
-          data?.message || "Unable to load available Charter clubs."
-        );
+      const res = await fetch("/api/clubs/charter-availability", { cache: "no-store" });
+      const data = await res.json();
+      if (!res.ok || data?.success === false) {
+        throw new Error(data?.message || "Unable to load available Charter clubs.");
       }
-
       const list = Array.isArray(data.clubs) ? data.clubs : [];
-
-      const available = list.filter((club) => {
-        const availablePlaces = Number(club.availablePlaces ?? 0);
-
-        return (
-          club.isCharterMembershipAvailable === true &&
-          availablePlaces > 0
-        );
-      });
-
-      setClubs(available);
-
-      if (
-        selectedClub &&
-        !available.some(
-          (club) => String(club._id ?? club.id) === selectedClub
-        )
-      ) {
-        setSelectedClub("");
-      }
+      setClubs(
+        list.filter((c) => c.isCharterMembershipAvailable === true && Number(c.availablePlaces ?? 0) > 0)
+      );
     } catch (err) {
       console.error("CHARTER CLUB LOAD ERROR:", err);
-      setError(
-        err?.message || "Unable to load available Charter clubs."
-      );
+      setError(err?.message || "Unable to load available Charter clubs.");
     } finally {
       setLoading(false);
     }
@@ -559,288 +761,142 @@ function CharterClubModal({ onClose }) {
 
   useEffect(() => {
     loadClubs();
-    // Load the current availability once when the modal opens.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    function handleEscape(event) {
-      if (event.key === "Escape") onClose();
-    }
-
-    window.addEventListener("keydown", handleEscape);
-
-    return () => {
-      window.removeEventListener("keydown", handleEscape);
-    };
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const filteredClubs = clubs.filter((club) => {
-    const query = search.trim().toLowerCase();
-
-    if (!query) return true;
-
-    return [
-      club.name,
-      club.city,
-      club.area,
-      club.state,
-    ].some((value) =>
-      String(value || "").toLowerCase().includes(query)
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return clubs;
+    return clubs.filter((c) =>
+      [c.name, c.city, c.area, c.state].some((v) => String(v || "").toLowerCase().includes(q))
     );
-  });
+  }, [clubs, search]);
 
-  const selected = clubs.find(
-    (club) => String(club._id ?? club.id) === selectedClub
-  );
+  const selected = clubs.find((c) => String(c._id ?? c.id) === selectedClub);
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#24112f]/50 p-4 font-sans backdrop-blur-md"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#24112f]/50 p-4 backdrop-blur-sm"
+      onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="charter-modal-title"
-        className="my-auto w-full max-w-lg overflow-hidden rounded-[1.75rem] border border-white/80 bg-gradient-to-br from-white/95 via-white/90 to-[#f3ecfa]/95 shadow-[inset_0_1px_1px_rgba(255,255,255,1),0_30px_80px_rgba(53,16,77,0.35)] backdrop-blur-2xl"
+        aria-labelledby="charter-title"
+        className="my-auto w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl"
       >
-        {/* Header */}
-        <div className="border-b border-[#6a3f9e]/10 p-5 sm:p-6">
-          <div className="flex items-start gap-3">
-            <div className={`flex h-12 w-12 items-center justify-center ${ICON_TILE}`}>
-              <Crown size={22} />
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <h3
-                id="charter-modal-title"
-                className="text-lg font-bold text-[#24112f]"
-              >
-                Upgrade to Charter
-              </h3>
-
-              <p className="mt-1 text-sm leading-5 text-[#7d7184]">
-                Explore clubs with available Charter Membership places.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={onClose}
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#4B176B] ${GLASS_ROW}`}
-              aria-label="Close"
-            >
-              <X size={16} />
-            </button>
+        <div className="flex items-start gap-3 border-b border-[#f3ecf9] p-5">
+          <div className={`h-10 w-10 ${ICON_TILE}`}>
+            <Crown size={17} />
           </div>
-
-          <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-[#6a3f9e]/5 px-4 py-3">
-            <div>
-              <p className="text-xs font-semibold text-[#7d7184]">
-                Charter Membership
-              </p>
-              <p className="mt-1 text-xl font-bold text-[#24112f]">
-                ₹15,999
-                <span className="ml-1 text-xs font-medium text-[#8b8190]">
-                  / year
-                </span>
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-white/80 px-3 py-2 text-right">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#8b8190]">
-                Available clubs
-              </p>
-
-              <p className="text-lg font-bold text-[#6a3f9e]">
-                {loading ? "—" : clubs.length}
-              </p>
-            </div>
+          <div className="min-w-0 flex-1">
+            <h3 id="charter-title" className="text-base font-bold text-[#24112f]">
+              Upgrade to Charter
+            </h3>
+            <p className="mt-0.5 text-xs text-[#7d7184]">
+              {money(15999)} a year. {loading ? "Checking clubs…" : `${clubs.length} clubs have places.`}
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[#4B176B] hover:bg-[#f6f0fb]"
+          >
+            <X size={16} />
+          </button>
         </div>
 
-        {/* Search and dropdown */}
-        <div className="space-y-4 p-5 sm:p-6">
-          <div>
-            <label
-              htmlFor="charter-club-search"
-              className="mb-2 block text-sm font-bold text-[#2b1836]"
-            >
+        <div className="space-y-3.5 p-5">
+          <div className="relative">
+            <label htmlFor="club-search" className="sr-only">
               Search clubs
             </label>
-
-            <div className="relative">
-              <Search
-                size={17}
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8b8190]"
-              />
-
-              <input
-                id="charter-club-search"
-                type="search"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search by club, city or area..."
-                className="h-11 w-full rounded-xl border border-[#6a3f9e]/15 bg-white/80 pl-10 pr-4 text-sm text-[#24112f] outline-none transition placeholder:text-[#a49aaa] focus:border-[#6a3f9e]/50 focus:ring-2 focus:ring-[#6a3f9e]/10"
-              />
-            </div>
+            <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8b8190]" />
+            <input
+              id="club-search"
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by club, city or area"
+              className="h-10 w-full rounded-xl border border-[#e0d3ec] bg-white pl-9 pr-3 text-sm outline-none focus:border-[#6a3f9e] focus:ring-2 focus:ring-[#6a3f9e]/15"
+            />
           </div>
 
           <div>
-            <label
-              htmlFor="charter-club-select"
-              className="mb-2 block text-sm font-bold text-[#2b1836]"
-            >
-              Select your preferred club
+            <label htmlFor="club-select" className="mb-1.5 block text-xs font-bold text-[#2b1836]">
+              Preferred club
             </label>
-
             <select
-              id="charter-club-select"
+              id="club-select"
               value={selectedClub}
-              onChange={(event) => setSelectedClub(event.target.value)}
-              disabled={loading || filteredClubs.length === 0}
-              className="h-12 w-full rounded-xl border border-[#6a3f9e]/15 bg-white/80 px-3 text-sm text-[#24112f] outline-none focus:border-[#6a3f9e]/50 focus:ring-2 focus:ring-[#6a3f9e]/10 disabled:cursor-not-allowed disabled:opacity-60"
+              onChange={(e) => setSelectedClub(e.target.value)}
+              disabled={loading || !filtered.length}
+              className="h-11 w-full rounded-xl border border-[#e0d3ec] bg-white px-3 text-sm outline-none focus:border-[#6a3f9e] focus:ring-2 focus:ring-[#6a3f9e]/15 disabled:opacity-60"
             >
               <option value="">
-                {loading
-                  ? "Loading available clubs..."
-                  : filteredClubs.length > 0
-                    ? "Choose a club"
-                    : "No available clubs found"}
+                {loading ? "Loading clubs…" : filtered.length ? "Choose a club" : "No clubs found"}
               </option>
-
-              {filteredClubs.map((club) => {
-                const id = String(club._id ?? club.id);
-                const places = Number(club.availablePlaces ?? 0);
-
+              {filtered.map((c) => {
+                const id = String(c._id ?? c.id);
+                const places = Number(c.availablePlaces ?? 0);
                 return (
                   <option key={id} value={id}>
-                    {club.name}
-                    {club.city ? ` — ${club.city}` : ""}
-                    {club.area ? `, ${club.area}` : ""}
-                    {` (${places} ${places === 1 ? "place" : "places"} available)`}
+                    {c.name}
+                    {c.city ? ` — ${c.city}` : ""}
+                    {c.area ? `, ${c.area}` : ""} ({places} {places === 1 ? "place" : "places"})
                   </option>
                 );
               })}
             </select>
           </div>
 
-          {/* Loading */}
           {loading && (
-            <div className={`flex items-center gap-2 rounded-xl p-3 ${GLASS_ROW}`}>
-              <Loader2
-                size={16}
-                className="animate-spin text-[#6a3f9e]"
-              />
-              <p className="text-xs text-[#7d7184]">
-                Checking Charter club availability...
-              </p>
-            </div>
+            <p className="flex items-center gap-2 text-xs text-[#7d7184]">
+              <Loader2 size={14} className="animate-spin text-[#6a3f9e]" /> Checking availability…
+            </p>
           )}
 
-          {/* Error */}
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3">
-              <p className="text-sm text-red-700">{error}</p>
-
-              <button
-                type="button"
-                onClick={loadClubs}
-                className="mt-2 text-xs font-bold text-red-700 underline"
-              >
+            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {error}
+              <button type="button" onClick={loadClubs} className="ml-2 font-bold underline">
                 Try again
               </button>
             </div>
           )}
 
-          {/* No available clubs */}
           {!loading && !error && clubs.length === 0 && (
-            <div className={`rounded-xl p-4 text-center ${GLASS_ROW}`}>
-              <Users
-                size={22}
-                className="mx-auto text-[#8b8190]"
-              />
-
-              <p className="mt-2 text-sm font-bold text-[#3b2a45]">
-                No places currently available
-              </p>
-
-              <p className="mt-1 text-xs text-[#8b8190]">
-                Please check again later.
-              </p>
-            </div>
+            <p className="rounded-xl bg-[#faf6fd] p-3 text-center text-sm text-[#7d7184]">
+              No Charter places are open right now. Check back later.
+            </p>
           )}
 
-          {/* Search has no matches */}
-          {!loading &&
-            !error &&
-            clubs.length > 0 &&
-            filteredClubs.length === 0 && (
-              <div className={`rounded-xl p-4 text-center ${GLASS_ROW}`}>
-                <Search
-                  size={20}
-                  className="mx-auto text-[#8b8190]"
-                />
-
-                <p className="mt-2 text-sm font-bold text-[#3b2a45]">
-                  No matching clubs
-                </p>
-
-                <p className="mt-1 text-xs text-[#8b8190]">
-                  Try a different club name, city or area.
-                </p>
-              </div>
-            )}
-
-          {/* Selected club */}
           {selected && (
-            <div className="rounded-2xl border border-[#6a3f9e]/15 bg-gradient-to-br from-[#6a3f9e]/10 to-white/70 p-4">
-              <div className="flex items-start gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center ${ICON_TILE}`}>
-                  <MapPin size={18} />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-[#24112f]">
-                    {selected.name}
-                  </p>
-
-                  <p className="mt-1 text-xs text-[#7d7184]">
-                    {[selected.area, selected.city, selected.state]
-                      .filter(Boolean)
-                      .join(", ") || "Location not specified"}
-                  </p>
-
-                  <p className="mt-2 text-xs font-bold text-[#526600]">
-                    {selected.availablePlaces}{" "}
-                    {Number(selected.availablePlaces) === 1
-                      ? "place"
-                      : "places"}{" "}
-                    available
-                  </p>
-                </div>
-
-                <Check size={17} className="text-[#6a3f9e]" />
+            <div className="flex items-start gap-3 rounded-2xl bg-[#f6f0fb] p-3.5">
+              <MapPin size={16} className="mt-0.5 text-[#6a3f9e]" />
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-[#24112f]">{selected.name}</p>
+                <p className="mt-0.5 text-xs text-[#7d7184]">
+                  {[selected.area, selected.city, selected.state].filter(Boolean).join(", ") || "Location not specified"}
+                </p>
+                <p className="mt-1 text-xs font-bold text-[#526600]">
+                  {selected.availablePlaces} {Number(selected.availablePlaces) === 1 ? "place" : "places"} available
+                </p>
               </div>
             </div>
           )}
 
-          {/* Disabled until Charter upgrades launch */}
-          <button
-            type="button"
-            disabled
-            className="flex h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-full border border-[#6a3f9e]/10 bg-[#6a3f9e]/10 px-5 text-sm font-bold text-[#6a3f9e]/60"
-          >
-            <Clock3 size={16} />
-            Charter Upgrade — Coming Soon
+          <button type="button" disabled className={`${BTN_OUTLINE} h-10 w-full`}>
+            Charter upgrade opens soon
           </button>
-
-          <p className="text-center text-[11px] leading-5 text-[#8b8190]">
-            Selecting a club does not reserve a place. Upgrade and
-            payment will be enabled when the feature launches.
+          <p className="text-center text-[11px] text-[#8b8190]">
+            Choosing a club doesn't reserve a place. Payment opens when upgrades launch.
           </p>
         </div>
       </div>
@@ -849,76 +905,42 @@ function CharterClubModal({ onClose }) {
 }
 
 /* =========================================================
-   NO MEMBERSHIP
-========================================================= */
-
-function NoMembership() {
-  return (
-    <div className="flex flex-col items-center rounded-[2rem] border border-dashed border-[#6a3f9e]/25 bg-white/40 p-8 text-center backdrop-blur-md">
-      <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${ICON_TILE}`}>
-        <ShieldCheck size={25} />
-      </div>
-
-      <h2 className="mt-4 text-lg font-bold text-[#24112f]">
-        No active membership
-      </h2>
-
-      <p className="mx-auto mt-1 max-w-md text-sm leading-5 text-[#8b8190]">
-        You don't currently have an active Purple membership.
-      </p>
-    </div>
-  );
-}
-
-/* =========================================================
-   DATE CHIP
-========================================================= */
-
-function DateChip({ label, value }) {
-  return (
-    <div className={`rounded-2xl px-4 py-2.5 ${GLASS_ON_PURPLE}`}>
-      <p className="text-[11px] font-semibold text-white/65">
-        {label}
-      </p>
-      <p className="text-sm font-bold text-white">{value}</p>
-    </div>
-  );
-}
-
-/* =========================================================
-   MAIN MEMBERSHIP CLIENT
+   MAIN
 ========================================================= */
 
 export default function MembershipClient() {
   const [membership, setMembership] = useState(null);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [receiptError, setReceiptError] = useState("");
+  const [saving, setSaving] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
 
-  async function loadMembership() {
+  async function loadMembership(showLoader = true) {
     try {
-      setLoading(true);
+      if (showLoader) setLoading(true);
       setError("");
+      const res = await fetch("/api/auth/user/membership", { cache: "no-store" });
+      const data = await res.json();
+      if (!res.ok || !data?.success) throw new Error(data?.message || "Failed to load membership");
 
-      const response = await fetch("/api/auth/user/membership", {
-        method: "GET",
-        cache: "no-store",
-      });
+      const current = data.membership
+        ? { ...data.membership, benefitReceipts: data.benefitReceipts || data.membership.benefitReceipts || {} }
+        : null;
 
-      const data = await response.json();
-
-      if (!response.ok || !data?.success) {
-        throw new Error(
-          data?.message || "Failed to load membership"
-        );
+      let list = Array.isArray(data.membershipHistory) ? data.membershipHistory : current ? [current] : [];
+      if (current) {
+        list = list.map((m) => (String(m._id ?? m.id) === String(current._id) ? { ...m, ...current } : m));
       }
 
-      setMembership(data.membership || null);
+      setMembership(current);
+      setHistory(list);
     } catch (err) {
       console.error("MEMBERSHIP LOAD ERROR:", err);
       setError(err?.message || "Failed to load membership");
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   }
 
@@ -926,157 +948,119 @@ export default function MembershipClient() {
     loadMembership();
   }, []);
 
+  const benefits = useMemo(() => resolveBenefits(history), [history]);
+
+  // Each benefit is posted against the membership that actually granted it (may be an older one).
+  async function submitReceipts(selected) {
+    try {
+      setSaving(true);
+      setReceiptError("");
+
+      const byMembership = selected.reduce((acc, b) => {
+        (acc[b.ownerId] ||= []).push(b.key);
+        return acc;
+      }, {});
+
+      for (const [membershipId, items] of Object.entries(byMembership)) {
+        const res = await fetch("/api/auth/user/membership/receipts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ membershipId, items }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data?.success) throw new Error(data?.message || "Could not save your confirmation.");
+      }
+
+      await loadMembership(false);
+    } catch (err) {
+      console.error("RECEIPT CONFIRMATION ERROR:", err);
+      setReceiptError(err?.message || "Could not save your confirmation.");
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function jumpToHistory() {
+    document.getElementById("membership-history")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   if (loading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center font-sans">
-        <div className="flex items-center gap-3 text-sm font-semibold text-[#6a3f9e]">
-          <Loader2 size={18} className="animate-spin" />
-          Loading membership...
-        </div>
+      <div className="flex min-h-[300px] items-center justify-center gap-3 text-sm font-semibold text-[#6a3f9e]">
+        <Loader2 size={18} className="animate-spin" /> Loading membership…
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50/70 p-5 font-sans text-sm text-red-700">
+      <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
         <p>{error}</p>
-
-        <button
-          type="button"
-          onClick={loadMembership}
-          className="mt-2 font-bold underline"
-        >
+        <button type="button" onClick={() => loadMembership()} className="mt-2 font-bold underline">
           Retry
         </button>
       </div>
     );
   }
 
-  if (!membership) {
-    return (
-      <>
-        <header className="mb-4">
-          <h1 className="text-2xl font-bold tracking-tight text-[#1a0f24]">
-            Membership
-          </h1>
-
-          <p className="mt-1 text-xs text-[#8a8190]">
-            View and manage your Purple membership
-          </p>
-        </header>
-
-        <NoMembership />
-      </>
-    );
-  }
-
-  const {
-    plan = "PURPLE_MEMBERSHIP",
-    amount = 1499,
-    status = "ACTIVE",
-    startDate = null,
-    endDate = null,
-    sundayExperiences = {},
-    bodyAssessment = {},
-    purpleKit = {},
-  } = membership;
-
-  const isCharter =
-    String(plan).toUpperCase() === "CHARTER_MEMBERSHIP";
+  const status = effectiveStatus(membership);
+  const isCharter = String(membership?.plan || "").toUpperCase() === "CHARTER_MEMBERSHIP";
+  const isFirstPurchase = history.length === 0 || membership?.isFirstMembership === true;
+  const purchaseAmount = isFirstPurchase ? 1499 : 999;
 
   return (
-    <>
-      {/* Membership summary */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-[#6a3f9e] p-5 font-sans text-white shadow-[0_24px_60px_-20px_rgba(106,63,158,0.6)] sm:p-7">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(255,255,255,0.2),transparent_40%),radial-gradient(circle_at_90%_90%,rgba(185,214,59,0.22),transparent_40%)]" />
-
-        <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-3">
-            <div
-              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-[#E4F58C] ${GLASS_ON_PURPLE}`}
-            >
-              <Verified size={24} />
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold text-white/70">
-                Your membership
-              </p>
-
-              <h1 className="text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
-                {formatPlan(plan)}
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <DateChip
-              label="Started"
-              value={formatDate(startDate)}
-            />
-
-            <DateChip
-              label="Ends"
-              value={endDate ? formatDate(endDate) : "No expiry"}
-            />
-
-            <div className="ml-1 flex items-center gap-3">
-              <p className="text-3xl font-bold">
-                ₹{Number(amount).toLocaleString("en-IN")}
-              </p>
-
-              <StatusBadge status={status} />
-            </div>
-          </div>
+    <div className="space-y-4 font-sans">
+      <header className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-[#1a0f24]">Membership</h1>
+          <p className="text-xs text-[#7d7184]">Your plan, benefits and past purchases.</p>
         </div>
-      </div>
+      </header>
 
-      {/* Membership cards */}
-      <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <ExperienceCard experiences={sundayExperiences} />
-        <PurpleKitCard kit={purpleKit} />
-        <BodyAssessmentCard assessment={bodyAssessment} />
-      </div>
-
-      {/* Benefits */}
-      <div className="mt-6">
-        <BenefitsTimeline />
-      </div>
-
-      {/* Charter upgrade */}
-      <div className="mt-6">
-        {!isCharter ? (
-          <CharterUpgradeCard
-            onUpgrade={() => setShowUpgrade(true)}
+      {/* Charter upsell sits first */}
+      <div className="grid grid-cols-1 sm:grid-cols-2"></div>
+      
+{membership && (
+  <>
+        <div className="grid gap-4 lg:grid-cols-4">
+          {membership && !isCharter && <CharterStrip onOpen={() => setShowUpgrade(true)} />}
+          <PassCard
+            membership={membership}
+            status={status}
+            isCharter={isCharter}
+            onCharter={() => setShowUpgrade(true)}
+            onJumpHistory={jumpToHistory}
           />
-        ) : (
-          <div
-            className={`flex items-center gap-4 rounded-[2rem] p-5 ${GLASS_LIGHT}`}
-          >
-            <div className={`flex h-11 w-11 items-center justify-center ${LIME_TILE}`}>
-              <Crown size={20} />
-            </div>
+          <BenefitsCard benefits={benefits} onSubmit={submitReceipts} saving={saving} error={receiptError} />
 
-            <div>
-              <p className="text-sm font-bold text-[#24112f]">
-                You're a Charter Member
-              </p>
-
-              <p className="text-[11px] text-[#667400]">
-                Enjoy your Charter membership benefits.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Charter club selection modal */}
-      {showUpgrade && (
-        <CharterClubModal
-          onClose={() => setShowUpgrade(false)}
-        />
+         
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+           <ValidityCard membership={membership} status={status} />
+          <IncludedCard sunday={membership.sundayExperiences} />
+          <HistoryCard history={history} />
+        </div>
+        </>
       )}
-    </>
+      {!membership && (
+        <section className={`${CARD} flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between`}>
+          <div>
+            <h2 className="text-lg font-bold text-[#24112f]">Start your Purple journey</h2>
+            <p className="mt-1 text-sm text-[#75677d]">Buy a membership to unlock your Purple Club benefits.</p>
+            <p className="mt-2 text-sm font-bold text-[#6a3f9e]">{money(purchaseAmount)}</p>
+          </div>
+          <button type="button" onClick={() => window.location.assign("/membership/plans")} className={BTN_DARK}>
+            <ShoppingCart size={14} /> Buy membership
+          </button>
+        </section>
+      )}
+
+      
+
+      {!membership && <HistoryCard history={history} />}
+
+      {showUpgrade && <CharterClubModal onClose={() => setShowUpgrade(false)} />}
+    </div>
   );
 }

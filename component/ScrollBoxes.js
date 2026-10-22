@@ -6,7 +6,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight, Heading3 } from "lucide-react";
 
-export default function PurpleClub() {
+export default function PurpleClub({session}) {
   const containerRef = useRef(null);
 
   // High-quality running image from Unsplash
@@ -96,7 +96,7 @@ export default function PurpleClub() {
         {/* PANEL 1: Mobile Top / Desktop Left */}
         <div className="w-full h-1/2 md:w-1/2 md:h-full flex flex-col justify-center items-center md:items-start text-center md:text-left px-6 md:px-12 lg:px-24 bg-[#d4ff3f]">
           <h3 className="text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter text-purple-700 md:text-purple-300 mb-2 md:mb-4">
-           Ready to Go<br className="hidden md:block" /> Purple
+           Your first Sunday starts with a hello
           </h3>
           <h4 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 md:mb-6 text-gray-800 md:text-white">
             Your first Purple experience is on us.
@@ -111,19 +111,18 @@ export default function PurpleClub() {
 
         {/* PANEL 2: Mobile Bottom / Desktop Right */}
         <div className="w-full h-1/2 md:w-1/2 md:h-full flex flex-col justify-center md:pt-36 items-center px-6 md:px-12 text-center bg-[#d4ff3f] border-t-2 md:border-t-0 md:border-l border-black">
-         <h3 className="text-4xl sm:text-5xl md:text-7xl font-bold uppercase tracking-tighter text-[#6b3fa0] mb-2 md:mb-4">
-            Ready to Go<br className="hidden md:block"/>Purple
+         <h3 className="text-3xl sm:text-4xl md:text-5xl max-w-2xl font-bold uppercase tracking-tighter text-[#6b3fa0] mb-2 md:mb-4">
+            Your first Sunday starts with a hello
           </h3>
           <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 md:mb-6 text-gray-800">
             Your first Purple experience is on us.
           </h2>
           <p className="text-sm md:text-lg text-gray-700 max-w-[300px] md:max-w-md leading-relaxed">
-            Join us for a Sunday of movement, energy, fun and connection. Meet the Purple Tribe, experience the energy for yourself and see what it means to live Purple.
-
+           We will welcome you, help you find your pace and introduce you to the people around you. Move together, pause together, refuel, and leave with a few more familiar faces
           </p>
-          <button className="mt-4 md:mt-8 px-6 py-3 md:px-8 md:py-4 flex gap-1 items-center bg-purple-500 border border-black hover:bg-purple-400 rounded-full text-white font-bold w-max transition-colors text-sm md:text-base">
-            Get Your Invitation <ArrowRight size={20}/>
-          </button>
+          <a href={`${session?"/dashboard":'/auth'}`} className="mt-4 md:mt-8 px-6 py-3 md:px-8 md:py-4 flex gap-1 items-center bg-purple-500 border border-black hover:bg-purple-400 rounded-full text-white font-bold w-max transition-colors text-sm md:text-base">
+           Book My First Sunday <ArrowRight size={20}/>
+          </a>
         </div>
       </div>
 

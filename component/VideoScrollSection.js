@@ -56,7 +56,7 @@ export default function VideoScrollSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-[300vh] bg-[#d4ff3f]"
+      className="relative w-full h-[200vh] bg-[#d4ff3f]"
     >
       {/* Fixed viewport while scrolling */}
       <div className="absolute inset-0 w-full h-screen flex items-center justify-center">

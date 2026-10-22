@@ -63,7 +63,7 @@ export default function UserAuthClient() {
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-
+const [signupClosed, setSignupClosed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitState, setSubmitState] = useState("idle");
   const [error, setError] = useState("");
@@ -360,11 +360,28 @@ export default function UserAuthClient() {
   </div>
 </div>
 
-              {/* Form */}
-              <form
-                onSubmit={mode === "login" ? handleLogin : handleSignup}
-                className="space-y-4"
-              >
+              {/* Login form or closed-signup message */}
+              {mode === "signup" ? (
+                <div className="space-y-4">
+                  <div className="rounded-3xl border border-[#6a3f9e]/60 bg-gradient-to-br from-[#6a3f9e]/25 via-white/[0.06] to-white/[0.03] p-6 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.16),0_20px_50px_rgba(0,0,0,0.2)] sm:p-8">
+                    <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-[#B9D63B]/30 bg-[#B9D63B]/10">
+                      <LockKeyhole size={24} className="text-[#B9D63B]" />
+                    </div>
+
+                    <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+                      Account creation is currently closed
+                    </h2>
+
+                    <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-white/65">
+                      Please ask a Purple member or Ajay Sir to invite you to join the Purple community.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <form
+                  onSubmit={handleLogin}
+                  className="space-y-4"
+                >
                 {/* Name */}
                 {mode === "signup" && (
                   <div>
@@ -583,7 +600,8 @@ export default function UserAuthClient() {
                     )}
                   </button>
                 )}
-              </form>
+                </form>
+              )}
 
               {/* Footer */}
               <div className="mt-7">

@@ -9,7 +9,7 @@ export default function MemberQrCard({
   name = "Purple Member",
   profession = "Purple Member",
   memberQrCode,
-  photo = "/cheering.png",
+  photo = "/id.png",
   expiryDate = "Not set",
   brand = "purple",
 }) {
@@ -134,31 +134,27 @@ export default function MemberQrCard({
         </div>
 
         {/* Member photograph */}
-        <div className="absolute left-[7%] right-[7%] top-[31%] h-[47%]  ">
-          {!imageError && photo ? (
-            <img
-              src={photo}
-              alt={`${name} membership portrait`}
-              crossOrigin="anonymous"
-              onError={() => setImageError(true)}
-              className="h-70 w-80 object-cover"
-              style={{
-                display: "block",
-              }}
-            />
-          ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[#EEEEEE] text-[#20388F]">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#20388F]/10">
-                <span className="text-3xl font-bold">
-                  {name?.trim()?.charAt(0)?.toUpperCase() || "P"}
-                </span>
-              </div>
-              <span className="text-xs font-semibold">
-                Member portrait
-              </span>
-            </div>
-          )}
-        </div>
+     {/* Member photograph */}
+<div className="absolute left-[7%] right-[7%] top-[28%] h-[56%]">
+  {!imageError && photo ? (
+    <img
+      src='Id.png'
+      alt={`${name} membership portrait`}
+      crossOrigin="anonymous"
+      onError={() => setImageError(true)}
+      className="block h-full w-full object-contain object-center"
+    />
+  ) : (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[#EEEEEE] text-[#20388F]">
+      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#20388F]/10">
+        <span className="text-3xl font-bold">
+          {name?.trim()?.charAt(0)?.toUpperCase() || "P"}
+        </span>
+      </div>
+      <span className="text-xs font-semibold">Member portrait</span>
+    </div>
+  )}
+</div>
 
         {/* Footer */}
         <div className="absolute bottom-[5%] left-[7%] right-[7%] flex items-end justify-between gap-2">

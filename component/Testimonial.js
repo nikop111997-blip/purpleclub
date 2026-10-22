@@ -62,7 +62,7 @@ export default function TestimonialSection() {
   const active = testimonials[index];
 
   return (
-    <div className="min-h-screen bg-[#6b3fa0] text-white flex relative overflow-hidden font-sans">
+    <div className="min-h-[80vh] bg-[#6b3fa0] text-white flex relative overflow-hidden font-sans">
       {/* Subtle Dotted Background (Simulated World Map Texture) */}
       <div
         className="absolute inset-0 z-0 opacity-20 pointer-events-none"
@@ -191,42 +191,6 @@ export default function TestimonialSection() {
                 </button>
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* Bottom Half: Client Logos (Simulated) */}
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-8 w-full border-t border-zinc-800/50 pt-16">
-          {/* Walmart */}
-          <div className="flex items-center gap-2 text-white opacity-90">
-            <span className="text-2xl font-bold tracking-tight">Walmart</span>
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-              <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </div>
-
-          {/* Netflix */}
-          <div className="text-white opacity-90">
-            <span className="text-3xl font-black tracking-tighter" style={{ transform: 'scaleY(1.1)', display: 'inline-block' }}>NETFLIX</span>
-          </div>
-
-          {/* inVision */}
-          <div className="flex items-center text-white opacity-90">
-            <div className="bg-white text-black px-1.5 py-0.5 rounded-sm font-bold text-xl mr-1">in</div>
-            <span className="text-2xl font-light tracking-wide">vision</span>
-          </div>
-
-          {/* YAHOO! */}
-          <div className="text-white opacity-90">
-            <span className="text-3xl font-serif italic font-bold">YAHOO!</span>
-          </div>
-
-          {/* Amazon */}
-          <div className="text-white opacity-90 relative">
-            <span className="text-3xl font-bold tracking-tighter">amazon</span>
-            <svg viewBox="0 0 100 30" className="absolute -bottom-2 left-0 w-full h-auto text-white">
-              <path d="M 10 10 Q 50 30 90 5" fill="transparent" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <path d="M 85 2 L 92 5 L 87 11" fill="transparent" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
           </div>
         </div>
       </main>
