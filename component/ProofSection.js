@@ -124,7 +124,7 @@ Think of it as a run club that also stretches, breathes and stays back to chat.
   src="https://framerusercontent.com/images/VaJVz7sLas8kHWe1d2ITuHvrA.png?width=429&height=607"
   alt="Purple Club"
   width={800}
-  height={1000}
+  height={1000} 
   className="
     ml-24
     sm:ml-0
