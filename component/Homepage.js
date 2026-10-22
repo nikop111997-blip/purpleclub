@@ -10,25 +10,11 @@ gsap.registerPlugin(ScrollTrigger);
 // Stops the mobile URL-bar show/hide from re-measuring and jittering the pin
 ScrollTrigger.config({ ignoreMobileResize: true });
 
-// TIP: convert these PNGs to WebP (max ~1000px wide) and change the
-// extensions here. This is the single biggest fix for mobile memory crashes.
-const POSES = [
-  { src: "/main.png", caption: "Welcome to Club" },
-  { src: "/runn.png", caption: "Move with Us" },
-  { src: "/medi.png", caption: "Meditate with Us" },
-  { src: "/push.png", caption: "Sweat with Us", pad: true },
-  { src: "/dancee.png", caption: "Enjoy With Us" },
-  { src: "/talking.png", caption: "Share With Us", pad: true },
-];
-
 const PANDA_SRC = "/main.png";
 
 // Scroll distance (px) per unit of timeline.
 const PX_PER_UNIT_SIDE = 600;
 const PX_PER_UNIT_STACK = 300;
-
-// Background drift (fraction of viewport width). bg is 112% wide, so <= 0.12.
-const BG_SHIFT = 0.12;
 
 // SIDE  = wide landscape screens: text on the left, panda on the right.
 // STACK = everything else: panda on top, text underneath.
@@ -44,10 +30,6 @@ export default function HomePage({ session }) {
   const characterRef = useRef(null);
   const pandaImgRef = useRef(null);
   const logosRef = useRef(null);
-  const trackRef = useRef(null);
-  const progressRef = useRef(null);
-  const progressFillRef = useRef(null);
-  const bgRef = useRef(null);
   const refreshedRef = useRef(false);
 
   // Refresh ScrollTrigger once after the panda image is known (covers the
@@ -71,15 +53,8 @@ export default function HomePage({ session }) {
       const sideText = sideTextRef.current;
       const character = characterRef.current;
       const pandaImg = pandaImgRef.current;
-      const track = trackRef.current;
-      const progress = progressRef.current;
-      const progressFill = progressFillRef.current;
-      const bg = bgRef.current;
 
-      if (
-        !section || !heroText || !sideWrap || !sideText || !character ||
-        !pandaImg || !track || !progress || !progressFill || !bg
-      ) {
+      if (!section || !heroText || !sideWrap || !sideText || !character || !pandaImg) {
         return;
       }
 
@@ -87,41 +62,18 @@ export default function HomePage({ session }) {
       gsap.set(heroText, { autoAlpha: 1, y: 0 });
       gsap.set(character, { autoAlpha: 1 });
       gsap.set(sideText, { autoAlpha: 0 });
-      gsap.set(track, { clearProps: "transform" });
-      gsap.set(progress, { autoAlpha: 0 });
-
-      const cards = gsap.utils.toArray(".pose-card", section);
-      const inners = gsap.utils.toArray(".pose-inner", section);
-      const imgs = gsap.utils.toArray(".pose-img", section);
-      const N = cards.length;
-
-      // Only the track gets a forced GPU layer (not every card).
-      gsap.set(track, { force3D: true });
-
-      const setInnerScale = inners.map((el) => gsap.quickSetter(el, "scale"));
-      const setImgX = imgs.map((el) => gsap.quickSetter(el, "x", "px"));
-      const setProgress = gsap.quickSetter(progressFill, "scaleX");
-      const setBgX = gsap.quickSetter(bg, "x", "px");
 
       // Everything that depends on screen size lives here and is recomputed
       // on every ScrollTrigger refresh (resize / rotate).
-      const L = {
-        vw: 0, vh: 0, cardW: 0, cardH: 0, gap: 0, pitch: 0,
-        cx: 0, cy: 0, topY: 0, centerY: 0,
-        startX: 0, anchorX: 0, endX: 0, margin: 0, k: 1,
-        parallax: 28,
-      };
       // Panda start (frame 1) and end (frame 2) poses, all in section px
       const S = {
         start: { x: 0, y: 0, scale: 1 },
         end: { x: 0, y: 0, scale: 1 },
       };
 
-      const stepX = (i) => L.anchorX - i * L.pitch;
-
       const measure = (isSide) => {
-        const vw = (L.vw = section.clientWidth);
-        const vh = (L.vh = section.clientHeight);
+        const vw = section.clientWidth;
+        const vh = section.clientHeight;
         const clamp = gsap.utils.clamp;
 
         // Image shape (height / width). Falls back to 1 until the image loads.
@@ -160,151 +112,7 @@ export default function HomePage({ session }) {
           cx = vw / 2;
           cy = topPad + (availH - targetH) / 2 + targetH / 2;
         }
-        const sEnd = targetH / baseH;
-        S.end = { x: cx, y: cy, scale: sEnd };
-
-        // Cards share the panda's aspect so card 1 is the same picture
-        L.cx = cx;
-        L.cy = cy;
-        const endW = baseW * sEnd;
-        let cardH = vh * (isSide ? 0.68 : 0.5);
-        let cardW = cardH / ratio;
-        if (cardW > vw * 0.86) {
-          cardW = vw * 0.86;
-          cardH = cardW * ratio;
-        }
-        L.gap = isSide ? 28 : 14;
-        L.cardW = cardW;
-        L.cardH = cardH;
-        L.pitch = cardW + L.gap;
-        L.margin = vw * (isSide ? 0.08 : 0.06);
-        L.k = endW / cardW;
-        L.parallax = Math.min(28, cardW * 0.08);
-
-        L.topY = L.cy - cardH / 2;
-        L.centerY = (vh - cardH) / 2;
-        L.startX = L.cx - cardW / 2;
-        L.anchorX = vw / 2 - cardW / 2;
-        L.endX = L.anchorX - (N - 1) * L.pitch;
-
-        track.style.columnGap = L.gap + "px";
-        gsap.set(cards, { width: cardW, height: cardH });
-      };
-
-      const applyFocus = () => {
-        const x = gsap.getProperty(track, "x");
-        const p = Math.max(0, (L.anchorX - x) / L.pitch);
-
-        for (let i = 0; i < N; i++) {
-          const d = i - p;
-          // Skip cards far off-screen: saves work on phones
-          if (Math.abs(d) > 2) continue;
-          const a = gsap.utils.clamp(0, 1, Math.abs(d));
-          setInnerScale[i](1 - 0.08 * a);
-          setImgX[i](-d * L.parallax);
-        }
-
-        const progressValue = gsap.utils.clamp(0, 1, p / (N - 1));
-        setProgress(progressValue);
-        setBgX(-progressValue * L.vw * BG_SHIFT);
-      };
-
-      const addFrame3 = (tl, isSide) => {
-        gsap.set(imgs, { scale: 1 });
-        gsap.set(inners, { opacity: 1 });
-        gsap.set(cards, { opacity: 0, scale: 1 });
-        gsap.set(track, { x: () => L.startX, y: () => L.topY });
-        gsap.set(progress, { opacity: 0 });
-        gsap.set(bg, { opacity: 0 });
-        applyFocus();
-
-        // 1. Side text leaves
-        tl.to(
-          sideText,
-          {
-            opacity: 0,
-            x: isSide ? -80 : 0,
-            y: isSide ? 0 : 40,
-            duration: 1.4,
-            ease: "sine.inOut",
-          },
-          ">0.1"
-        );
-
-        // 2. Background fades in, panda is swapped for card 1
-        tl.addLabel("handoff", ">-0.4");
-        tl.to(bg, { opacity: 1, duration: 1.8, ease: "sine.inOut" }, "handoff");
-        tl.set(cards[0], { opacity: 1, scale: () => L.k }, "handoff+=0.6");
-        tl.set(character, { opacity: 0 }, "handoff+=0.6");
-        tl.to({}, { duration: 0.5 });
-
-        // 3. Card 1 grows and glides right
-        const rightStartX = () =>
-          Math.max(L.anchorX + 1, L.vw - L.margin - L.cardW);
-
-        tl.addLabel("glide");
-        tl.fromTo(
-          cards[0],
-          { scale: () => L.k },
-          { scale: 1, duration: 2.4, ease: "power3.inOut", immediateRender: false },
-          "glide"
-        );
-        tl.fromTo(
-          track,
-          { x: () => L.startX, y: () => L.topY },
-          {
-            x: rightStartX,
-            y: () => L.centerY,
-            duration: 2.4,
-            ease: "power3.inOut",
-            onUpdate: applyFocus,
-            immediateRender: false,
-          },
-          "glide"
-        );
-
-        tl.set(cards.slice(1), { opacity: 1 }, "glide+=0.6");
-        tl.fromTo(
-          cards.slice(1),
-          { scale: 0.92 },
-          { scale: 1, duration: 1.6, ease: "power2.out", stagger: 0.12 },
-          "glide+=0.6"
-        );
-        tl.to(progress, { opacity: 1, duration: 0.8, ease: "power1.out" }, "glide+=1.6");
-        tl.to({}, { duration: 0.3 });
-
-        // 4. Scroll the strip card to card
-        tl.fromTo(
-          track,
-          { x: rightStartX },
-          {
-            x: () => stepX(0),
-            duration: 1.8,
-            ease: "power2.inOut",
-            onUpdate: applyFocus,
-            immediateRender: false,
-          },
-          ">"
-        );
-        tl.to({}, { duration: 0.5 });
-
-        for (let i = 1; i < N; i++) {
-          tl.fromTo(
-            track,
-            { x: () => stepX(i - 1) },
-            {
-              x: () => stepX(i),
-              duration: 2.4,
-              ease: "power2.inOut",
-              onUpdate: applyFocus,
-              immediateRender: false,
-            },
-            ">"
-          );
-          // pause so each pose reads, but not after the last one:
-          // the section unpins as soon as the last card lands
-          if (i < N - 1) tl.to({}, { duration: 0.6 });
-        }
+        S.end = { x: cx, y: cy, scale: targetH / baseH };
       };
 
       // One builder for every screen size; only the numbers differ.
@@ -382,9 +190,8 @@ export default function HomePage({ session }) {
           { opacity: 1, x: 0, y: 0, duration: 1, ease: "power2.out" },
           0.55
         );
+        // Short hold so frame 2 can be read before the section unpins
         tl.to({}, { duration: 0.7 });
-
-        addFrame3(tl, isSide);
 
         return () =>
           ScrollTrigger.removeEventListener("refreshInit", onRefreshInit);
@@ -467,7 +274,7 @@ export default function HomePage({ session }) {
         >
           <div
             ref={sideTextRef}
-            style={{ opacity: 100 }}
+            style={{ opacity: 0 }}
             className="mx-auto w-full max-w-[720px] group-data-[layout=side]:mx-0"
           >
             <h2 className="mb-[1.2vh] text-[clamp(1.3rem,min(6vw,4.4svh),2.5rem)] font-bold uppercase leading-[0.98] tracking-[-0.04em] text-[#d4ff3f]">
@@ -485,10 +292,29 @@ export default function HomePage({ session }) {
           </div>
         </div>
 
-    
+        {/* PANDA: size and position are set from JS (measure), so it adapts
+            to any screen. The width here is only the pre-JS fallback. */}
+        <div
+          ref={characterRef}
+          className="pointer-events-none absolute left-0 top-0 z-20 w-[min(80vw,420px)] max-w-none will-change-transform"
+        >
+          <img
+            ref={pandaImgRef}
+            src={PANDA_SRC}
+            alt=""
+            draggable="false"
+            decoding="async"
+            loading="eager"
+            onLoad={refreshOnce}
+            onError={() => {
+              // Keep the rest of the page usable if the panda asset is missing.
+              gsap.set(characterRef.current, { autoAlpha: 0 });
+            }}
+            className="block h-auto w-full select-none"
+          />
+        </div>
       </section>
 
-      {/* No min-h-screen here: that was adding the blank area after the last section */}
       <section ref={logosRef} className="relative z-10 w-full bg-[#6b3fa0]">
         <ProofSection session={session} />
       </section>
