@@ -5,9 +5,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const PLANS = [
-  { value: "charter-member", label: "Charter Member" },
-  { value: "charter-coach", label: "Charter Coach" },
-  { value: "membership", label: "Membership" },
+  { value: "charter-member", label: "Charter Member", price:"₹14,999" },
+  { value: "charter-coach", label: "Charter Coach", price:"₹14,999" },
+  { value: "membership", label: "Membership",  price:"₹1,499" },
 ];
 
 const initialForm = {
@@ -190,9 +190,11 @@ export default function RegisterPage() {
     process.env.NEXT_PUBLIC_PAYMENT_QR_URL ||
     "/inshape_runners_club_scannable_qr.png";
 
-  const selectedPlan = PLANS.find(
+  const selectedPlanDetails = PLANS.find(
     (plan) => plan.value === registration?.plan
-  )?.label;
+  );
+  const selectedPlan = selectedPlanDetails?.label || registration?.plan;
+  const selectedPlanPrice = selectedPlanDetails?.price || "Price unavailable";
 
   return (
     <main className="min-h-screen bg-[#f7f4fb] px-3 py-6 font-sans text-[#21182b] sm:px-6 sm:py-12 lg:py-16">
@@ -336,7 +338,7 @@ export default function RegisterPage() {
 
                     {PLANS.map((plan) => (
                       <option key={plan.value} value={plan.value}>
-                        {plan.label}
+                        {plan.label} -{plan.price}
                       </option>
                     ))}
                   </select>
@@ -403,6 +405,20 @@ export default function RegisterPage() {
                 />
                 <Summary label="Email" value={registration.email} />
                 <Summary label="Phone" value={registration.mobile} />
+              </div>
+
+              <div className="mb-6 flex flex-col gap-2 rounded-2xl border border-[#d9c7eb] bg-[#f8f5fb] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#716779]">
+                    Amount to pay
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-[#21182b]">
+                    {selectedPlan}
+                  </p>
+                </div>
+                <p className="text-3xl font-extrabold tracking-tight text-[#6b3fa0] sm:text-4xl">
+                  {selectedPlanPrice}
+                </p>
               </div>
 
               <div className="rounded-2xl border border-[#e9e1f1] p-4 text-center sm:p-6">
