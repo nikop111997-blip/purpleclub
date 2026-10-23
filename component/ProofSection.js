@@ -15,21 +15,16 @@ export default function ProofSection({session}) {
           {/* Header Row */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
             <div>
-            <p className='bg-[#d4ff3f]/45 border border-[#d4ff3f] text-white text-sm py-1 mb-2 w-fit px-4 rounded-full'>What can you expect?</p>
+            <p className=' text-white text-sm py-1 mb-3 w-fit border-b-1'>What can you expect?</p>
             <h2 className="text-[#d4ff3f] text-3xl md:text-[2.5rem] font-bold leading-[1.05] tracking-tight max-w-3xl">
               Four ways to come alive
             </h2>
-            <p className='max-w-2xl mt-3 text-white font-medium text-lg md:text-lg'>Purple Club brings people together for welcoming, coach-led Sunday mornings built around movement, meditation, fuel and connection.</p>
+            <p className='max-w-2xl mt-3 text-white font-medium text-lg md:text-lg'>Purple Club brings people together for a welcoming, coach-led Sunday mornings built around movement, meditation, fuel and connection.</p>
             </div>
             <div className="text-left md:text-right">
-              <p className="text-white mb-4 max-w-[400px] text-lg md:text-lg md:ml-auto font-medium">
-                
-Think of it as a run club that also stretches, breathes and stays back to chat.
-
-              </p>
-              <button className="bg-[#d4ff3f] text-black border border-gray-800 font-semibold px-8 py-3.5 rounded-full hover:bg-[#bce628] transition-colors text-sm">
+              <a href='#membership' className="bg-[#d4ff3f] text-black border border-gray-800 font-semibold px-8 py-3.5 rounded-full hover:bg-[#bce628] transition-colors text-sm">
                 Experience Purple
-              </button>
+              </a>
             </div>
           </div>
 
@@ -39,22 +34,25 @@ Think of it as a run club that also stretches, breathes and stays back to chat.
             {/* Card 1 */}
             <div className="bg-[#d4ff3f] rounded-[2rem] border p-8 md:p-10 flex flex-col justify-between h-[320px] rotate-12 hover:rotate-0 transform transition-all duration-400">
               <div className="flex flex-col items-start">
-                <span className="text-sm font-bold tracking-tighter">MOVE</span>
-                <p className='text-3xl md:text-4xl font-bold tracking-tighter'>Find your pace</p>
+                
+                <p className='text-sm font-bold tracking-tighter '>Find your pace</p>
+                <span className="text-3xl md:text-4xl font-bold tracking-tighter">MOVE</span>
               </div>
               <p className="text-black font-medium text-[14px] leading-snug mt-12 ">
-               Guided movement and playful games, with an option for every level. Nobody keeps score, except on Speed Thrills Sundays.
+               Guided movement and playful games, with an option for every level. Nobody keeps a score expect on a speed thrill Sunday.
               </p>
             </div>
 
             {/* Card 2 */}
             <div className="bg-[#F8F9FA] rounded-[2rem] border border-[#0e0e0d] p-8 md:p-10 flex flex-col justify-between h-[320px] -rotate-6 hover:rotate-0 transform transition-all duration-400">
               <div className="flex flex-col items-start text-black">
-                <span className="text-sm font-bold tracking-tighter">MEDITATE</span>
-                <span className="text-3xl md:text-4xl font-bold tracking-tighter">Make room to pause.</span>
+                
+                <span className="text-sm font-bold tracking-tighter">Make room to pause.</span>
+                <span className=" text-3xl md:text-4xl font-bold tracking-tighter">MEDITATE</span>
               </div>
               <p className="text-black font-medium text-[14px] leading-snug mt-12 ">
-                A few quiet minutes to breathe and settle. Even the restless ones manage it.
+                A few quiet minutes to breathe and to settle 
+even for the restless one who find it difficult to manage.
 
               </p>
             </div>
@@ -62,19 +60,20 @@ Think of it as a run club that also stretches, breathes and stays back to chat.
             {/* Card 3 */}
             <div className="bg-[#6b3fa0] rounded-[2rem] border border-white p-8 md:p-10 flex flex-col justify-between min-h-[220px] rotate-8 shadow-2xl hover:rotate-0 transform transition-all duration-400">
               <div className="flex flex-col items-start text-white">
-                <span className="text-sm font-bold tracking-tighter">FUEL</span>
-                <span className="text-3xl md:text-4xl font-bold tracking-tighter">Refuel and reconnect</span>
+                
+                <span className="text-sm font-bold tracking-tighter ">Nourish and Rejuvenate </span>
+                <span className="text-3xl md:text-4xl font-bold tracking-tighter">FUEL</span>
               </div>
               <p className="text-white/90 font-medium text-[14px] leading-snug mt-12 ">
-                Some Sundays end with a Purple Fuel experience. The event page tells you what is served and what is in it before you book.
+                Every session ends with a purple fuel experience. Nourish not just your body but you soul with delicious and nutritionally dense shakes.
               </p>
             </div>
    <div className="bg-[#da0d7e] rounded-[2rem] border border-white p-8 md:p-10 flex flex-col justify-between min-h-[220px] -rotate-8 shadow-2xl hover:rotate-0 transform transition-all duration-400">
-              <div className="flex flex-col items-start text-white"><span className="text-sm font-bold tracking-tighter">CONNECT</span>
+              <div className="flex flex-col items-start text-white"><span className="text-sm font-bold tracking-tighter">Inspire and Get Inspired</span>
                 <span className="text-3xl md:text-4xl font-bold tracking-tighter">CONNECT</span>
               </div>
               <p className="text-white/90 font-medium text-[14px] leading-snug mt-12 ">
-                A friendly hello, a shared laugh and a group photo you will actually want to post
+                A friendly hello, a shared laugh and a group photo you will actually want to post. Share your story and Listen others for friendships that last beyond Purple experience 
               </p>
             </div>
           </div>
@@ -92,11 +91,11 @@ Think of it as a run club that also stretches, breathes and stays back to chat.
               Let Your Lifestyle <br className="hidden md:block"/>Inspire Others.
             </h3>
             <p className="text-gray-700 text-[16px] leading-relaxed mb-8 max-w-[450px]">
-            Being active had started to look unusual, and I wanted Sunday mornings to change that. Come once. If it feels like your kind of Sunday, stay
+           Movement should feel fun, simple and magical, not punishment. Because the best habits aren't forced. They're the ones you fall in love with.
             </p>
             
             <div>
-              <a href={`${session?"/dashboard":'/auth'}`} className="bg-[#d4ff3f] text-black font-bold border border-gray-500 px-6 py-4 rounded-full hover:bg-[#bce628] transition-colors text-sm mb-12">
+              <a href={`${session?"/dashboard":'#membership'}`} className="bg-[#d4ff3f] text-black font-bold border border-gray-500 px-6 py-4 rounded-full hover:bg-[#bce628] transition-colors text-sm mb-12">
                 Be a Purple Person
               </a>
             </div>

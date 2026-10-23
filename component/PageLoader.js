@@ -9,7 +9,7 @@ import {
 } from "framer-motion";
 
 const LOGO_SRC = encodeURI("/light.png");
-const PANDA_SRC = encodeURI("/main.png");
+const PANDA_SRC = encodeURI("/power.png");
 
 const EASE_OUT = [0.22, 1, 0.36, 1];
 const EASE_SLIDE = [0.22, 1, 0.36, 1];

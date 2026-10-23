@@ -1,53 +1,226 @@
-import React from 'react';
+"use client";
+
+import React, { useEffect, useState } from "react";
+
+const stories = [
+  {
+    quote: "I hadn't run since school.",
+    name: "[Name]",
+    age: 47,
+    role: "Bank manager",
+    city: "Jaipur",
+  },
+  {
+    quote: "My children said, Mummy, you won't last 10 minutes.",
+    name: "[Name]",
+    age: 41,
+    role: "Homemaker",
+    city: "Kota",
+  },
+  {
+    quote: "I came for my health. I stayed for my friends.",
+    name: "[Name]",
+    age: 58,
+    role: "Retired teacher",
+    city: "Delhi",
+  },
+  {
+    quote: "I was the one everyone joked about.",
+    name: "[Name]",
+    age: 29,
+    role: "Software engineer",
+    city: "Hyderabad",
+  },
+];
+
+const groups = [
+  "Professionals",
+  "Homemakers",
+  "Business owners",
+  "Parents",
+  "Students",
+  "Active seniors",
+];
+
+function StoryCard({ story, index }) {
+  return (
+    <article
+      className="flex h-full min-h-[250px] flex-col justify-between rounded-3xl border border-[#6b3fa0]/15 bg-white/80 p-6 sm:min-h-[270px] sm:p-7"
+    >
+      <div>
+        <div className="flex items-start justify-between">
+          <span className="text-4xl font-bold leading-none text-[#6b3fa0]/40">
+            “
+          </span>
+          <span className="text-sm font-bold tracking-widest text-[#6b3fa0]/50">
+            0{index + 1}
+          </span>
+        </div>
+
+        <blockquote className="mt-3 text-xl font-bold leading-snug tracking-tight text-[#1a1a1a] sm:text-2xl">
+          {story.quote}
+        </blockquote>
+      </div>
+
+      <div className="mt-8 border-t border-[#6b3fa0]/15 pt-4">
+        <p className="font-bold text-[#6b3fa0]">
+          {story.name}, {story.age}
+        </p>
+        <p className="mt-1 text-sm text-[#1a1a1a]/70">
+          {story.role} <span className="px-1">·</span> {story.city}
+        </p>
+      </div>
+    </article>
+  );
+}
 
 export default function AboutRunClub() {
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setExpanded(true);
+    }, 2000);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
-    // Background color carefully matched to the bright lime/neon green
-    <section className="w-full bg-[#d4ff3f] text-[#1a1a1a] px-6 py-20 md:px-12 lg:px-20 font-sans">
-      <div className="max-w-[1400px] mx-auto">
-        
-        {/* Top Headline Section */}
-        <div className="mb-16 md:mb-24">
-          <h3 className="text-4xl md:text-5xl lg:text-[2.25rem] leading-[1.1] font-bold tracking-[-0.02em] max-w-6xl">
-            <span className="text-[#6b3fa0]/80 font-bold">
-  THINKING PURPLE CLUB ISN’T FOR YOU
-</span>
+    <section className="w-full overflow-hidden bg-[#d4ff3f] px-5 py-16 font-sans text-[#1a1a1a] sm:px-8 sm:py-20 md:px-12 lg:px-20">
+      <div className="mx-auto max-w-[1400px]">
+        {/* Heading */}
+        <div className="mb-10 max-w-5xl sm:mb-14">
+
+          <h2 className="text-lg font-semibold leading-tight tracking-tight text-[#6b3fa0]/80 sm:text-2xl">
+            Come as you are. Become who you could be.
+          </h2>
+
+          <h3 className="mt-3 text-4xl font-bold leading-[0.98] tracking-[-0.045em] text-[#6b3fa0] sm:text-5xl md:text-6xl lg:text-7xl">
+            You don't need to be fit to start.
+              You need to start to get fit.
           </h3>
-         <h3 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl leading-none font-bold tracking-[-0.04em] max-w-6xl">
-  <span className="text-[#6b3fa0] font-bold">
-    THINK AGAIN?
-  </span>
-</h3>
+
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#1a1a1a]/80 sm:text-lg">
+            Every runner has a first day. Every journey starts somewhere.
+            There's a place for everyone at Purple Club.
+          </p>
         </div>
 
-        {/* Thin Divider Line */}
-        <hr className="border-t border-[#1a1a1a]/20 mb-12 md:mb-16" />
+        {/* Initial intro card */}
+        {!expanded && (
+          <div className="story-intro">
+            <div className="flex min-h-[300px] flex-col items-center justify-center rounded-3xl bg-[#6b3fa0] p-8 text-center text-white sm:min-h-[340px]">
+              <span className="mb-5 text-sm font-bold uppercase tracking-[0.25em] text-[#d4ff3f]">
+                Purple Club
+              </span>
 
-        {/* Bottom Content Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-8">
-          
-          {/* Left Column: Heading */}
-          <div>
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight">
-              WHO IS PURPLE CLUB FOR?
-            </h2>
+              <h4 className="text-5xl font-bold tracking-[-0.05em] sm:text-7xl">
+                Success
+                <span className="block text-[#d4ff3f]">Stories</span>
+              </h4>
+
+              <p className="mt-5 max-w-md text-base leading-relaxed text-white/80 sm:text-lg">
+                Different starting points. One community.
+                Meet the people who took the first step.
+              </p>
+            </div>
           </div>
-          
-          {/* Right Column: Paragraphs */}
-          <div className="flex flex-col gap-8 text-lg md:text-xl lg:text-[1.35rem] leading-[1.6] text-[#1a1a1a]/90 md:pr-10 lg:pr-24">
-            <p>
-              You don't have to be a runner. You don't have to be super fit. You just have to be ready to move, connect and live a little more actively. Purple Club is for people at every stage of their journey who want healthier habits, real community and more energy in everyday life.
+        )}
 
-            </p>
-            <p>
-              Come as you are. Find your pace.
+        {/* Desktop: four cards. Mobile: horizontal swipe slider. */}
+        {expanded && (
+          <div className="story-results">
+            {/* Desktop grid */}
+            <div className="hidden grid-cols-2 gap-4 lg:grid lg:grid-cols-4">
+              {stories.map((story, index) => (
+                <StoryCard
+                  key={story.number ?? story.quote}
+                  story={story}
+                  index={index}
+                />
+              ))}
+            </div>
 
+            {/* Mobile/tablet swipe slider */}
+            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-4 lg:hidden">
+              {stories.map((story, index) => (
+                <div
+                  key={story.quote}
+                  className="w-[85%] shrink-0 snap-start sm:w-[48%]"
+                >
+                  <StoryCard story={story} index={index} />
+                </div>
+              ))}
+            </div>
+
+            {/* Mobile slider hint */}
+            <p className="mt-1 text-xs font-semibold text-[#6b3fa0]/75 lg:hidden">
+              SWIPE TO READ MORE →
             </p>
           </div>
+        )}
 
+        {/* Community strip */}
+        <div className="mt-10 border-t border-[#1a1a1a]/20 pt-7 sm:mt-14 sm:pt-9">
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.16em] text-[#6b3fa0]">
+            There's a place for you here
+          </p>
+
+          <div className="flex flex-wrap gap-2.5 sm:gap-3">
+            {groups.map((group) => (
+              <span
+                key={group}
+                className="rounded-full border border-[#6b3fa0]/25 bg-[#6b3fa0]/[0.07] px-4 py-2 text-sm font-semibold sm:px-5 sm:py-2.5 sm:text-base"
+              >
+                {group}
+              </span>
+            ))}
+          </div>
+
+          <p className="mt-6 text-lg font-bold tracking-tight text-[#6b3fa0] sm:text-xl">
+            Different lives. Different starting points. One community.
+          </p>
         </div>
-
       </div>
+
+      <style jsx>{`
+        .story-intro {
+          animation: introIn 600ms ease both;
+        }
+
+        .story-results {
+          animation: resultsIn 700ms ease both;
+        }
+
+        @keyframes introIn {
+          from {
+            opacity: 0;
+            transform: scale(0.97);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes resultsIn {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .story-intro,
+          .story-results {
+            animation: none;
+          }
+        }
+      `}</style>
     </section>
   );
 }

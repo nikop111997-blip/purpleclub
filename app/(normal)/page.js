@@ -1,6 +1,7 @@
 import AboutRunClub from "@/component/AboutRunClub";
 import ChillZone from "@/component/ChillZone";
 import FaqSection from "@/component/FAQ";
+import Home from "@/component/Gallery";
 import HomePage from "@/component/Homepage";
 import ScrollExperience from "@/component/Kamp";
 import OneSundaySection from "@/component/Onesundaysection";
@@ -18,11 +19,8 @@ export default async function Page(){
     
     <AboutRunClub />
     <ScrollBoxes session={session}/>
-    <ChillZone/>
     <OneSundaySection/>
-    <ScrollExperience/>
-    <VideoScrollSection/>
-    <TestimonialSection/>
+    <Home/>
     
     <FaqSection session={session}/>
     </>

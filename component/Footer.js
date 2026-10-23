@@ -11,9 +11,9 @@ export default function Footer() {
           
           {/* Brand Column */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-0">
               {/* Logo Icon */}
-              <div className="relative w-36 h-8 flex items-center justify-center">
+              <div className="relative w-48 h-12 flex items-center justify-center">
                 <img
   src="/logod.png"
   alt=""
@@ -27,9 +27,11 @@ export default function Footer() {
 />
               </div>
             </div>
-            <p className="text-gray-800 text-md mb-2 max-w-sm leading-snug">
-              by Kayapalat. COME ALIVE. India's Active Lifestyle Movement.
+            <p className="text-gray-800 text-xs mb-2 max-w-sm leading-snug">
+              by Kayapalat. 
             </p>
+            <p className="text-gray-800 font-black text-md mb-2 max-w-xl leading-snug">
+COME ALIVE. India's Active Lifestyle Movement.            </p>
             
             {/* Social Icons */}
             <div className="flex gap-4">
@@ -82,7 +84,7 @@ export default function Footer() {
           <div className="relative w-32 h-32 md:w-64 md:h-64 flex-shrink-0 flex items-center justify-center">
            
           <img
-  src="/main.png"
+  src="/power.png"
   alt=""
   draggable="false"
   className="

@@ -222,30 +222,25 @@ export default function HomePage({ session }) {
           className="absolute inset-x-0 top-[clamp(4.5rem,11svh,8rem)] z-[99] flex justify-center px-4 text-center sm:px-6"
         >
           <div className="mx-auto w-full max-w-[1000px] text-center">
-            <div className="mx-auto mt-4 flex w-fit max-w-full flex-col items-center justify-center gap-1 rounded-full border border-[#d4ff3f] px-3 pb-2 sm:flex-row sm:gap-2 sm:px-0 sm:pb-0 sm:pr-4">
-              <p className="rounded-full bg-[#d4ff3f] px-2 text-[11px] font-semibold uppercase text-[#6b3fa0] sm:text-sm">
-                PURPLE CLUB. COME ALIVE.
-              </p>
-              <p className="text-[11px] font-semibold uppercase text-white/70 sm:text-sm">
-                India&apos;s Active Lifestyle Movement
-              </p>
-            </div>
 
             <h1 className="mt-[clamp(0.75rem,2.2svh,1.25rem)] text-[clamp(1.5rem,min(7vw,6svh),3rem)] font-bold leading-[0.98] tracking-[-0.04em] text-[#d4ff3f]">
-              What if Sunday became your favourite day?
+              Welcome to the world health fitness and happiness 
             </h1>
 
-            <p className="mx-auto mt-[clamp(0.75rem,2.2svh,1.25rem)] max-w-2xl text-[13px] font-medium leading-relaxed text-white/90 sm:text-base md:text-lg">
-              Movement, laughter and people you will be glad you met. Come and
-              see what a Purple Sunday feels like.
+            <p className="mx-auto mt-4 max-w-2xl text-[18px] font-medium leading-relaxed text-white sm:text-base md:text-2xl">
+             Welcome to Purple club 
+
             </p>
+           <p className="mx-auto mt-[clamp(0.75rem,2.2svh,1.25rem)] max-w-3xl text-[13px] font-semibold leading-relaxed sm:text-base md:text-lg animated-lime-text">
+  India's Active Lifestyle Movement Community | Come As You Are and Come Alive
+</p>
 
             <div className="mt-[clamp(0.9rem,2.8svh,1.75rem)] flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <a
-                href={session ? "/dashboard" : "/auth"}
+                href={session ? "/dashboard" : "#membership"}
                 className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d4ff3f] bg-[#d4ff3f] px-6 py-2 text-sm font-bold text-black shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#b8e02a] sm:px-8 sm:text-base"
               >
-                Book My First Sunday
+                Book My Purple Experience
                 <span aria-hidden="true" className="ml-2 text-lg">
                   ↗
                 </span>
@@ -253,9 +248,6 @@ export default function HomePage({ session }) {
 
               <p className="flex max-w-xs flex-row gap-2 text-xs leading-relaxed text-white/70 sm:flex-col sm:gap-0 sm:text-left">
                 Your first experience is on us.
-                <span className="block font-semibold text-white/90">
-                  Come as you are.
-                </span>
               </p>
             </div>
           </div>
@@ -276,16 +268,16 @@ export default function HomePage({ session }) {
             ref={sideTextRef}
             className="mx-auto w-full max-w-[720px] group-data-[layout=side]:mx-0"
           >
-            <h2 className="mb-[1.2vh] text-[clamp(1.3rem,min(6vw,4.4svh),2.5rem)] font-bold uppercase leading-[0.98] tracking-[-0.04em] text-[#d4ff3f]">
+            <h2 className="mb-[1.2vh] text-[clamp(1.3rem,min(6vw,4.4svh),2.5rem)] font-bold uppercase leading-[0.98] tracking-[-0.01em] text-[#d4ff3f]">
               A little less routine. A little more life
             </h2>
-            <h2 className="text-[clamp(0.85rem,min(3.6vw,2.4svh),1.5rem)] font-bold leading-[1.15] tracking-[-0.02em] text-white">
+            <h2 className="text-[clamp(0.85rem,min(3.6vw,2.4svh),1.5rem)] font-bold leading-[1.15] tracking-[0.02em] text-white">
               A game you have not played in years. A moment to breathe. A
               conversation that turns into a friendship. Sometimes, coming alive
               starts with showing up.
             </h2>
             <p className="mt-[1.6vh] text-[clamp(0.7rem,min(3vw,2svh),1.25rem)] font-medium uppercase leading-tight text-[#ccff00]">
-              The world celebrates comfort. We celebrate a good stretch, a sweaty
+              The world celebrates comfort. We Celebrate Movement , a sweaty
               high-five and a Sunday that leaves you buzzing.
             </p>
           </div>

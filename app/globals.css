@@ -4,7 +4,9 @@
   --background: #ffffff;
   --foreground: #171717;
 }
-
+html {
+  scroll-behavior: smooth;
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -56,31 +58,7 @@ body {
   will-change: transform;
 }
 
-.heading-zoom {
-  font-size: clamp(3.125rem, 3.464vw + 2.229rem, 5rem);
-  line-height: clamp(4.688rem, 3.349vw + 3.821rem, 6.5rem);
-  text-align: center;
-  opacity: 0.1;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate3d(-50%, -50%, -2000px);
-  white-space: nowrap;
-  margin: 0;
-}
 
-.zoom-container {
-  height: 100vh;
-  overflow: hidden;
-  position: relative;
-  perspective: 100svh;
-  width: 100vw;
-}
-
-.zoom-item {
-  position: absolute;
-  transform-origin: center center;
-}
 
 /* Layer opacities and z-indexes */
 .zoom-item[data-layer="3"] { opacity: 1; z-index: 3; }
@@ -109,4 +87,40 @@ body {
 .zoom-item img {
   width: 100%;
   height: auto;
+}
+
+.animated-lime-text {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #ffffff 25%,
+    #d4ff3f 45%,
+    #b6f64f 50%,
+    #ffffff 65%,
+    #ffffff 100%
+  );
+
+  background-size: 250% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: lime-text-flow 5s linear infinite;
+}
+
+@keyframes lime-text-flow {
+  from {
+    background-position: 100% center;
+  }
+
+  to {
+    background-position: -150% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-lime-text {
+    animation: none;
+    background-position: center;
+  }
 }
