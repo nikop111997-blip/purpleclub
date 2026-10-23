@@ -9,6 +9,7 @@ import ScrollBoxes from "@/component/ScrollBoxes";
 import ScrollSlider from "@/component/Scrollslider";
 import TestimonialSection from "@/component/Testimonial";
 import VideoScrollSection from "@/component/VideoScrollSection";
+import WheelCarousel from "@/component/WheelCrousel";
 import { auth } from "@/lib/auth";
 
 export default async function Page(){
@@ -23,6 +24,6 @@ export default async function Page(){
     <Home/>
     
     <FaqSection session={session}/>
-    </>
+<WheelCarousel photoWidth={38} compactPhotoSize={300} contentWidth={1000}  loop={true} loopOnMobile={false} />    </>
   )
 }

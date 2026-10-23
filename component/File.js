@@ -181,6 +181,8 @@ const IMAGES = [
   "/dsds.jpeg",
   "/sdasd.jpeg",
   "/rer.jpeg",
+  
+  "https://ajaysethi.vercel.app/_next/image?url=%2Ffeminist.jpg&w=1920&q=75",
 ];;
 const defaultImages = [
   {
@@ -691,7 +693,7 @@ function InfinitePerspectiveSliderComp({
     };
   }, [images]);
   return (
-    <div className="relative w-screen overflow-hidden bg-[#d4ff3f]">
+    <div className="relative w-full min-w-0 max-w-full overflow-x-clip bg-[#d4ff3f]">
       <div
         className="pointer-events-none relative flex h-full items-center overflow-hidden max-[1005px]:items-center"
         style={{ perspective }}
@@ -757,7 +759,7 @@ function InfinitePerspectiveSliderComp({
 }
 export default function File(props) {
   return (
-    <div className="flex w-full flex-col justify-center gap-20 bg-background">
+    <div className="flex w-full min-w-0 max-w-full flex-col justify-center gap-20 overflow-x-clip bg-background">
       <InfinitePerspectiveSliderComp {...props} />
     </div>
   );
