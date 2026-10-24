@@ -106,68 +106,75 @@ export default function PurpleClub({ session }) {
       <div className="relative flex w-full flex-col md:absolute md:inset-0 md:flex-row">
 
         {/* PANEL 2 — FIRST ON MOBILE, RIGHT ON DESKTOP */}
-        <div className="order-1 flex w-full flex-col items-center justify-center border-b-2 border-black bg-[#d4ff3f] px-6 py-12 text-center sm:px-10 md:order-2 md:h-full md:w-1/2 md:border-b-0 md:border-l md:px-12 md:py-0">
-          <h3 className="mb-3 max-w-2xl text-2xl font-bold uppercase tracking-tighter text-[#6b3fa0] sm:text-3xl md:mb-4 md:text-3xl">
-            What happens on a Purple Sunday
-          </h3>
+        
+<div className="order-1 flex w-full flex-col items-center justify-center border-b-2 border-black bg-[#d4ff3f] px-5 py-6 text-center sm:px-8 md:order-2 md:h-full md:w-1/2 md:border-b-0 md:border-l md:px-8 md:py-5">
+ 
 
-          <h4 className="mb-3 text-base font-bold text-gray-800 sm:text-xl md:mb-5 md:text-2xl">
-            90 minutes that change your week.
-          </h4>
+  <h3 className="mb-1.5 max-w-xl text-xl font-bold uppercase leading-tight tracking-tight text-[#6b3fa0] sm:text-2xl">
+    What Happens on a Purple Sunday?
+  </h3>
 
-          <p className="mb-5 max-w-[380px] text-sm leading-relaxed text-gray-700 sm:max-w-xl sm:text-base md:text-sm">
-            No machines. No mirrors. No judgement. Just people, open sky
-            and four simple things:
-          </p>
+  <h4 className="mb-2 text-sm font-bold text-gray-900 sm:text-base">
+    90 minutes that make your whole week feel better.
+  </h4>
 
-          <div className="max-w-md space-y-4 md:space-y-5">
-            <div>
-              <h5 className="text-sm font-extrabold tracking-wide text-[#6b3fa0] sm:text-sm">
-                MOVE — Joyful movement for every body
-              </h5>
-              <p className="text-sm leading-relaxed text-gray-700 sm:text-sm">
-                Walk, jog, play, laugh. Every activity has an easier option.
-                Someone always walks with the last person.
-              </p>
-            </div>
+  <p className="mb-4 max-w-md text-xs leading-relaxed text-gray-800 sm:text-sm">
+    No machines. No mirrors. No judgement.
+    <br />
+    Just fresh air, good company and four ways to come alive.
+  </p>
 
-            <div>
-              <h5 className="text-sm font-extrabold tracking-wide text-[#6b3fa0] sm:text-sm">
-                MEDITATE — Breathe. Slow down. Reset.
-              </h5>
-              <p className="text-sm leading-relaxed text-gray-700 sm:text-sm">
-                A few quiet minutes to notice how good your body feels.
-              </p>
-            </div>
+  <div className="w-full max-w-md space-y-3 text-left sm:space-y-3.5">
+    <div className="border-l-2 border-[#6b3fa0] pl-3">
+      <h5 className="text-xs font-extrabold uppercase tracking-wide text-[#6b3fa0] sm:text-sm">
+        MOVE <span className="font-semibold normal-case tracking-normal">: Move Your Body. Free Your Mind.</span>
+      </h5>
+      <p className="mt-0.5 text-xs leading-snug text-gray-800 sm:text-sm">
+        Fun, joyful movement for every body. Everyone belongs, and nobody gets left behind.
+      </p>
+    </div>
 
-            <div>
-              <h5 className="text-sm font-extrabold tracking-wide text-[#6b3fa0] sm:text-sm">
-                FUEL — Nourish to flourish
-              </h5>
-              <p className="text-sm leading-relaxed text-gray-700 sm:text-sm">
-                A protein-rich Purple Fuel shake after every session.
-              </p>
-            </div>
+    <div className="border-l-2 border-[#6b3fa0] pl-3">
+      <h5 className="text-xs font-extrabold uppercase tracking-wide text-[#6b3fa0] sm:text-sm">
+        MEDITATE <span className="font-semibold normal-case tracking-normal">: Pause. Breathe. Reconnect.</span>
+      </h5>
+      <p className="mt-0.5 text-xs leading-snug text-gray-800 sm:text-sm">
+        Slow down, quiet your mind and reconnect with yourself.
+      </p>
+    </div>
 
-            <div>
-              <h5 className="text-sm font-extrabold tracking-wide text-[#6b3fa0] sm:text-sm">
-                CONNECT — Find your tribe
-              </h5>
-              <p className="text-sm leading-relaxed text-gray-700 sm:text-sm">
-                Partner games, a Purple Band from the friend who brought you,
-                and a group photo you'll want to keep.
-              </p>
-            </div>
-          </div>
+    <div className="border-l-2 border-[#6b3fa0] pl-3">
+      <h5 className="text-xs font-extrabold uppercase tracking-wide text-[#6b3fa0] sm:text-sm">
+        FUEL <span className="font-semibold normal-case tracking-normal">: Nourish to Flourish.</span>
+      </h5>
+      <p className="mt-0.5 text-xs leading-snug text-gray-800 sm:text-sm">
+        Recharge with a delicious, protein-rich Purple Fuel shake.
+      </p>
+    </div>
 
-          <a
-            href={bookingHref}
-            className="mt-6 inline-flex items-center gap-2 rounded-full border border-black bg-purple-500 px-5 py-3 text-xs font-bold text-white transition-colors hover:bg-purple-400 sm:text-base md:mt-8 md:px-8 md:py-4"
-          >
-            Book your free purple experience
-            <ArrowRight size={18} />
-          </a>
-        </div>
+    <div className="border-l-2 border-[#6b3fa0] pl-3">
+      <h5 className="text-xs font-extrabold uppercase tracking-wide text-[#6b3fa0] sm:text-sm">
+        CONNECT <span className="font-semibold normal-case tracking-normal">: Find Your Tribe.</span>
+      </h5>
+      <p className="mt-0.5 text-xs leading-snug text-gray-800 sm:text-sm">
+        Share a laugh, make a friend and discover the joy of belonging.
+      </p>
+    </div>
+  </div>
+
+  <p className="mt-4 text-xs font-black tracking-wide text-[#6b3fa0] sm:text-sm">
+    Come as you are. Leave a little more alive.
+  </p>
+
+  <a
+    href={bookingHref}
+    className="mt-3 inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#6b3fa0] bg-[#6b3fa0] px-5 py-2.5 text-xs font-bold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-[#552d87] sm:text-sm"
+  >
+    Book Your Free Purple Experience
+    <ArrowRight size={16} />
+  </a>
+</div>
+
 
         {/* STATIC IMAGE — SECOND ON MOBILE ONLY */}
         <div

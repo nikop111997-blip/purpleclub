@@ -286,7 +286,15 @@ function PlanCard({ plan, session, reduceMotion, index }) {
                 }`}
               />
             </div>
-
+                  {index===2? 
+                   <button
+              onClick={(event) => event.stopPropagation()}
+              className="flex min-h-10 min-w-0 items-center cursor-not-allowed justify-center gap-1.5 rounded-full bg-[#291044] px-2.5 py-2 text-[11px] font-black text-[#d4ff3f] sm:gap-2 sm:px-3 sm:text-xs"
+            >
+              <span>Opening Soon</span>
+              <ArrowRight size={15} className="shrink-0" />
+            </button>
+                  :
             <a
               href={href}
               onClick={(event) => event.stopPropagation()}
@@ -294,7 +302,7 @@ function PlanCard({ plan, session, reduceMotion, index }) {
             >
               <span>View membership</span>
               <ArrowRight size={15} className="shrink-0" />
-            </a>
+            </a>}
           </div>
         </div>
 
@@ -412,14 +420,24 @@ function PlanCard({ plan, session, reduceMotion, index }) {
                 />
               </div>
 
-              <a
+             {index===2?
+             
+             <button
+                onClick={(event) => event.stopPropagation()}
+                className="relative z-10 flex min-h-11 cursor-not-allowed min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-[#d4ff3f] px-3 py-2.5 text-center text-xs font-black text-[#291044] transition-transform hover:scale-[1.02] sm:text-sm"
+              >
+                <span>Opening Soon</span>
+                <ArrowRight size={16} className="shrink-0" />
+              </button>
+             
+             : <a
                 href={href}
                 onClick={(event) => event.stopPropagation()}
                 className="relative z-10 flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-[#d4ff3f] px-3 py-2.5 text-center text-xs font-black text-[#291044] transition-transform hover:scale-[1.02] sm:text-sm"
               >
                 <span>View membership</span>
                 <ArrowRight size={16} className="shrink-0" />
-              </a>
+              </a>}
             </div>
           </div>
         </div>
