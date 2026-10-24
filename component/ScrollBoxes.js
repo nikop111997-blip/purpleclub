@@ -66,7 +66,7 @@ export default function PurpleClub({ session }) {
   return (
     <section
       ref={containerRef}
-      className="relative h-screen overflow-hidden bg-[#0a0a0a] text-white font-sans"
+      className="relative h-screen overflow-hidden bg-[#0a0a0a] text-white font-sans border border-gray-950"
     >
       <style
         dangerouslySetInnerHTML={{
@@ -92,7 +92,7 @@ export default function PurpleClub({ session }) {
       {/* BACKGROUND CONTENT */}
       <div className="absolute inset-0 flex flex-col md:flex-row w-full h-full z-0">
         {/* PANEL 1 */}
-        <div className="w-full h-1/2 md:w-1/2 md:h-full flex flex-col justify-center items-center md:items-start text-center md:text-left px-6 md:px-12 lg:px-24 bg-[#d4ff3f]">
+        <div className="w-full h-1/2 md:w-1/2 md:h-full flex flex-col justify-center items-start md:items-start text-center md:text-left px-6 md:px-12 lg:px-24 bg-[#d4ff3f]">
            <h3 className="text-3xl sm:text-4xl md:text-5xl max-w-2xl font-bold uppercase tracking-tighter text-[#6b3fa0] mb-2 md:mb-4">
             Your first Sunday starts with a hello
           </h3>
@@ -111,8 +111,8 @@ export default function PurpleClub({ session }) {
         </div>
 
         {/* PANEL 2 */}
-        <div className="w-full h-1/2 md:w-1/2 md:h-full flex flex-col justify-center md:pt-36 items-center px-6 md:px-12 text-center bg-[#d4ff3f] border-t-2 md:border-t-0 md:border-l border-black">
-        <h3 className="text-2xl sm:text-4xl md:text-5xl max-w-2xl font-bold uppercase tracking-tighter text-[#6b3fa0] mb-2 md:mb-4">
+        <div className="w-full h-1/2 md:w-1/2 md:h-full flex flex-col justify-center md:pt-18 items-center px-6 md:px-12 text-center bg-[#d4ff3f] border-t-2 md:border-t-0 md:border-l border-black">
+        <h3 className="text-2xl sm:text-2xl md:text-3xl max-w-2xl font-bold uppercase tracking-tighter text-[#6b3fa0] mb-2 md:mb-4">
   What happens on a Purple Sunday
 </h3>
 
@@ -120,44 +120,44 @@ export default function PurpleClub({ session }) {
   90 minutes that change your week.
 </h4>
 
-<p className="text-xs sm:text-base md:text-lg text-gray-700 max-w-[380px] sm:max-w-md leading-relaxed mb-4 md:mb-5">
+<p className="text-xs sm:text-base md:text-sm text-gray-700 max-w-[380px] sm:max-w-xl leading-relaxed mb-4 md:mb-5">
   No machines. No mirrors. No judgement. Just people, open sky and four simple things:
 </p>
 
 <div className="space-y-1 md:space-y-5 max-w-md">
   <div>
-    <h5 className="text-xs sm:text-base font-extrabold tracking-wide text-[#6b3fa0]">
+    <h5 className="text-xs sm:text-sm font-extrabold tracking-wide text-[#6b3fa0]">
       MOVE — Joyful movement for every body
     </h5>
-    <p className="text-xs sm:text-base text-gray-700 leading-relaxed">
+    <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
       Walk, jog, play, laugh. Every activity has an easier option.
       Someone always walks with the last person.
     </p>
   </div>
 
   <div>
-    <h5 className="text-xs sm:text-base font-extrabold tracking-wide text-[#6b3fa0]">
+    <h5 className="text-xs sm:text-sm font-extrabold tracking-wide text-[#6b3fa0]">
       MEDITATE — Breathe. Slow down. Reset.
     </h5>
-    <p className="text-xs sm:text-base text-gray-700 leading-relaxed">
+    <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
       A few quiet minutes to notice how good your body feels.
     </p>
   </div>
 
   <div>
-    <h5 className="text-xs sm:text-base font-extrabold tracking-wide text-[#6b3fa0]">
+    <h5 className="text-xs sm:text-sm font-extrabold tracking-wide text-[#6b3fa0]">
       FUEL — Nourish to flourish
     </h5>
-    <p className="text-xs sm:text-base text-gray-700 leading-relaxed">
+    <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
       A protein-rich Purple Fuel shake after every session.
     </p>
   </div>
 
   <div>
-    <h5 className="text-xs sm:text-base font-extrabold tracking-wide text-[#6b3fa0]">
+    <h5 className="text-xs sm:text-sm font-extrabold tracking-wide text-[#6b3fa0]">
       CONNECT — Find your tribe
     </h5>
-    <p className="text-xs sm:text-base text-gray-700 leading-relaxed">
+    <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
       Partner games, a Purple Band from the friend who brought you,
       and a group photo you'll want to keep.
     </p>
