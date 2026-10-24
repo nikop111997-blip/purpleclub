@@ -40,7 +40,7 @@ const plans = [
     title: "Charter Coach",
     subtitle: "Lead the movement.",
     price: "₹14,999",
-    priceNote: "For Kayapalat Active Coaches",
+    priceNote: "Only For Kayapalat Active Coaches",
     label: "COACH SQUAD",
     character: Zap,
     characterLabel: "The Game Changer",
@@ -81,7 +81,7 @@ const plans = [
   },
 ];
 
-function PlanCard({ plan, session, reduceMotion }) {
+function PlanCard({ plan, session, reduceMotion, index }) {
   const [flipped, setFlipped] = useState(false);
   const [hoverCapable, setHoverCapable] = useState(false);
 
@@ -251,8 +251,8 @@ function PlanCard({ plan, session, reduceMotion }) {
                 {plan.title}
               </p>
 
-              <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#291044]/75">
-                {plan.price}
+              <p className="mt-1 text-[13px] font-bold uppercase text-[#291044]/75">
+                {plan.price} -<span className="lowercase">{index==2?"/monthly":"/yearly"}</span>
               </p>
             </div>
           </div>
@@ -343,7 +343,7 @@ function PlanCard({ plan, session, reduceMotion }) {
           {plan.id !== "membership" && (
             <div className="mt-4 shrink-0 rounded-xl bg-white/[0.07] p-3 sm:mt-5 sm:p-4">
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">
-                Membership
+                {index==1&& 'Execlusive'} Membership
               </p>
 
               <p className="mt-1 text-2xl font-black text-[#d4ff3f]">
@@ -485,6 +485,7 @@ export default function OneSundaySection({ session }) {
                 plan={plan}
                 session={session}
                 reduceMotion={reduceMotion}
+                index={index}
               />
             </motion.div>
           ))}

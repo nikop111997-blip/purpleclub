@@ -43,51 +43,84 @@ const groups = [
   "Active seniors",
 ];
 
+
 function StoryCard({ story, index }) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-[#6b3fa0]/15 bg-white/90">
-      {/* 16:9 Story Image */}
-      <div className="relative aspect-video w-full overflow-hidden bg-[#6b3fa0]/10">
-        <Image
-          src={story.image}
-          alt={`${story.role} from ${story.city} — Purple Club story`}
-          fill
-          sizes="(max-width: 639px) 85vw, (max-width: 1023px) 48vw, 25vw"
-          className="object-cover transition-transform duration-500 hover:scale-105"
-        />
+      {/* Story Quote */}
+      <div className="relative flex-1 p-5 pb-4 sm:p-6">
+        <span className="text-4xl font-bold leading-none text-[#6b3fa0]/40">
+          “
+        </span>
 
-        <span className="absolute right-4 top-4 rounded-full bg-[#d4ff3f] px-3 py-1 text-xs font-bold text-[#6b3fa0]">
+        <blockquote className="mt-2 text-xl font-bold leading-snug tracking-tight text-[#1a1a1a]">
+          {story.quote}
+        </blockquote>
+
+        <span className="absolute right-5 top-5 rounded-full bg-[#d4ff3f] px-3 py-1 text-xs font-bold text-[#6b3fa0]">
           0{index + 1}
         </span>
       </div>
 
-      {/* Story Content */}
-      <div className="flex flex-1 flex-col justify-between p-5 sm:p-6">
-        <div>
-          <span className="text-4xl font-bold leading-none text-[#6b3fa0]/40">
-            “
-          </span>
+      {/* Profile: Circular Image + Details */}
+      <div className="mt-auto border-t border-[#6b3fa0]/15 p-5 sm:p-6">
+        <div className="flex items-center gap-4">
+          {/* Circular Profile Image */}
+       {/* Circular Profile Image */}
+<div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-[#6b3fa0]/15 bg-[#6b3fa0]/10 sm:h-[72px] sm:w-[72px]">
+  <Image
+    src={story.image}
+    alt={story.name}
+    fill
+    sizes="88px"
+    className={`object-cover ${
+      index === 2
+        ? "scale-110 object-[40%_center]"
+        : index === 0 || index === 1 || index === 3
+          ? "scale-110 object-center"
+          : "object-center"
+    }`}
+  />
+</div>
 
-          <blockquote className="mt-2 text-xl font-bold leading-snug tracking-tight text-[#1a1a1a] sm:text-xl">
-            {story.quote}
-          </blockquote>
-        </div>
+          {/* Name, Profession and City */}
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-bold text-[#6b3fa0]">
+              {story.name}
+            </p>
 
-        <div className="mt-7 border-t border-[#6b3fa0]/15 pt-4">
-          <p className="font-bold text-[#6b3fa0]">
-            {story.name}
-          </p>
+            <p className="mt-1 text-sm leading-relaxed text-[#1a1a1a]/70">
+              {story.role}
+            </p>
 
-          <p className="mt-1 text-sm text-[#1a1a1a]/70">
-            {story.role}
-            <span className="px-1">·</span>
-            {story.city}
-          </p>
+            {story.city && story.city !== "-" && (
+              <p className="mt-0.5 flex items-center gap-1 text-sm text-[#1a1a1a]/55">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  className="h-3.5 w-3.5 shrink-0"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"
+                  />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+                {story.city}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </article>
   );
 }
+
 
 export default function AboutRunClub() {
   const [expanded, setExpanded] = useState(false);

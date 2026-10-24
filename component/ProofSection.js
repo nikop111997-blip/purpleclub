@@ -19,11 +19,11 @@ export default function ProofSection({session}) {
             <h2 className="text-[#d4ff3f] text-3xl md:text-[2.5rem] font-bold leading-[1.05] tracking-tight max-w-3xl">
               Four ways to come alive
             </h2>
-            <p className='max-w-2xl mt-3 text-white font-medium text-lg md:text-lg'>Purple Club brings people together for a welcoming, coach-led Sunday mornings built around movement, meditation, fuel and connection.</p>
+            <p className='max-w-2xl mt-3 text-white font-medium text-lg md:text-lg'>Purple Club brings people together for welcoming, coach-led Sunday mornings built around movement, meditation, fuel and connection.</p>
             </div>
             <div className="text-left md:text-right">
               <a href='#membership' className="bg-[#d4ff3f] text-black border border-gray-800 font-semibold px-8 py-3.5 rounded-full hover:bg-[#bce628] transition-colors text-sm">
-                Experience Purple
+                Book your free purple experience
               </a>
             </div>
           </div>
@@ -39,7 +39,7 @@ export default function ProofSection({session}) {
                 <span className="text-3xl md:text-4xl font-bold tracking-tighter">MOVE</span>
               </div>
               <p className="text-black font-medium text-[14px] leading-snug mt-12 ">
-               Guided movement and playful games, with an option for every level. Nobody keeps a score expect on a speed thrill Sunday.
+               Guided movement and playful games, with an option for every level. Nobody keeps score, except during our Speed Thrills challenges.
               </p>
             </div>
 
@@ -51,8 +51,7 @@ export default function ProofSection({session}) {
                 <span className=" text-3xl md:text-4xl font-bold tracking-tighter">MEDITATE</span>
               </div>
               <p className="text-black font-medium text-[14px] leading-snug mt-12 ">
-                A few quiet minutes to breathe and to settle 
-even for the restless one who find it difficult to manage.
+                A few quiet minutes to breathe, slow down and reconnect with yourself.
 
               </p>
             </div>
@@ -65,7 +64,7 @@ even for the restless one who find it difficult to manage.
                 <span className="text-3xl md:text-4xl font-bold tracking-tighter">FUEL</span>
               </div>
               <p className="text-white/90 font-medium text-[14px] leading-snug mt-12 ">
-                Every session ends with a purple fuel experience. Nourish not just your body but you soul with delicious and nutritionally dense shakes.
+                Every session ends with a purple fuel experience. Nourish not just your body but your soul with delicious and nutritionally dense shakes.
               </p>
             </div>
    <div className="bg-[#da0d7e] rounded-[2rem] border border-white p-8 md:p-10 flex flex-col justify-between min-h-[220px] -rotate-8 shadow-2xl hover:rotate-0 transform transition-all duration-400">
@@ -73,7 +72,7 @@ even for the restless one who find it difficult to manage.
                 <span className="text-3xl md:text-4xl font-bold tracking-tighter">CONNECT</span>
               </div>
               <p className="text-white/90 font-medium text-[14px] leading-snug mt-12 ">
-                A friendly hello, a shared laugh and a group photo you will actually want to post. Share your story and Listen others for friendships that last beyond Purple experience 
+                A friendly hello, a shared laugh and a group photo you will actually want to post. Share your story, listen to others and build friendships that last beyond Sunday.
               </p>
             </div>
           </div>
@@ -88,7 +87,7 @@ even for the restless one who find it difficult to manage.
           <div className="p-10 md:p-16 lg:p-20 flex-1 flex flex-col justify-center">
             <p className="text-black font-bold text-sm mb-2">What drives Purple Club is simple</p>
             <h3 className="text-4xl md:text-[2.75rem] font-bold text-black leading-[1.1] mb-6 tracking-tight">
-              Let Your Lifestyle <br className="hidden md:block"/>Inspire Others.
+              Let Your Lifestyle <br className="hidden md:block"/>Inspire World.
             </h3>
             <p className="text-gray-700 text-[16px] leading-relaxed mb-8 max-w-[450px]">
            Movement should feel fun, simple and magical, not punishment. Because the best habits aren't forced. They're the ones you fall in love with.
@@ -96,7 +95,7 @@ even for the restless one who find it difficult to manage.
             
             <div>
               <a href={`${session?"/dashboard":'#membership'}`} className="bg-[#d4ff3f] text-black font-bold border border-gray-500 px-6 py-4 rounded-full hover:bg-[#bce628] transition-colors text-sm mb-12">
-                Be a Purple Person
+              Book your free purple experience 
               </a>
             </div>
 

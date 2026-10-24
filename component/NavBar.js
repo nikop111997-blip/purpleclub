@@ -33,7 +33,7 @@ export default function Navbar({ session }) {
             href={session ? "/dashboard" : "#membership"}
             className="inline-flex items-center justify-center rounded-full border border-gray-600 bg-[#d4ff3f] px-5 py-2.5 text-sm font-semibold text-black shadow-sm transition-colors hover:bg-[#b8e02a] sm:px-8 sm:py-3.5 sm:text-[15px]"
           >
-            Join the Purple Club
+            Book your free purple experience
           </a>
         </div>
       </nav>

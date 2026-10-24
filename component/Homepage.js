@@ -5,6 +5,9 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import ProofSection from "@/component/ProofSection";
+import { PlayIcon, ViewIcon } from "lucide-react";
+import CityLaunchSection from "./CityLaunchSection";
+import PurpleExperienceVideo from "./PurpleExperienceVideo";
 
 gsap.registerPlugin(ScrollTrigger);
 // Stops the mobile URL-bar show/hide from re-measuring and jittering the pin
@@ -90,7 +93,7 @@ export default function HomePage({ session }) {
         // ---- Frame 1: panda sits right under the hero text, centred
         const heroBottom = heroText.offsetTop + heroText.offsetHeight;
         const top0 = heroBottom + 12;
-        const availH0 = Math.max(120, vh - top0);
+        const availH0 = Math.max(160, vh - top0);
         const maxS0 = Math.min(1.15, (vw * 0.95) / baseW);
         const s0 = clamp(0.35, Math.max(0.35, maxS0), (availH0 * 1.1) / baseH);
         S.start = { x: vw / 2, y: top0 + (baseH * s0) / 2, scale: s0 };
@@ -211,7 +214,7 @@ export default function HomePage({ session }) {
   return (
     // overflow-x-clip (not hidden) so the pinned section is not inside a
     // scroll container, which breaks pinning on iOS Safari.
-    <main className="w-full overflow-x-clip bg-[#6b3fa0] font-sans text-black">
+    <main className="w-full overflow-x-clip bg-[#6b3fa0] text-black">
       <section
         ref={animationSectionRef}
         className="relative h-[100svh] min-h-[540px] w-full overflow-hidden bg-[#6b3fa0]"
@@ -219,36 +222,33 @@ export default function HomePage({ session }) {
         {/* FRAME 1 HERO */}
         <div
           ref={heroTextRef}
-          className="absolute inset-x-0 top-[clamp(4.5rem,11svh,8rem)] z-[99] flex justify-center px-4 text-center sm:px-6"
+          className="absolute inset-x-0 top-[clamp(4.5rem,11svh,8rem)] z-[99] font-sans flex justify-center px-4 text-center sm:px-6"
         >
-          <div className="mx-auto w-full max-w-[1000px] text-center">
-
-            <h1 className="mt-[clamp(0.75rem,2.2svh,1.25rem)] text-[clamp(1.5rem,min(7vw,6svh),3rem)] font-bold leading-[0.98] tracking-[-0.04em] text-[#d4ff3f]">
-              Welcome to the world health fitness and happiness 
+          <div className="mx-auto w-full max-w-[1000px] text-center pt-3 sm:pt-6">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 py-1 pl-1 pr-3 text-[10px] font-semibold uppercase tracking-wide sm:text-xs lg:mb-3">
+            <span className="rounded-full bg-[#d4ff3f] px-3 py-1 text-[#1a1a1a]">
+              Purple Club
+            </span>
+            <span className="text-white">India&apos;s active lifestyle movement</span>
+          </div> <h3 className=" max-w-2xl mx-auto text-lg mb-4 mt-1 font-bold leading-[0.98] tracking-[-0.04em] text-[#d4ff3f] border-b w-fit pb-1">
+COME AS YOU ARE. COME ALIVE.
+            </h3>
+          
+            <h1 className=" max-w-4xl mx-auto text-3xl md:text-3xl lg:text-5xl font-bold leading-[0.98] tracking-[-0.04em] text-[#ffffff]">
+What if <span className="text-[#d4ff3f]">Sunday became</span> the day you looked forward to all week?
             </h1>
 
-            <p className="mx-auto mt-4 max-w-2xl text-[18px] font-medium leading-relaxed text-white sm:text-base md:text-2xl">
-             Welcome to Purple club 
+            <p className="mx-auto mt-4 max-w-2xl text-[18px] font-medium leading-relaxed text-white sm:text-base md:text-md">
+Discover the joy of movement, the fun of play, the warmth of new friendships, and a little time just for yourself.
 
             </p>
-           <p className="mx-auto mt-[clamp(0.75rem,2.2svh,1.25rem)] max-w-3xl text-[13px] font-semibold leading-relaxed sm:text-base md:text-lg animated-lime-text">
-  India's Active Lifestyle Movement Community | Come As You Are and Come Alive
-</p>
+        
 
             <div className="mt-[clamp(0.9rem,2.8svh,1.75rem)] flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-              <a
-                href={session ? "/dashboard" : "#membership"}
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d4ff3f] bg-[#d4ff3f] px-6 py-2 text-sm font-bold text-black shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#b8e02a] sm:px-8 sm:text-base"
-              >
-                Book My Purple Experience
-                <span aria-hidden="true" className="ml-2 text-lg">
-                  ↗
-                </span>
-              </a>
+              <PurpleExperienceVideo/>
 
-              <p className="flex max-w-xs flex-row gap-2 text-xs leading-relaxed text-white/70 sm:flex-col sm:gap-0 sm:text-left">
-                Your first experience is on us.
-              </p>
+              <p className="flex max-w-xs flex-col gap-0 text-xs leading-relaxed text-white/70 sm:flex-col sm:gap-0 sm:text-left">
+Your first Purple experience is on us. <span>No fitness level required.     </span>         </p>
             </div>
           </div>
         </div>
@@ -266,20 +266,20 @@ export default function HomePage({ session }) {
         >
           <div
             ref={sideTextRef}
-            className="mx-auto w-full max-w-[720px] group-data-[layout=side]:mx-0"
+            className="mx-auto w-full max-w-[720px] group-data-[layout=side]:mx-0 font-sans mb-10"
           >
-            <h2 className="mb-[1.2vh] text-[clamp(1.3rem,min(6vw,4.4svh),2.5rem)] font-bold uppercase leading-[0.98] tracking-[-0.01em] text-[#d4ff3f]">
+            <h2 className="mb-[1.6vh] text-[clamp(1.3rem,min(6vw,4.4svh),2.5rem)] font-bold uppercase leading-[0.98] tracking-[-0.01em] text-[#d4ff3f]">
               A little less routine. A little more life
             </h2>
-            <h2 className="text-[clamp(0.85rem,min(3.6vw,2.4svh),1.5rem)] font-bold leading-[1.15] tracking-[0.02em] text-white">
+            <h2 className="text-lg  leading-[1.15] tracking-[0.02em] text-white">
               A game you have not played in years. A moment to breathe. A
               conversation that turns into a friendship. Sometimes, coming alive
               starts with showing up.
             </h2>
-            <p className="mt-[1.6vh] text-[clamp(0.7rem,min(3vw,2svh),1.25rem)] font-medium uppercase leading-tight text-[#ccff00]">
-              The world celebrates comfort. We Celebrate Movement , a sweaty
-              high-five and a Sunday that leaves you buzzing.
-            </p>
+          <p className="mt-[1.9vh] text-lg font-bold leading-tight text-[#ccff00]">
+  The world celebrates comfort. We celebrate movement, a sweaty
+  high-five, and a Sunday that leaves you buzzing.
+</p>
           </div>
         </div>
 
@@ -305,7 +305,7 @@ export default function HomePage({ session }) {
           />
         </div>
       </section>
-
+<CityLaunchSection/>
       <section ref={logosRef} className="relative z-10 w-full bg-[#6b3fa0]">
         <ProofSection session={session} />
       </section>

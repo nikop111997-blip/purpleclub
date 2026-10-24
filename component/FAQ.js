@@ -324,7 +324,7 @@ export default function FaqSection({ session }) {
             href={session ? "/dashboard" : "/#membership"}
             className="mt-9 inline-flex items-center justify-center rounded-full bg-[#d4ff3f] px-8 py-3.5 text-base font-semibold text-[#17131c] transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:text-lg"
           >
-            Book My First Sunday <span className="ml-3 text-xl" aria-hidden="true">↗</span>
+            Book your free purple experience <span className="ml-3 text-xl" aria-hidden="true">↗</span>
           </a>
           <p className="mt-3 text-sm text-white/75">Your first experience is on us.</p>
           <div className="mt-8 flex items-center gap-4 text-white/60" aria-hidden="true">
