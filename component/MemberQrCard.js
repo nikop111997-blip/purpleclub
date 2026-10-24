@@ -9,7 +9,7 @@ export default function MemberQrCard({
   name = "Purple Member",
   profession = "Purple Member",
   memberQrCode,
-  photo = "/id.png",
+  photo = "/main.png",
   expiryDate = "Not set",
   brand = "purple",
 }) {
@@ -138,7 +138,7 @@ export default function MemberQrCard({
 <div className="absolute left-[7%] right-[7%] top-[28%] h-[56%]">
   {!imageError && photo ? (
     <img
-      src='Id.png'
+      src='/main.png'
       alt={`${name} membership portrait`}
       crossOrigin="anonymous"
       onError={() => setImageError(true)}
